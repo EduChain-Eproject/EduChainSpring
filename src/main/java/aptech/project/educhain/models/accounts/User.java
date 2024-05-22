@@ -1,7 +1,14 @@
 package aptech.project.educhain.models.accounts;
 
 import aptech.project.educhain.models.BaseModel;
+import aptech.project.educhain.models.Notification;
+import aptech.project.educhain.models.blogs.Blog;
+import aptech.project.educhain.models.blogs.BlogComment;
+import aptech.project.educhain.models.chats.Message;
+import aptech.project.educhain.models.chats.UserChat;
 import aptech.project.educhain.models.courses.*;
+import aptech.project.educhain.models.others.Coupon;
+import aptech.project.educhain.models.others.CourseFeedback;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import lombok.AllArgsConstructor;
@@ -59,4 +66,28 @@ public class User extends BaseModel {
 
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<UserInterest> userInterests;
+
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private List<UserChat> userChats;
+
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private List<Message> messages;
+
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private List<Coupon> coupons;
+
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private List<CourseFeedback> courseFeedbacks;
+
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private List<Blog> blogs;
+
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private List<BlogComment> blogComments;
+
+    @OneToMany(mappedBy = "receiver", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private List<Notification> receivedNotifications;
+
+    @OneToMany(mappedBy = "sender", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private List<Notification> sentNotifications;
 }

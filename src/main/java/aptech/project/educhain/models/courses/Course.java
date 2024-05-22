@@ -3,6 +3,7 @@ package aptech.project.educhain.models.courses;
 import aptech.project.educhain.models.BaseModel;
 import aptech.project.educhain.models.accounts.User;
 import aptech.project.educhain.models.accounts.UserInterest;
+import aptech.project.educhain.models.others.CourseFeedback;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -44,4 +45,7 @@ public class Course extends BaseModel {
 
     @OneToMany(mappedBy = "course", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<UserInterest> userInterests;
+
+    @OneToMany(mappedBy = "course", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private List<CourseFeedback> courseFeedbacks;
 }
