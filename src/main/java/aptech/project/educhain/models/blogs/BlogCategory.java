@@ -8,6 +8,7 @@ import aptech.project.educhain.models.courses.CourseCategory;
 import aptech.project.educhain.models.courses.UserCourse;
 import aptech.project.educhain.models.others.CourseFeedback;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;

@@ -1,9 +1,15 @@
 package aptech.project.educhain.controllers.blogs;
 
-import aptech.project.educhain.dto.blogs.BlogRequest;
+import aptech.project.educhain.dto.blogs.BlogDTO;
+import aptech.project.educhain.request.blogs.BlogRequest;
+import aptech.project.educhain.models.accounts.User;
 import aptech.project.educhain.models.blogs.Blog;
+import aptech.project.educhain.models.blogs.BlogCategory;
+import aptech.project.educhain.services.accounts.UserService;
+import aptech.project.educhain.services.blogs.BlogCategoryService;
 import aptech.project.educhain.services.blogs.BlogService;
 import jakarta.validation.Valid;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,14 +27,25 @@ public class BlogController {
     @Autowired
     BlogService service;
 
+    @Autowired
+    UserService userService;
+
+    @Autowired
+    ModelMapper modelMapper;
+
+    @Autowired
+    BlogCategoryService blogCategoryService;
+
     @GetMapping("")
     public List<Blog> findAll(){
         return service.findAll();
     }
 
     @GetMapping("/{id}")
-    public Blog findOne(@PathVariable Integer id){
-        return service.findBlog(id);
+    public BlogDTO findOne(@PathVariable Integer id){
+        Blog blog =  service.findBlog(id);
+
+        return modelMapper.map(blog, BlogDTO.class);
     }
 
     @PostMapping("")
@@ -40,13 +57,19 @@ public class BlogController {
         }
 
         Blog blog = new Blog();
-        blog.setUser(rq.getUser());
+        User user = userService.findUser(rq.getUserId());
+        BlogCategory category = blogCategoryService.findBlogCategory(rq.getBlogCategoryId());
+
+        blog.setUser(user);
         blog.setTitle(rq.getTitle());
-        blog.setBlogCategory(rq.getBlogCategory());
+        blog.setBlogCategory(category);
         blog.setBlogText(rq.getBlogText());
 
         Blog createdBlog = service.create(blog);
-        return new ResponseEntity<>(createdBlog, HttpStatus.CREATED);
+
+        BlogDTO createdBlogDTO = modelMapper.map(createdBlog, BlogDTO.class);
+
+        return new ResponseEntity<>(createdBlogDTO, HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")
@@ -58,11 +81,14 @@ public class BlogController {
         }
 
         Blog blog = new Blog();
+        BlogCategory category = blogCategoryService.findBlogCategory(rq.getBlogCategoryId());
+
         blog.setTitle(rq.getTitle());
-        blog.setBlogCategory(rq.getBlogCategory());
+        blog.setBlogCategory(category);
         blog.setBlogText(rq.getBlogText());
 
         Blog createdBlog = service.update(id, blog);
+
         return new ResponseEntity<>(createdBlog, HttpStatus.OK);
     }
 

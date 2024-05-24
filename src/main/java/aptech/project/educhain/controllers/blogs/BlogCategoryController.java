@@ -1,6 +1,6 @@
 package aptech.project.educhain.controllers.blogs;
 
-import aptech.project.educhain.dto.blogs.BlogCategoryRequest;
+import aptech.project.educhain.request.blogs.BlogCategoryRequest;
 import aptech.project.educhain.models.blogs.BlogCategory;
 import aptech.project.educhain.services.blogs.BlogCategoryService;
 import jakarta.validation.Valid;
@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RestController

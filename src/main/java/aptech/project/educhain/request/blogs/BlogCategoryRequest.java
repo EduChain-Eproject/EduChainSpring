@@ -1,4 +1,4 @@
-package aptech.project.educhain.dto.blogs;
+package aptech.project.educhain.request.blogs;
 
 import jakarta.validation.constraints.NotEmpty;
 import lombok.AllArgsConstructor;

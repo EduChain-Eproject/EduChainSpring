@@ -9,6 +9,7 @@ import aptech.project.educhain.models.chats.UserChat;
 import aptech.project.educhain.models.courses.*;
 import aptech.project.educhain.models.others.Coupon;
 import aptech.project.educhain.models.others.CourseFeedback;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import lombok.AllArgsConstructor;
