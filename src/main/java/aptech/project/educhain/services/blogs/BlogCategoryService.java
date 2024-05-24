@@ -40,8 +40,10 @@ public class BlogCategoryService implements IBlogCategoryService {
         try {
             BlogCategory category = findBlogCategory(id);
             if(category != null){
+                category.setId(id);
+                category.setCategoryName(blogCategory.getCategoryName());
                 repository.saveAndFlush(category);
-                return blogCategory;
+                return category;
             }
             return null;
         }catch(Exception ex){

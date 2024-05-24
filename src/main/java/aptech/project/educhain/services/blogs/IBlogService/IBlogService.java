@@ -11,7 +11,7 @@ public interface IBlogService {
 
     public Blog create(Blog newBlog);
 
-    public Blog update(Blog blog);
+    public Blog update(Integer id, Blog blog);
 
-    public Blog delete(Integer id);
+    public boolean delete(Integer id);
 }

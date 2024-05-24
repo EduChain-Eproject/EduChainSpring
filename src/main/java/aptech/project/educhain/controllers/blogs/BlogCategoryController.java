@@ -34,7 +34,7 @@ public class BlogCategoryController {
 
     @PostMapping("")
     public ResponseEntity<?> create(@Valid @RequestBody BlogCategoryRequest rq, BindingResult rs){
-        if(rs.hasErrors()){
+            if(rs.hasErrors()){
             Map<String, String> errors = rs.getFieldErrors().stream()
                     .collect(Collectors.toMap(FieldError::getField, FieldError::getDefaultMessage));
             return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
