@@ -1,11 +1,10 @@
 package aptech.project.educhain.controllers.auth;
 
-import aptech.project.educhain.modelDTO.request.LoginRequest;
-import aptech.project.educhain.modelDTO.response.JwtResponse;
-import aptech.project.educhain.modelDTO.response.ResponseWithMessage;
+import aptech.project.educhain.request.accounts.LoginRequest;
+import aptech.project.educhain.response.JwtResponse;
+import aptech.project.educhain.response.ResponseWithMessage;
 import aptech.project.educhain.models.accounts.User;
 import aptech.project.educhain.repositories.auth.AuthUserRepository;
-import aptech.project.educhain.services.auth.IAuth.IJwtService;
 import aptech.project.educhain.services.auth.JwtService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;

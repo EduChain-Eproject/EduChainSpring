@@ -1,6 +1,6 @@
 package aptech.project.educhain.services.auth.IAuth;
 
-import aptech.project.educhain.modelDTO.response.JwtResponse;
+import aptech.project.educhain.response.JwtResponse;
 import aptech.project.educhain.models.accounts.User;
 import io.jsonwebtoken.Claims;
 import org.springframework.security.core.userdetails.UserDetails;
