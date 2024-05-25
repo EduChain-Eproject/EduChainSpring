@@ -31,3 +31,6 @@ build/
 
 ### VS Code ###
 .vscode/
+
+/src/main/java/aptech/project/educhain/controllers/auth/Test2Controller.java
+/src/main/java/aptech/project/educhain/controllers/auth/TestController.java
