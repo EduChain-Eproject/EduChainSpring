@@ -37,8 +37,10 @@ public class BlogController {
     BlogCategoryService blogCategoryService;
 
     @GetMapping("")
-    public List<Blog> findAll(){
-        return service.findAll();
+    public List<BlogDTO> findAll(){
+        List<Blog> blogs = service.findAll();
+
+        return blogs.stream().map(blog -> modelMapper.map(blog, BlogDTO.class)).collect(Collectors.toList());
     }
 
     @GetMapping("/{id}")
@@ -80,16 +82,18 @@ public class BlogController {
             return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
         }
 
-        Blog blog = new Blog();
+        Blog blog = service.findBlog(id);
         BlogCategory category = blogCategoryService.findBlogCategory(rq.getBlogCategoryId());
 
         blog.setTitle(rq.getTitle());
         blog.setBlogCategory(category);
         blog.setBlogText(rq.getBlogText());
 
-        Blog createdBlog = service.update(id, blog);
+        Blog updatedBlog = service.update(id, blog);
 
-        return new ResponseEntity<>(createdBlog, HttpStatus.OK);
+        BlogDTO updatedBlogDTO = modelMapper.map(updatedBlog, BlogDTO.class);
+
+        return new ResponseEntity<>(updatedBlogDTO, HttpStatus.OK);
     }
 
     @DeleteMapping("/{id}")

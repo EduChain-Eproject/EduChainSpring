@@ -16,4 +16,6 @@ public class BlogRequest {
 
     @NotEmpty
     private String blogText;
+
+    private String photo;
 }
