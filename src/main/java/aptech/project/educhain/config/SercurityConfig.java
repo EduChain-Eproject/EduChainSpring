@@ -31,10 +31,8 @@ public class SercurityConfig {
         httpSecurity.csrf(AbstractHttpConfigurer::disable).authorizeHttpRequests(request -> request
                         .requestMatchers("/Auth/**").permitAll()
                         //fix spring security for other rout down here:
-//                        .requestMatchers("/ADMIN/**").permitAll()
                         .requestMatchers("/ADMIN/**").hasAnyAuthority("ADMIN")
                         .requestMatchers("/USER/**").hasAnyAuthority("USER")
-//                        .requestMatchers("/AdminUser/**").hasAnyAuthority("USER","ADMIN")
                         .anyRequest().authenticated())
                 .sessionManagement(manager -> manager.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider()).addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
@@ -46,7 +44,8 @@ public class SercurityConfig {
     public AuthenticationProvider authenticationProvider(){
         DaoAuthenticationProvider daoAuthenticationProvider = new DaoAuthenticationProvider();
         daoAuthenticationProvider.setUserDetailsService(ourUserDetailsService);
-//        daoAuthenticationProvider.setPasswordEncoder(passWordEncoder());
+        //cut down the hashpassword for easier test check
+        //daoAuthenticationProvider.setPasswordEncoder(passWordEncoder());
         return daoAuthenticationProvider;
     }
     @Bean
