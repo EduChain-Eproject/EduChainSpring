@@ -1,0 +1,61 @@
+package aptech.project.educhain.config;
+
+import aptech.project.educhain.repositories.auth.AuthUserRepository;
+import aptech.project.educhain.services.auth.OurUserDetailService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+@Configuration
+@EnableWebSecurity
+public class SercurityConfig {
+
+    @Autowired
+    private JWTAuthFilter jwtAuthFilter;
+    @Autowired
+    private OurUserDetailService ourUserDetailsService;
+
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
+        httpSecurity.csrf(AbstractHttpConfigurer::disable).authorizeHttpRequests(request -> request
+                        .requestMatchers("/Auth/**").permitAll()
+                        //fix spring security for other rout down here:
+//                        .requestMatchers("/ADMIN/**").permitAll()
+                        .requestMatchers("/ADMIN/**").hasAnyAuthority("ADMIN")
+                        .requestMatchers("/USER/**").hasAnyAuthority("USER")
+//                        .requestMatchers("/AdminUser/**").hasAnyAuthority("USER","ADMIN")
+                        .anyRequest().authenticated())
+                .sessionManagement(manager -> manager.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .authenticationProvider(authenticationProvider()).addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+
+        return httpSecurity.build();
+    }
+
+    @Bean
+    public AuthenticationProvider authenticationProvider(){
+        DaoAuthenticationProvider daoAuthenticationProvider = new DaoAuthenticationProvider();
+        daoAuthenticationProvider.setUserDetailsService(ourUserDetailsService);
+//        daoAuthenticationProvider.setPasswordEncoder(passWordEncoder());
+        return daoAuthenticationProvider;
+    }
+    @Bean
+    public PasswordEncoder passWordEncoder(){
+        return  new BCryptPasswordEncoder();
+    }
+
+    @Bean
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception{
+        return authenticationConfiguration.getAuthenticationManager();
+    }
+}
