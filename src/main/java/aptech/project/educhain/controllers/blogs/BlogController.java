@@ -1,31 +1,35 @@
 package aptech.project.educhain.controllers.blogs;
 
 import aptech.project.educhain.dto.blogs.BlogDTO;
-import aptech.project.educhain.request.blogs.BlogRequest;
 import aptech.project.educhain.models.accounts.User;
 import aptech.project.educhain.models.blogs.Blog;
 import aptech.project.educhain.models.blogs.BlogCategory;
-import aptech.project.educhain.request.blogs.SortBlogRequest;
+import aptech.project.educhain.request.blogs.FilterBlogRequest;
 import aptech.project.educhain.services.accounts.UserService;
 import aptech.project.educhain.services.blogs.BlogCategoryService;
 import aptech.project.educhain.services.blogs.BlogService;
-import jakarta.validation.Valid;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.BindingResult;
-import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 @RestController
 @RequestMapping("/api/blog")
 public class BlogController {
+    @Value("${file.upload-dir}")
+    private String uploadDir;
+
     @Autowired
     BlogService service;
 
@@ -52,50 +56,100 @@ public class BlogController {
         return modelMapper.map(blog, BlogDTO.class);
     }
 
-    @PostMapping("")
-    public ResponseEntity<?> create(@Valid @RequestBody BlogRequest rq, BindingResult rs){
-        if(rs.hasErrors()){
-            Map<String, String> errors = rs.getFieldErrors().stream()
-                    .collect(Collectors.toMap(FieldError::getField, FieldError::getDefaultMessage));
+    @PostMapping(value = "", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<?> create(@RequestParam("title") String title
+            , @RequestParam("userId") Integer userId
+            , @RequestParam("blogCategoryId") Integer blogCategoryId
+            , @RequestParam("blogText") String blogText
+            , @RequestParam("photo") MultipartFile photo){
+        Map<String, String> errors = service.validateFields(title, userId, blogCategoryId, blogText);
+        if (!errors.isEmpty()) {
             return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
         }
 
-        Blog blog = new Blog();
-        User user = userService.findUser(rq.getUserId());
-        BlogCategory category = blogCategoryService.findBlogCategory(rq.getBlogCategoryId());
+        try {
+            Path path = Paths.get(uploadDir);
 
-        blog.setUser(user);
-        blog.setTitle(rq.getTitle());
-        blog.setBlogCategory(category);
-        blog.setBlogText(rq.getBlogText());
+            if (!Files.exists(path)) {
+                Files.createDirectories(path);
+            }
 
-        Blog createdBlog = service.create(blog);
+            String fileName = photo.getOriginalFilename() ;
+            assert fileName != null;
+            Path filePath = path.resolve(fileName);
 
-        BlogDTO createdBlogDTO = modelMapper.map(createdBlog, BlogDTO.class);
+            Files.copy(photo.getInputStream(), filePath);
 
-        return new ResponseEntity<>(createdBlogDTO, HttpStatus.CREATED);
+            Blog blog = new Blog();
+            User user = userService.findUser(userId);
+            BlogCategory category = blogCategoryService.findBlogCategory(blogCategoryId);
+
+            blog.setUser(user);
+            blog.setTitle(title);
+            blog.setBlogCategory(category);
+            blog.setBlogText(blogText);
+            blog.setPhoto(fileName);
+
+            Blog createdBlog = service.create(blog);
+
+            BlogDTO createdBlogDTO = modelMapper.map(createdBlog, BlogDTO.class);
+
+            return new ResponseEntity<>(createdBlogDTO, HttpStatus.CREATED);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+        }
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<?> update(@PathVariable Integer id, @Valid @RequestBody BlogRequest rq, BindingResult rs){
-        if(rs.hasErrors()){
-            Map<String, String> errors = rs.getFieldErrors().stream()
-                    .collect(Collectors.toMap(FieldError::getField, FieldError::getDefaultMessage));
+    @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<?> update(@PathVariable Integer id
+            , @RequestParam("title") String title
+            , @RequestParam("blogCategoryId") Integer blogCategoryId
+            , @RequestParam("blogText") String blogText
+            , @RequestParam("photo") MultipartFile photo){
+        Map<String, String> errors = service.validateFieldsUpdate(title, blogCategoryId, blogText);
+        if (!errors.isEmpty()) {
             return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
         }
 
-        Blog blog = service.findBlog(id);
-        BlogCategory category = blogCategoryService.findBlogCategory(rq.getBlogCategoryId());
+        try {
+            Path path = Paths.get(uploadDir);
 
-        blog.setTitle(rq.getTitle());
-        blog.setBlogCategory(category);
-        blog.setBlogText(rq.getBlogText());
+            if (!Files.exists(path)) {
+                Files.createDirectories(path);
+            }
 
-        Blog updatedBlog = service.update(id, blog);
+            String fileName = photo.getOriginalFilename() ;
+            assert fileName != null;
+            Path filePath = path.resolve(fileName);
 
-        BlogDTO updatedBlogDTO = modelMapper.map(updatedBlog, BlogDTO.class);
+            Files.copy(photo.getInputStream(), filePath);
 
-        return new ResponseEntity<>(updatedBlogDTO, HttpStatus.OK);
+            Blog blog = service.findBlog(id);
+            BlogCategory category = blogCategoryService.findBlogCategory(blogCategoryId);
+
+            blog.setTitle(title);
+            blog.setBlogCategory(category);
+            blog.setBlogText(blogText);
+
+            String oldPhoto = blog.getPhoto();
+            String photoFile = fileName != null ? fileName : oldPhoto;
+
+            blog.setPhoto(photoFile);
+
+            if (fileName != null) {
+                Files.deleteIfExists(path.resolve(oldPhoto));
+            }
+
+            Blog updatedBlog = service.update(id, blog);
+
+            BlogDTO updatedBlogDTO = modelMapper.map(updatedBlog, BlogDTO.class);
+
+            return new ResponseEntity<>(updatedBlogDTO, HttpStatus.OK);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+        }
     }
 
     @DeleteMapping("/{id}")
@@ -103,16 +157,18 @@ public class BlogController {
         return service.delete(id);
     }
 
-    @GetMapping("")
-    public List<Blog> sortAndSearch(@RequestBody SortBlogRequest rq){
+    @GetMapping("/filter")
+    public List<BlogDTO> filter(@RequestBody FilterBlogRequest rq){
         List<Blog> blogs = service.findAll();
-        blogs = service.search(rq.getKeyword());
-        if(blogs != null){
-            blogs =  service.sorting(blogs, service.getSortStrategy(rq.getSortStrategy()));
-            if (blogs != null){
-                return blogs;
-            }
+        if (rq.getCategoryId() != null) {
+            blogs = service.findByCategory(blogs, rq.getCategoryId());
         }
-        return Collections.emptyList();
+        if (rq.getKeyword() != null) {
+            blogs = service.search(blogs, rq.getKeyword());
+        }
+        if (rq.getSortStrategy() != null) {
+            blogs = service.sorting(blogs, service.getSortStrategy(rq.getSortStrategy()));
+        }
+        return blogs.stream().map(blog -> modelMapper.map(blog, BlogDTO.class)).collect(Collectors.toList());
     }
 }

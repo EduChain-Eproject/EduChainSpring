@@ -12,6 +12,7 @@ public class BlogDTO {
     private String blogText;
     private int voteUp;
     private int voteDown;
+    private String photo;
     private Long userId;
     private Long blogCategoryId;
 }

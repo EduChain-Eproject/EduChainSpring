@@ -8,7 +8,10 @@ import aptech.project.educhain.services.blogs.IBlogService.IBlogService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class BlogService implements IBlogService {
@@ -66,20 +69,28 @@ public class BlogService implements IBlogService {
         return false;
     }
 
+    public List<Blog> findByCategory(List<Blog> blogs, Integer id){
+        return blogs.stream().filter(
+                blog -> blog
+                        .getBlogCategory().getId().equals(id))
+                        .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<Blog> search(List<Blog> blogs, String keyword){
+        return blogs.stream()
+                .filter(blog -> blog.getTitle().contains(keyword) || blog.getBlogText().contains(keyword))
+                .collect(Collectors.toList());
+    }
+
     @Override
     public List<Blog> sorting(List<Blog> blogs, SortStrategy sortStrategy) {
         SortContext sortContext = new SortContext(sortStrategy);
         return sortContext.executeSort(blogs);
     }
-
-    @Override
-    public List<Blog> search(String keyword) {
-        return blogRepository.findBlogByTitleContaining(keyword);
-    }
-
     public SortStrategy getSortStrategy(String sortStrategy) {
         if (sortStrategy == null) {
-            return new AscendingNameSort();
+            return new DescendingTimeSort();
         }
         switch (sortStrategy){
             case "ascTitle":
@@ -92,8 +103,39 @@ public class BlogService implements IBlogService {
             case "descTime":
                 return new DescendingTimeSort();
             default:
-                return new AscendingNameSort();
+                return new DescendingTimeSort();
         }
+    }
+
+    public Map<String, String> validateFields(String title, Integer userId, Integer blogCategoryId, String blogText) {
+        Map<String, String> errors = new HashMap<>();
+        if (title == null || title.isEmpty()) {
+            errors.put("title", "Title is required");
+        }
+        if (userId == null) {
+            errors.put("userId", "User ID is required");
+        }
+        if (blogCategoryId == null) {
+            errors.put("blogCategoryId", "Blog Category ID is required");
+        }
+        if (blogText == null || blogText.isEmpty()) {
+            errors.put("blogText", "Blog Text is required");
+        }
+        return errors;
+    }
+
+    public Map<String, String> validateFieldsUpdate(String title, Integer blogCategoryId, String blogText) {
+        Map<String, String> errors = new HashMap<>();
+        if (title == null || title.isEmpty()) {
+            errors.put("title", "Title is required");
+        }
+        if (blogCategoryId == null) {
+            errors.put("blogCategoryId", "Blog Category ID is required");
+        }
+        if (blogText == null || blogText.isEmpty()) {
+            errors.put("blogText", "Blog Text is required");
+        }
+        return errors;
     }
 }
 

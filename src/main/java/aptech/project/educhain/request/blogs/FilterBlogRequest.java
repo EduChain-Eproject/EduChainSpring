@@ -5,7 +5,8 @@ import lombok.Data;
 import org.springframework.boot.context.properties.bind.DefaultValue;
 
 @Data
-public class SortBlogRequest {
+public class FilterBlogRequest {
     private String sortStrategy = "ascTitle";
     private String keyword;
+    private Integer categoryId;
 }

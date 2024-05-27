@@ -18,5 +18,5 @@ public interface IBlogService {
 
     public List<Blog> sorting(List<Blog> blogs, SortStrategy sortStrategy);
 
-    public List<Blog> search(String keyword);
+    public List<Blog> search(List<Blog> blogs, String keyword);
 }
