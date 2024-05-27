@@ -3,6 +3,7 @@ package aptech.project.educhain.services.blogs;
 import aptech.project.educhain.models.blogs.Blog;
 import aptech.project.educhain.models.blogs.BlogCategory;
 import aptech.project.educhain.repositories.blogs.BlogRepository;
+import aptech.project.educhain.services.blogs.IBlogService.BlogSorting.*;
 import aptech.project.educhain.services.blogs.IBlogService.IBlogService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -63,6 +64,36 @@ public class BlogService implements IBlogService {
             return true;
         }
         return false;
+    }
+
+    @Override
+    public List<Blog> sorting(List<Blog> blogs, SortStrategy sortStrategy) {
+        SortContext sortContext = new SortContext(sortStrategy);
+        return sortContext.executeSort(blogs);
+    }
+
+    @Override
+    public List<Blog> search(String keyword) {
+        return blogRepository.findBlogByTitleContaining(keyword);
+    }
+
+    public SortStrategy getSortStrategy(String sortStrategy) {
+        if (sortStrategy == null) {
+            return new AscendingNameSort();
+        }
+        switch (sortStrategy){
+            case "ascTitle":
+                return new AscendingNameSort();
+            case "descTitle":
+                return new DescendingNameSort();
+
+            case "ascTime":
+                return new AscendingTimeSort();
+            case "descTime":
+                return new DescendingTimeSort();
+            default:
+                return new AscendingNameSort();
+        }
     }
 }
 

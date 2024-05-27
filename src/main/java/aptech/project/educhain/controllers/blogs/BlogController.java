@@ -5,6 +5,7 @@ import aptech.project.educhain.request.blogs.BlogRequest;
 import aptech.project.educhain.models.accounts.User;
 import aptech.project.educhain.models.blogs.Blog;
 import aptech.project.educhain.models.blogs.BlogCategory;
+import aptech.project.educhain.request.blogs.SortBlogRequest;
 import aptech.project.educhain.services.accounts.UserService;
 import aptech.project.educhain.services.blogs.BlogCategoryService;
 import aptech.project.educhain.services.blogs.BlogService;
@@ -17,6 +18,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -99,5 +101,18 @@ public class BlogController {
     @DeleteMapping("/{id}")
     public boolean delete(@PathVariable Integer id){
         return service.delete(id);
+    }
+
+    @GetMapping("")
+    public List<Blog> sortAndSearch(@RequestBody SortBlogRequest rq){
+        List<Blog> blogs = service.findAll();
+        blogs = service.search(rq.getKeyword());
+        if(blogs != null){
+            blogs =  service.sorting(blogs, service.getSortStrategy(rq.getSortStrategy()));
+            if (blogs != null){
+                return blogs;
+            }
+        }
+        return Collections.emptyList();
     }
 }

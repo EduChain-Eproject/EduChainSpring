@@ -8,6 +8,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @Entity
 @Table(name = "tbl_blog_comments")
@@ -31,4 +32,11 @@ public class BlogComment extends BaseModel {
 
     @Column(name = "rating", precision = 3, scale = 2)
     private BigDecimal rating;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "parent_id")
+    private BlogComment parentComment;
+
+    @OneToMany(mappedBy = "parentComment", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private List<BlogComment> replies;
 }
