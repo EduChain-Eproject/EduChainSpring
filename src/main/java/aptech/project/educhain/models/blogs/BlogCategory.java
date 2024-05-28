@@ -7,8 +7,6 @@ import aptech.project.educhain.models.courses.Chapter;
 import aptech.project.educhain.models.courses.CourseCategory;
 import aptech.project.educhain.models.courses.UserCourse;
 import aptech.project.educhain.models.others.CourseFeedback;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -22,7 +20,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class BlogCategory extends BaseModel {
-    @Column(name = "category_name", length = 50)
+    @Column(name = "CategoryName", length = 50)
     private String categoryName;
 
     @OneToMany(mappedBy = "blogCategory", fetch = FetchType.LAZY, cascade = CascadeType.ALL)

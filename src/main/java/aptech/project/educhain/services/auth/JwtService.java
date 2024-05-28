@@ -1,13 +1,20 @@
 package aptech.project.educhain.services.auth;
 
-import aptech.project.educhain.response.JwtResponse;
+import aptech.project.educhain.modelDTO.response.JwtResponse;
 import aptech.project.educhain.models.accounts.RefreshToken;
 import aptech.project.educhain.models.accounts.User;
 import aptech.project.educhain.repositories.auth.AuthUserRepository;
 import aptech.project.educhain.repositories.auth.JwtRepository;
+import aptech.project.educhain.services.auth.IAuth.IAuthService;
 import aptech.project.educhain.services.auth.IAuth.IJwtService;
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.algorithms.Algorithm;
 import io.jsonwebtoken.*;
+import io.jsonwebtoken.io.Decoders;
+import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
@@ -23,7 +30,7 @@ public class JwtService implements IJwtService {
     @Autowired
     private JwtRepository jwtRepository;
     @Autowired
-    private AuthUserRepository authUserRepository;
+    private IAuthService iAuthService;
 
     private final  SecretKey Key;
     private static final long ACCESS_EXPIRATION_TIME =86400000;
@@ -68,7 +75,7 @@ public class JwtService implements IJwtService {
         // create end time refresh token
         var timeEnd = System.currentTimeMillis()+REFRESH_EXPIRATION_TIME;
         newRefreshToken.setExpireAt( new Timestamp(timeEnd));
-        User user = authUserRepository.findById(id);
+        User user = iAuthService.findUserById(id);
         newRefreshToken.setUser(user);
         jwtRepository.save(newRefreshToken);
         return newRefreshToken.getRefreshToken();
@@ -119,7 +126,7 @@ public class JwtService implements IJwtService {
     //reset accessToken when it expire
     public JwtResponse resetToken (String token){
         String email = extractUserName(token);
-        User user = authUserRepository.findUserByEmail(email);
+        User user = iAuthService.findUserByEmail(email);
         if (isTokenExpired(token) || user == null) {
             return null;
         }

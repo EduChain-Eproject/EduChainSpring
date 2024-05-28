@@ -9,7 +9,6 @@ import aptech.project.educhain.models.chats.UserChat;
 import aptech.project.educhain.models.courses.*;
 import aptech.project.educhain.models.others.Coupon;
 import aptech.project.educhain.models.others.CourseFeedback;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import lombok.AllArgsConstructor;
@@ -55,9 +54,16 @@ public class User extends BaseModel implements UserDetails {
     @Column(name = "isActive")
     private Boolean isActive;
 
+    @Column(name = "isVerify")
+    private Boolean isVerify;
+
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL,fetch = FetchType.LAZY)
     @ToString.Exclude
     private RefreshToken refreshToken;
+
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL,fetch = FetchType.LAZY)
+    @ToString.Exclude
+    private EmailToken emailToken;
 
     @OneToMany(mappedBy = "teacher", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<Course> courses;

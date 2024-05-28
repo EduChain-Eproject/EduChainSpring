@@ -8,7 +8,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.util.Optional;
 
 public interface AuthUserRepository extends JpaRepository<User,Integer> {
-   User findById(int id);
+   @Query("SELECT u FROM User u WHERE u.id = :id")
+   User findUserWithId(int id);
    Optional<User> findByEmail(String email);
    @Query("SELECT u FROM User u WHERE u.email = :email")
    User findUserByEmail(String email);
