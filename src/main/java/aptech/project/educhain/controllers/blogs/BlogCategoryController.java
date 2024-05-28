@@ -1,9 +1,11 @@
 package aptech.project.educhain.controllers.blogs;
 
+import aptech.project.educhain.dto.blogs.BlogCategoryDTO;
 import aptech.project.educhain.request.blogs.BlogCategoryRequest;
 import aptech.project.educhain.models.blogs.BlogCategory;
 import aptech.project.educhain.services.blogs.BlogCategoryService;
 import jakarta.validation.Valid;
+import org.modelmapper.ModelMapper;
 import org.springframework.validation.FieldError;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -21,14 +23,18 @@ public class BlogCategoryController {
     @Autowired
     BlogCategoryService service;
 
+    @Autowired
+    ModelMapper modelMapper;
+
     @GetMapping("")
-    public List<BlogCategory> findAll(){
-        return service.findAll();
+    public List<BlogCategoryDTO> findAll(){
+        List<BlogCategory> categories = service.findAll();
+        return categories.stream().map(category -> modelMapper.map(category, BlogCategoryDTO.class)).collect(Collectors.toList());
     }
 
     @GetMapping("/{id}")
-    public BlogCategory findOne(@PathVariable Integer id){
-        return service.findBlogCategory(id);
+    public BlogCategoryDTO findOne(@PathVariable Integer id){
+        return modelMapper.map(service.findBlogCategory(id), BlogCategoryDTO.class);
     }
 
     @PostMapping("")
@@ -43,12 +49,14 @@ public class BlogCategoryController {
         category.setCategoryName(rq.getCategoryName());
 
         BlogCategory createdCategory = service.create(category);
-        return new ResponseEntity<>(createdCategory, HttpStatus.CREATED);
+        BlogCategoryDTO blogCategoryDTO = modelMapper.map(createdCategory, BlogCategoryDTO.class);
+        return new ResponseEntity<>(blogCategoryDTO, HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")
-    public BlogCategory update(@PathVariable Integer id, @RequestBody BlogCategory category){
-        return service.update(id, category);
+    public BlogCategoryDTO update(@PathVariable Integer id, @RequestBody BlogCategory category){
+        BlogCategory cate = service.update(id, category);
+        return modelMapper.map(cate, BlogCategoryDTO.class);
     }
 
     @DeleteMapping("/{id}")
