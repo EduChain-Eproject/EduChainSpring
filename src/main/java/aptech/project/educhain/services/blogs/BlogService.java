@@ -1,13 +1,23 @@
 package aptech.project.educhain.services.blogs;
 
+import aptech.project.educhain.models.accounts.User;
 import aptech.project.educhain.models.blogs.Blog;
 import aptech.project.educhain.models.blogs.BlogCategory;
+import aptech.project.educhain.models.blogs.UserBlogVote;
+import aptech.project.educhain.repositories.accounts.UserRepository;
 import aptech.project.educhain.repositories.blogs.BlogRepository;
+import aptech.project.educhain.repositories.blogs.UserBlogVoteRepository;
 import aptech.project.educhain.services.blogs.IBlogService.BlogSorting.*;
 import aptech.project.educhain.services.blogs.IBlogService.IBlogService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -20,6 +30,12 @@ public class BlogService implements IBlogService {
 
     @Autowired
     BlogCategoryService categoryService;
+
+    @Autowired
+    UserBlogVoteRepository voteRepository;
+
+    @Autowired
+    UserRepository userRepository;
 
     public Blog findBlog(Integer id){
         return blogRepository.findById(id).get();
@@ -106,6 +122,50 @@ public class BlogService implements IBlogService {
                 return new DescendingTimeSort();
         }
     }
+
+    public Blog vote(Integer userId, Integer blogId, int vote){
+        User user = userRepository.findById(userId).get();
+        Blog blog = findBlog(blogId);
+        UserBlogVote userBlogVote = voteRepository.findUserBlogVoteByUserAndAndBlog(user, blog);
+        if (userBlogVote != null){
+            if(vote == 0){
+                voteRepository.delete(userBlogVote);
+            } else {
+                userBlogVote.setVote(vote);
+                voteRepository.save(userBlogVote);
+            }
+        } else if (vote != 0) {
+            userBlogVote = new UserBlogVote();
+            userBlogVote.setUser(user);
+            userBlogVote.setBlog(blog);
+            userBlogVote.setVote(vote);
+            voteRepository.save(userBlogVote);
+        }
+
+        blog.setVoteUp(voteRepository.countByBlogAndVote(blog, 1));
+        blog.setVoteDown(voteRepository.countByBlogAndVote(blog, -1));
+        return blogRepository.save(blog);
+    }
+
+
+    public String uploadPhoto(String uploadDir, MultipartFile photo) throws IOException {
+        Path path = Paths.get(uploadDir);
+
+        if (!Files.exists(path)) {
+            Files.createDirectories(path);
+        }
+
+        String fileName = photo.getOriginalFilename() ;
+        if (fileName == null) {
+            throw new IllegalArgumentException("File name cannot be null");
+        }
+        Path filePath = path.resolve(fileName);
+
+        Files.copy(photo.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
+
+        return fileName;
+    }
+
 
     public Map<String, String> validateFields(String title, Integer userId, Integer blogCategoryId, String blogText) {
         Map<String, String> errors = new HashMap<>();

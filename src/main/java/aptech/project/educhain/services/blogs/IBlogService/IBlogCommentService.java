@@ -5,13 +5,13 @@ import aptech.project.educhain.models.blogs.BlogComment;
 import java.util.List;
 
 public interface IBlogCommentService {
-    public BlogComment findBlog(Integer id);
+    public BlogComment findComment(Integer id);
 
     public List<BlogComment> findAll();
 
     public BlogComment create(BlogComment comment);
 
-    public BlogComment update(BlogComment comment);
+    public BlogComment update(Integer id, BlogComment comment);
 
-    public BlogComment delete(Integer id);
+    public boolean delete(Integer id);
 }

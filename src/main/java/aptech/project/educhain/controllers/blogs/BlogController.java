@@ -68,17 +68,7 @@ public class BlogController {
         }
 
         try {
-            Path path = Paths.get(uploadDir);
-
-            if (!Files.exists(path)) {
-                Files.createDirectories(path);
-            }
-
-            String fileName = photo.getOriginalFilename() ;
-            assert fileName != null;
-            Path filePath = path.resolve(fileName);
-
-            Files.copy(photo.getInputStream(), filePath);
+            String fileName = service.uploadPhoto(uploadDir, photo);
 
             Blog blog = new Blog();
             User user = userService.findUser(userId);
@@ -96,9 +86,19 @@ public class BlogController {
 
             return new ResponseEntity<>(createdBlogDTO, HttpStatus.CREATED);
         } catch (Exception e) {
-            e.printStackTrace();
-            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>("An error occurred: " + e.getMessage(), HttpStatus.BAD_REQUEST);
         }
+    }
+
+    @PostMapping("/vote/{id}")
+    public BlogDTO vote(
+            @RequestParam Integer userId,
+            @RequestParam Integer vote,
+            @PathVariable Integer id){
+        User user = userService.findUser(userId);
+        Blog blog = service.findBlog(id);
+        Blog updatedBlog = service.vote(userId, id, vote);
+        return modelMapper.map(updatedBlog, BlogDTO.class);
     }
 
     @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -113,17 +113,7 @@ public class BlogController {
         }
 
         try {
-            Path path = Paths.get(uploadDir);
-
-            if (!Files.exists(path)) {
-                Files.createDirectories(path);
-            }
-
-            String fileName = photo.getOriginalFilename() ;
-            assert fileName != null;
-            Path filePath = path.resolve(fileName);
-
-            Files.copy(photo.getInputStream(), filePath);
+            String fileName = service.uploadPhoto(uploadDir, photo);
 
             Blog blog = service.findBlog(id);
             BlogCategory category = blogCategoryService.findBlogCategory(blogCategoryId);
@@ -138,6 +128,7 @@ public class BlogController {
             blog.setPhoto(photoFile);
 
             if (fileName != null) {
+                Path path = Paths.get(uploadDir);
                 Files.deleteIfExists(path.resolve(oldPhoto));
             }
 
@@ -147,8 +138,7 @@ public class BlogController {
 
             return new ResponseEntity<>(updatedBlogDTO, HttpStatus.OK);
         } catch (Exception e) {
-            e.printStackTrace();
-            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>("An error occurred: " + e.getMessage(), HttpStatus.BAD_REQUEST);
         }
     }
 
