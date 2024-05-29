@@ -29,6 +29,9 @@ public class Blog extends BaseModel {
     @Column(name = "blogText", columnDefinition = "TEXT")
     private String blogText;
 
+    @Column(name = "photo")
+    private String photo;
+
     @Column(name = "VoteUp", columnDefinition = "INT DEFAULT 0")
     private int voteUp;
 
@@ -37,4 +40,7 @@ public class Blog extends BaseModel {
 
     @OneToMany(mappedBy = "blog", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<BlogComment> blogComments;
+
+    @OneToMany(mappedBy = "blog")
+    private List<UserBlogVote> userBlogVotes;
 }
