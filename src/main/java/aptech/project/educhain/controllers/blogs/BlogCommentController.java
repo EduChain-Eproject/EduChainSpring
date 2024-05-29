@@ -7,6 +7,8 @@ import aptech.project.educhain.models.blogs.BlogComment;
 import aptech.project.educhain.services.auth.AuthService;
 import aptech.project.educhain.services.blogs.BlogCommentService;
 import aptech.project.educhain.services.blogs.BlogService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -20,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+@Tag(name = "Blog comment")
 @RestController
 @RequestMapping("/api/blog_comment")
 public class BlogCommentController {
@@ -38,24 +41,28 @@ public class BlogCommentController {
     @Autowired
     AuthService userService;
 
+    @Operation(summary = "Get all comment")
     @GetMapping("")
     private List<BlogCommentDTO> findAll(){
         List<BlogComment> comments = blogCommentService.findAll();
         return comments.stream().map(comment -> modelMapper.map(comment, BlogCommentDTO.class)).collect(Collectors.toList());
     }
 
+    @Operation(summary = "Get 1 category")
     @GetMapping("{id}")
     private BlogCommentDTO findOne(@PathVariable Integer id){
         BlogComment comment = blogCommentService.findComment(id);
         return modelMapper.map(comment, BlogCommentDTO.class);
     }
 
+    @Operation(summary = "Get comments by blog")
     @GetMapping("/blog/{id}")
     private List<BlogCommentDTO> findByBlog(@PathVariable Integer id){
         List<BlogComment> comments = blogCommentService.getByBlog(id);
         return comments.stream().map(comment -> modelMapper.map(comment, BlogCommentDTO.class)).collect(Collectors.toList());
     }
 
+    @Operation(summary = "Add new comment")
     @PostMapping(value = "", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> create(@RequestParam("text") String text,
             @RequestParam("userId") Integer userId,

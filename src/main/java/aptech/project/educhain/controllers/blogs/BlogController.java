@@ -8,6 +8,8 @@ import aptech.project.educhain.request.blogs.FilterBlogRequest;
 import aptech.project.educhain.services.auth.AuthService;
 import aptech.project.educhain.services.blogs.BlogCategoryService;
 import aptech.project.educhain.services.blogs.BlogService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -24,6 +26,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+@Tag(name = "Blog")
 @RestController
 @RequestMapping("/api/blog")
 public class BlogController {
@@ -42,6 +45,7 @@ public class BlogController {
     @Autowired
     BlogCategoryService blogCategoryService;
 
+    @Operation(summary = "Get all blog")
     @GetMapping("")
     public List<BlogDTO> findAll(){
         List<Blog> blogs = service.findAll();
@@ -49,6 +53,7 @@ public class BlogController {
         return blogs.stream().map(blog -> modelMapper.map(blog, BlogDTO.class)).collect(Collectors.toList());
     }
 
+    @Operation(summary = "Get 1 blog")
     @GetMapping("/{id}")
     public BlogDTO findOne(@PathVariable Integer id){
         Blog blog =  service.findBlog(id);
@@ -56,6 +61,7 @@ public class BlogController {
         return modelMapper.map(blog, BlogDTO.class);
     }
 
+    @Operation(summary = "Add new blog")
     @PostMapping(value = "", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> create(@RequestParam("title") String title
             , @RequestParam("userId") Integer userId
@@ -90,6 +96,7 @@ public class BlogController {
         }
     }
 
+    @Operation(summary = "Vote up or vote down")
     @PostMapping("/vote/{id}")
     public BlogDTO vote(
             @RequestParam Integer userId,
@@ -101,6 +108,7 @@ public class BlogController {
         return modelMapper.map(updatedBlog, BlogDTO.class);
     }
 
+    @Operation(summary = "Edit blog")
     @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> update(@PathVariable Integer id
             , @RequestParam("title") String title
@@ -142,11 +150,13 @@ public class BlogController {
         }
     }
 
+    @Operation(summary = "Delete blog")
     @DeleteMapping("/{id}")
     public boolean delete(@PathVariable Integer id){
         return service.delete(id);
     }
 
+    @Operation(summary = "Filter")
     @GetMapping("/filter")
     public List<BlogDTO> filter(@RequestBody FilterBlogRequest rq){
         List<Blog> blogs = service.findAll();
