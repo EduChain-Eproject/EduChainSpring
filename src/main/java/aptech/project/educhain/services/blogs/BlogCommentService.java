@@ -24,7 +24,7 @@ public class BlogCommentService implements IBlogCommentService {
     BlogCommentRepository blogCommentRepository;
 
     @Autowired
-    BlogRepository blogRepository;
+    BlogService blogService;
 
     @Override
     public BlogComment findComment(Integer id) {
@@ -72,7 +72,7 @@ public class BlogCommentService implements IBlogCommentService {
     }
 
     public List<BlogComment> getByBlog(Integer id){
-        return blogCommentRepository.findBlogCommentByBlog(blogRepository.findById(id).get());
+        return blogCommentRepository.findBlogCommentByBlogAndParentCommentIsNull(blogService.findBlog(id));
     }
 
     public Map<String, String> validateFields(String title, Integer userId, Integer blogCategoryId, String blogText) {
