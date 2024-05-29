@@ -2,11 +2,10 @@ package aptech.project.educhain.services.blogs;
 
 import aptech.project.educhain.models.accounts.User;
 import aptech.project.educhain.models.blogs.Blog;
-import aptech.project.educhain.models.blogs.BlogCategory;
 import aptech.project.educhain.models.blogs.UserBlogVote;
-import aptech.project.educhain.repositories.accounts.UserRepository;
 import aptech.project.educhain.repositories.blogs.BlogRepository;
 import aptech.project.educhain.repositories.blogs.UserBlogVoteRepository;
+import aptech.project.educhain.services.auth.AuthService;
 import aptech.project.educhain.services.blogs.IBlogService.BlogSorting.*;
 import aptech.project.educhain.services.blogs.IBlogService.IBlogService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,7 +34,7 @@ public class BlogService implements IBlogService {
     UserBlogVoteRepository voteRepository;
 
     @Autowired
-    UserRepository userRepository;
+    AuthService authService;
 
     public Blog findBlog(Integer id){
         return blogRepository.findById(id).get();
@@ -124,7 +123,7 @@ public class BlogService implements IBlogService {
     }
 
     public Blog vote(Integer userId, Integer blogId, int vote){
-        User user = userRepository.findById(userId).get();
+        User user = authService.findUserById(userId);
         Blog blog = findBlog(blogId);
         UserBlogVote userBlogVote = voteRepository.findUserBlogVoteByUserAndAndBlog(user, blog);
         if (userBlogVote != null){
