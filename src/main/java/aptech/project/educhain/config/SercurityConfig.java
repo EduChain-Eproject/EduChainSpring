@@ -33,7 +33,7 @@ public class SercurityConfig {
                         //fix spring security for other rout down here:
                         .requestMatchers("/ADMIN/**").hasAnyAuthority("ADMIN")
                         .requestMatchers("/USER/**").hasAnyAuthority("USER")
-                        .anyRequest().authenticated())
+                        .anyRequest().permitAll())
                         .formLogin(
                                 form -> form
                                         .loginProcessingUrl("/Auth/login")

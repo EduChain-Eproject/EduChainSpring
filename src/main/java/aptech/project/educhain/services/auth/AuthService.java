@@ -10,6 +10,7 @@ import aptech.project.educhain.repositories.auth.EmailVerifyRepository;
 import aptech.project.educhain.services.auth.IAuth.IAuthService;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -27,6 +28,7 @@ public class AuthService implements IAuthService {
     public AuthUserRepository authUserRepository;
 
     @Autowired
+    @Lazy
     private PasswordEncoder encoder;
 
     @Override
@@ -68,8 +70,8 @@ public class AuthService implements IAuthService {
         try{
             User user = new User();
             user.setEmail(reg.getEmail());
-//            var encode = encoder.encode(reg.getPassword());
-            user.setPassword(reg.getPassword());
+            var encode = encoder.encode(reg.getPassword());
+            user.setPassword(encoder.encode(reg.getPassword()));
             user.setFirstName(reg.getFirstName());
             user.setLastName(reg.getLastName());
             user.setPhone(reg.getPhone());
