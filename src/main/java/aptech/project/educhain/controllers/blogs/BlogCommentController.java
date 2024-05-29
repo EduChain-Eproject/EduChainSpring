@@ -1,12 +1,10 @@
 package aptech.project.educhain.controllers.blogs;
 
 import aptech.project.educhain.dto.blogs.BlogCommentDTO;
-import aptech.project.educhain.dto.blogs.BlogDTO;
 import aptech.project.educhain.models.accounts.User;
 import aptech.project.educhain.models.blogs.Blog;
-import aptech.project.educhain.models.blogs.BlogCategory;
 import aptech.project.educhain.models.blogs.BlogComment;
-import aptech.project.educhain.services.accounts.UserService;
+import aptech.project.educhain.services.auth.AuthService;
 import aptech.project.educhain.services.blogs.BlogCommentService;
 import aptech.project.educhain.services.blogs.BlogService;
 import org.modelmapper.ModelMapper;
@@ -38,7 +36,7 @@ public class BlogCommentController {
     BlogService blogService;
 
     @Autowired
-    UserService userService;
+    AuthService userService;
 
     @GetMapping("")
     private List<BlogCommentDTO> findAll(){
@@ -73,7 +71,7 @@ public class BlogCommentController {
             String fileName = blogService.uploadPhoto(uploadDir, photo);
 
             BlogComment comment = new BlogComment();
-            User user = userService.findUser(userId);
+            User user = userService.findUserById(userId);
             Blog blog = blogService.findBlog(blogId);
             BlogComment parent = null;
 

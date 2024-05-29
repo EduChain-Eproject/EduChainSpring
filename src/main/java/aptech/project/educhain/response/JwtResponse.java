@@ -1,4 +1,4 @@
-package aptech.project.educhain.modelDTO.response;
+package aptech.project.educhain.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

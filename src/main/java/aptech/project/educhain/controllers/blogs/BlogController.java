@@ -5,7 +5,7 @@ import aptech.project.educhain.models.accounts.User;
 import aptech.project.educhain.models.blogs.Blog;
 import aptech.project.educhain.models.blogs.BlogCategory;
 import aptech.project.educhain.request.blogs.FilterBlogRequest;
-import aptech.project.educhain.services.accounts.UserService;
+import aptech.project.educhain.services.auth.AuthService;
 import aptech.project.educhain.services.blogs.BlogCategoryService;
 import aptech.project.educhain.services.blogs.BlogService;
 import org.modelmapper.ModelMapper;
@@ -34,7 +34,7 @@ public class BlogController {
     BlogService service;
 
     @Autowired
-    UserService userService;
+    AuthService userService;
 
     @Autowired
     ModelMapper modelMapper;
@@ -71,7 +71,7 @@ public class BlogController {
             String fileName = service.uploadPhoto(uploadDir, photo);
 
             Blog blog = new Blog();
-            User user = userService.findUser(userId);
+            User user = userService.findUserById(userId);
             BlogCategory category = blogCategoryService.findBlogCategory(blogCategoryId);
 
             blog.setUser(user);
@@ -95,7 +95,7 @@ public class BlogController {
             @RequestParam Integer userId,
             @RequestParam Integer vote,
             @PathVariable Integer id){
-        User user = userService.findUser(userId);
+        User user = userService.findUserById(userId);
         Blog blog = service.findBlog(id);
         Blog updatedBlog = service.vote(userId, id, vote);
         return modelMapper.map(updatedBlog, BlogDTO.class);

@@ -1,20 +1,13 @@
 package aptech.project.educhain.services.auth;
 
-import aptech.project.educhain.modelDTO.response.JwtResponse;
+import aptech.project.educhain.response.JwtResponse;
 import aptech.project.educhain.models.accounts.RefreshToken;
 import aptech.project.educhain.models.accounts.User;
-import aptech.project.educhain.repositories.auth.AuthUserRepository;
 import aptech.project.educhain.repositories.auth.JwtRepository;
 import aptech.project.educhain.services.auth.IAuth.IAuthService;
 import aptech.project.educhain.services.auth.IAuth.IJwtService;
-import com.auth0.jwt.JWT;
-import com.auth0.jwt.algorithms.Algorithm;
 import io.jsonwebtoken.*;
-import io.jsonwebtoken.io.Decoders;
-import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Bean;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 

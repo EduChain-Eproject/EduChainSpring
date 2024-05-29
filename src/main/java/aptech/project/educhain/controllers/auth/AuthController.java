@@ -1,22 +1,18 @@
 package aptech.project.educhain.controllers.auth;
 
 
-import aptech.project.educhain.modelDTO.request.LoginRequest;
-import aptech.project.educhain.modelDTO.request.RegisterRequest;
-import aptech.project.educhain.modelDTO.response.JwtResponse;
-import aptech.project.educhain.modelDTO.response.ResponseWithMessage;
+import aptech.project.educhain.request.accounts.LoginRequest;
+import aptech.project.educhain.request.accounts.RegisterRequest;
+import aptech.project.educhain.response.JwtResponse;
+import aptech.project.educhain.response.ResponseWithMessage;
 import aptech.project.educhain.models.accounts.User;
-import aptech.project.educhain.repositories.auth.AuthUserRepository;
 
 import aptech.project.educhain.models.accounts.EmailToken;
 
-import aptech.project.educhain.models.accounts.User;
-import aptech.project.educhain.repositories.auth.AuthUserRepository;
 import aptech.project.educhain.services.auth.IAuth.IAuthService;
 import aptech.project.educhain.services.auth.IAuth.IEmailService;
 
 import aptech.project.educhain.services.auth.IAuth.IJwtService;
-import aptech.project.educhain.services.auth.JwtService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -27,7 +23,6 @@ import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("Auth")
@@ -57,7 +52,7 @@ public class AuthController {
             if(user == null ){
                 return ResponseEntity.badRequest().body(new ResponseWithMessage<>(null,"cant find account"));
             }
-            if(user.getIsActive() ){
+            if(!user.getIsActive() ){
                 return ResponseEntity.badRequest().body(new ResponseWithMessage<>(null,"you has been block please contact our admin for more details"));
             }
             if(!user.getIsVerify()){
@@ -83,12 +78,11 @@ public class AuthController {
         };
 
         User checkUser = iAuthService.findUserByEmail(regis.getEmail());
-        User user = iAuthService.register(regis);
         if(checkUser != null){
             return ResponseEntity.badRequest().body("your email already exit please use other email");
-            //send mail
-
+            //send mails
         }
+        User user = iAuthService.register(regis);
         EmailToken emailToken =  iAuthService.createTokenEmail(user.getId());
         String url = baseUrl + emailToken.getVerifyToken();
         iEmailService.sendEmail(user.getEmail(),iEmailService.templateEmail(user.getEmail(),url));

@@ -1,6 +1,6 @@
 package aptech.project.educhain.services.auth.IAuth;
 
-import aptech.project.educhain.modelDTO.request.RegisterRequest;
+import aptech.project.educhain.request.accounts.RegisterRequest;
 import aptech.project.educhain.models.accounts.EmailToken;
 import aptech.project.educhain.models.accounts.User;
 

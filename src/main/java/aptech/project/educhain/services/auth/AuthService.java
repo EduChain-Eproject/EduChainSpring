@@ -1,6 +1,6 @@
 package aptech.project.educhain.services.auth;
 
-import aptech.project.educhain.modelDTO.request.RegisterRequest;
+import aptech.project.educhain.request.accounts.RegisterRequest;
 import aptech.project.educhain.models.accounts.EmailToken;
 
 import aptech.project.educhain.models.accounts.User;
@@ -10,6 +10,7 @@ import aptech.project.educhain.repositories.auth.EmailVerifyRepository;
 import aptech.project.educhain.services.auth.IAuth.IAuthService;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.security.SecureRandom;
@@ -24,10 +25,14 @@ public class AuthService implements IAuthService {
     public EmailVerifyRepository emailVerifyRepository;
     @Autowired
     public AuthUserRepository authUserRepository;
+
+    @Autowired
+    private PasswordEncoder encoder;
+
     @Override
     public User findUserById(int id){
         try{
-            User user = authUserRepository.findUserWithId(id);
+            User user = authUserRepository.findById(id).get();
             return user;
         }
         catch (Exception e)
@@ -63,6 +68,7 @@ public class AuthService implements IAuthService {
         try{
             User user = new User();
             user.setEmail(reg.getEmail());
+//            var encode = encoder.encode(reg.getPassword());
             user.setPassword(reg.getPassword());
             user.setFirstName(reg.getFirstName());
             user.setLastName(reg.getLastName());
