@@ -21,9 +21,9 @@ public class Message extends BaseModel {
     @JoinColumn(name = "user_id", referencedColumnName = "id")
     private User user;
 
-    @Column(name = "text", columnDefinition = "TEXT")
-    private String text;
+    @Column(name = "message")
+    private String message;
 
-    @Column(name = "isRead")
-    private boolean isRead;
+    @Column(name = "photo")
+    private String photo;
 }
