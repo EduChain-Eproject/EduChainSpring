@@ -35,6 +35,10 @@ public class BlogCategoryService implements IBlogCategoryService {
         return null;
     }
 
+    public boolean isExist(String name){
+        return repository.existsBlogCategoryByCategoryName(name);
+    }
+
     @Override
     public BlogCategory update(Integer id, BlogCategory blogCategory) {
         try {

@@ -28,6 +28,7 @@ import java.nio.file.Paths;
 
 @Tag(name = "Blog")
 @RestController
+@CrossOrigin
 @RequestMapping("/api/blog")
 public class BlogController {
     @Value("${file.upload-dir}")

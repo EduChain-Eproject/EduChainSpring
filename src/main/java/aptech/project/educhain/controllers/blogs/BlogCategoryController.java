@@ -15,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -51,19 +52,32 @@ public class BlogCategoryController {
             return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
         }
 
+        if (service.isExist(rq.getCategoryName())) {
+            // Nếu category đã tồn tại, trả về ResponseEntity với thông báo lỗi thích hợp
+            Map<String, String> errorResponse = new HashMap<>();
+            errorResponse.put("error", "Category already exists");
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(errorResponse);
+        }
+
         BlogCategory category = new BlogCategory();
         category.setCategoryName(rq.getCategoryName());
 
         BlogCategory createdCategory = service.create(category);
         BlogCategoryDTO blogCategoryDTO = modelMapper.map(createdCategory, BlogCategoryDTO.class);
-        return new ResponseEntity<>(blogCategoryDTO, HttpStatus.CREATED);
+        return ResponseEntity.status(HttpStatus.CREATED).body(blogCategoryDTO);
     }
 
     @Operation(summary = "Edit category")
     @PutMapping("/{id}")
-    public BlogCategoryDTO update(@PathVariable Integer id, @RequestBody BlogCategory category){
+    public ResponseEntity<?> update(@PathVariable Integer id, @RequestBody BlogCategory category){
+        if (service.isExist(category.getCategoryName())) {
+            Map<String, String> errorResponse = new HashMap<>();
+            errorResponse.put("error", "Category already exists");
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(errorResponse);
+        }
+
         BlogCategory cate = service.update(id, category);
-        return modelMapper.map(cate, BlogCategoryDTO.class);
+        return ResponseEntity.status(HttpStatus.OK).body(cate);
     }
 
     @Operation(summary = "Delete category")

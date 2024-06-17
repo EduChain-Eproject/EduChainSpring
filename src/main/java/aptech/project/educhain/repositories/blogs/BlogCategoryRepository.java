@@ -5,4 +5,5 @@ import aptech.project.educhain.models.blogs.BlogCategory;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface BlogCategoryRepository extends JpaRepository<BlogCategory, Integer> {
+    public boolean existsBlogCategoryByCategoryName (String name);
 }
