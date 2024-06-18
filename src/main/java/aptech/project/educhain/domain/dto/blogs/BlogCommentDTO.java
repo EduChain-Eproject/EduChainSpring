@@ -1,10 +1,9 @@
 package aptech.project.educhain.domain.dto.blogs;
 
-import aptech.project.educhain.models.blogs.BlogComment;
-import lombok.Data;
-
 import java.sql.Timestamp;
 import java.util.List;
+
+import lombok.Data;
 
 @Data
 public class BlogCommentDTO {

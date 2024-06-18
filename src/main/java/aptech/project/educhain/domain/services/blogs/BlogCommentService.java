@@ -1,14 +1,15 @@
 package aptech.project.educhain.domain.services.blogs;
 
-import aptech.project.educhain.data.repositories.blogs.BlogCommentRepository;
-import aptech.project.educhain.data.entities.blogs.BlogComment;
-import aptech.project.educhain.data.serviceInterfaces.blogs.IBlogCommentService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import aptech.project.educhain.data.entities.blogs.BlogComment;
+import aptech.project.educhain.data.repositories.blogs.BlogCommentRepository;
+import aptech.project.educhain.data.serviceInterfaces.blogs.IBlogCommentService;
 
 @Service
 public class BlogCommentService implements IBlogCommentService {
@@ -29,10 +30,10 @@ public class BlogCommentService implements IBlogCommentService {
     }
 
     @Override
-    public BlogComment create( BlogComment comment) {
+    public BlogComment create(BlogComment comment) {
         try {
             return blogCommentRepository.save(comment);
-        }catch(Exception ex){
+        } catch (Exception ex) {
             ex.printStackTrace();
         }
         return null;
@@ -42,12 +43,12 @@ public class BlogCommentService implements IBlogCommentService {
     public BlogComment update(Integer id, BlogComment comment) {
         try {
             BlogComment com = findComment(id);
-            if(com != null){
+            if (com != null) {
                 com.setText(comment.getText());
                 return blogCommentRepository.save(com);
             }
             return null;
-        }catch(Exception ex){
+        } catch (Exception ex) {
             ex.printStackTrace();
         }
         return null;
@@ -56,15 +57,15 @@ public class BlogCommentService implements IBlogCommentService {
     @Override
     public boolean delete(Integer id) {
         BlogComment comment = findComment(id);
-        if (comment != null){
+        if (comment != null) {
             blogCommentRepository.delete(comment);
             return true;
         }
         return false;
     }
 
-    public List<BlogComment> getByBlog(Integer id){
-        return blogCommentRepository.findBlogCommentByBlogAndParentCommentIsNull(blogService.findBlog(id));
+    public List<BlogComment> getByBlog(Integer id) {
+        return blogCommentRepository.findBlogCommentByBlogAndParentCommentIsNull(blogService.findOneBlog(id));
     }
 
     public Map<String, String> validateFields(String title, Integer userId, Integer blogCategoryId, String blogText) {

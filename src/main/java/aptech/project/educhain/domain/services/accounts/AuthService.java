@@ -1,23 +1,22 @@
 package aptech.project.educhain.domain.services.accounts;
 
-import aptech.project.educhain.endpoint.requests.accounts.RegisterRequest;
-import aptech.project.educhain.data.entities.accounts.EmailToken;
+import java.security.SecureRandom;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
+import java.util.Optional;
 
-import aptech.project.educhain.data.entities.accounts.User;
-import aptech.project.educhain.data.repositories.accounts.AuthUserRepository;
-import aptech.project.educhain.data.repositories.accounts.EmailVerifyRepository;
-
-import aptech.project.educhain.services.auth.IAuth.IAuthService;
-import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.security.SecureRandom;
-import java.sql.Timestamp;
-import java.time.LocalDateTime;
-import java.util.Optional;
+import aptech.project.educhain.data.entities.accounts.EmailToken;
+import aptech.project.educhain.data.entities.accounts.User;
+import aptech.project.educhain.data.repositories.accounts.AuthUserRepository;
+import aptech.project.educhain.data.repositories.accounts.EmailVerifyRepository;
+import aptech.project.educhain.data.serviceInterfaces.accounts.IAuthService;
+import aptech.project.educhain.endpoint.requests.accounts.RegisterRequest;
+import jakarta.transaction.Transactional;
 
 @Service
 public class AuthService implements IAuthService {
@@ -32,33 +31,31 @@ public class AuthService implements IAuthService {
     private PasswordEncoder encoder;
 
     @Override
-    public User findUserById(int id){
-        try{
+    public User findUserById(int id) {
+        try {
             User user = authUserRepository.findById(id).get();
             return user;
-        }
-        catch (Exception e)
-        {
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return null;
     }
+
     @Override
-    public Optional<User> findUserDetailByEmal(String email){
-        try{
+    public Optional<User> findUserDetailByEmal(String email) {
+        try {
             return authUserRepository.findByEmail(email);
-        }
-        catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return null;
     }
+
     @Override
-    public User findUserByEmail(String email){
-        try{
+    public User findUserByEmail(String email) {
+        try {
             return authUserRepository.findUserByEmail(email);
-        }
-        catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return null;
@@ -67,7 +64,7 @@ public class AuthService implements IAuthService {
     @Override
     @Transactional
     public User register(RegisterRequest reg) {
-        try{
+        try {
             User user = new User();
             user.setEmail(reg.getEmail());
             var encode = encoder.encode(reg.getPassword());
@@ -80,37 +77,36 @@ public class AuthService implements IAuthService {
             user.setIsActive(true);
             user.setIsVerify(false);
             authUserRepository.save(user);
-           User newUser = authUserRepository.findUserWithId(user.getId());
+            User newUser = authUserRepository.findUserWithId(user.getId());
             return newUser;
-        }
-        catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return null;
     }
+
     @Override
     @Transactional
-    public EmailToken createTokenEmail(int id){
+    public EmailToken createTokenEmail(int id) {
         try {
             EmailToken emailToken = new EmailToken();
             String token = generateRandomString();
-            var timeEnd = System.currentTimeMillis()+EXPIRATION_TIME;
+            var timeEnd = System.currentTimeMillis() + EXPIRATION_TIME;
             emailToken.setTimeExpire(new Timestamp(timeEnd));
             emailToken.setVerifyToken(token);
-            //find user by id
+            // find user by id
             User user = authUserRepository.findUserWithId(id);
             emailToken.setUser(user);
             emailVerifyRepository.save(emailToken);
             return emailToken;
-        }
-        catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
 
         }
         return null;
     }
 
-    //generate token
+    // generate token
     public static String generateRandomString() {
         int length = 15;
         String ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
@@ -123,25 +119,25 @@ public class AuthService implements IAuthService {
         return sb.toString();
     }
 
-    //verify email Token
-    public EmailToken verifyEmailToken(String token){
+    // verify email Token
+    public EmailToken verifyEmailToken(String token) {
         try {
             EmailToken emailToken = emailVerifyRepository.findEmaiTokenWithString(token);
             LocalDateTime now = LocalDateTime.now();
             LocalDateTime expireTime = emailToken.getTimeExpire().toLocalDateTime();
-            if(emailToken.getVerifyToken() == null || now.isAfter(expireTime.plusMinutes(15)) || emailToken.getUser().getId() == null){
+            if (emailToken.getVerifyToken() == null || now.isAfter(expireTime.plusMinutes(15))
+                    || emailToken.getUser().getId() == null) {
                 return null;
             }
-            return  emailToken;
-        }
-        catch (Exception e){
+            return emailToken;
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return null;
     }
 
-    //service change isVerify
-    public boolean verifyUser(int id){
+    // service change isVerify
+    public boolean verifyUser(int id) {
         User user = authUserRepository.findUserWithId(id);
         user.setIsVerify(true);
         authUserRepository.save(user);

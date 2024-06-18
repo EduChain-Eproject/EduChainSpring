@@ -1,10 +1,10 @@
 package aptech.project.educhain.data.serviceInterfaces.blogs;
 
-import aptech.project.educhain.data.entities.blogs.Blog;
-import aptech.project.educhain.services.blogs.IBlogService.BlogSorting.SortStrategy;
-
 import java.util.List;
 import java.util.Map;
+
+import aptech.project.educhain.data.entities.blogs.Blog;
+import aptech.project.educhain.data.serviceInterfaces.blogs.BlogSorting.SortStrategy;
 
 public interface IBlogService {
     public Blog findOneBlog(Integer id);

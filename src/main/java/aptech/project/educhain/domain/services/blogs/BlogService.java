@@ -1,16 +1,25 @@
 package aptech.project.educhain.domain.services.blogs;
 
-import aptech.project.educhain.data.entities.blogs.Blog;
-import aptech.project.educhain.data.repositories.blogs.UserBlogVoteRepository;
-import aptech.project.educhain.domain.services.accounts.AuthService;
-import aptech.project.educhain.data.serviceInterfaces.blogs.IBlogService;
-import aptech.project.educhain.domain.useCases.blogs.BlogUseCases.*;
-import aptech.project.educhain.services.blogs.IBlogService.BlogSorting.SortStrategy;
+import java.util.List;
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Map;
+import aptech.project.educhain.data.entities.blogs.Blog;
+import aptech.project.educhain.data.serviceInterfaces.blogs.IBlogService;
+import aptech.project.educhain.data.serviceInterfaces.blogs.BlogSorting.SortStrategy;
+import aptech.project.educhain.domain.useCases.blogs.BlogUseCases.CreateBlogUseCase;
+import aptech.project.educhain.domain.useCases.blogs.BlogUseCases.DeleteBlogUseCase;
+import aptech.project.educhain.domain.useCases.blogs.BlogUseCases.FindAllBlogUseCase;
+import aptech.project.educhain.domain.useCases.blogs.BlogUseCases.FindBlogByCategoryUseCases;
+import aptech.project.educhain.domain.useCases.blogs.BlogUseCases.FindOneBlogUseCase;
+import aptech.project.educhain.domain.useCases.blogs.BlogUseCases.SearchBlogUseCase;
+import aptech.project.educhain.domain.useCases.blogs.BlogUseCases.SortingBlogUseCase;
+import aptech.project.educhain.domain.useCases.blogs.BlogUseCases.UpdateBlogUseCase;
+import aptech.project.educhain.domain.useCases.blogs.BlogUseCases.ValidateCreateUseCase;
+import aptech.project.educhain.domain.useCases.blogs.BlogUseCases.ValidateUpdateUseCase;
+import aptech.project.educhain.domain.useCases.blogs.BlogUseCases.VoteBlogUseCase;
 
 @Service
 public class BlogService implements IBlogService {
@@ -101,5 +110,8 @@ public class BlogService implements IBlogService {
     public Blog vote(Integer userId, Integer blogId, int vote) {
         return voteBlogUseCase.execute(userId, blogId, vote);
     }
-}
 
+    public SortStrategy getSortStrategy(String sortStrategy) {
+        return sortingBlogUseCase.getSortStrategy(sortStrategy);
+    }
+}
