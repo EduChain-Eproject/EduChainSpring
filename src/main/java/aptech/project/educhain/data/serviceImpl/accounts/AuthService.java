@@ -1,4 +1,4 @@
-package aptech.project.educhain.domain.services.accounts;
+package aptech.project.educhain.data.serviceImpl.accounts;
 
 import java.security.SecureRandom;
 import java.sql.Timestamp;
@@ -14,7 +14,7 @@ import aptech.project.educhain.data.entities.accounts.EmailToken;
 import aptech.project.educhain.data.entities.accounts.User;
 import aptech.project.educhain.data.repositories.accounts.AuthUserRepository;
 import aptech.project.educhain.data.repositories.accounts.EmailVerifyRepository;
-import aptech.project.educhain.data.serviceInterfaces.accounts.IAuthService;
+import aptech.project.educhain.domain.services.accounts.IAuthService;
 import aptech.project.educhain.endpoint.requests.accounts.RegisterRequest;
 import jakarta.transaction.Transactional;
 

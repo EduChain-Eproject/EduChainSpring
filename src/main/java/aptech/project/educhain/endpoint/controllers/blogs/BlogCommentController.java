@@ -20,11 +20,11 @@ import org.springframework.web.multipart.MultipartFile;
 import aptech.project.educhain.data.entities.accounts.User;
 import aptech.project.educhain.data.entities.blogs.Blog;
 import aptech.project.educhain.data.entities.blogs.BlogComment;
+import aptech.project.educhain.data.serviceImpl.accounts.AuthService;
+import aptech.project.educhain.data.serviceImpl.blogs.BlogCommentService;
+import aptech.project.educhain.data.serviceImpl.blogs.BlogService;
+import aptech.project.educhain.data.serviceImpl.common.UploadPhotoService;
 import aptech.project.educhain.domain.dto.blogs.BlogCommentDTO;
-import aptech.project.educhain.domain.services.accounts.AuthService;
-import aptech.project.educhain.domain.services.blogs.BlogCommentService;
-import aptech.project.educhain.domain.services.blogs.BlogService;
-import aptech.project.educhain.domain.services.common.UploadPhotoService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 

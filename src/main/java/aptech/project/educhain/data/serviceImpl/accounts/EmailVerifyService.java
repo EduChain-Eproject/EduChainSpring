@@ -1,4 +1,4 @@
-package aptech.project.educhain.domain.services.accounts;
+package aptech.project.educhain.data.serviceImpl.accounts;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -9,7 +9,7 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import aptech.project.educhain.data.repositories.accounts.EmailVerifyRepository;
-import aptech.project.educhain.data.serviceInterfaces.accounts.IEmailService;
+import aptech.project.educhain.domain.services.accounts.IEmailService;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 

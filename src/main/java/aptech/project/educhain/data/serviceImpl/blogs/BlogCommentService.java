@@ -1,4 +1,4 @@
-package aptech.project.educhain.domain.services.blogs;
+package aptech.project.educhain.data.serviceImpl.blogs;
 
 import java.util.HashMap;
 import java.util.List;
@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 
 import aptech.project.educhain.data.entities.blogs.BlogComment;
 import aptech.project.educhain.data.repositories.blogs.BlogCommentRepository;
-import aptech.project.educhain.data.serviceInterfaces.blogs.IBlogCommentService;
+import aptech.project.educhain.domain.services.blogs.IBlogCommentService;
 
 @Service
 public class BlogCommentService implements IBlogCommentService {

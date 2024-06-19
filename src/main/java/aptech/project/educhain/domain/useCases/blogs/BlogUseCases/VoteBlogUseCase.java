@@ -8,7 +8,7 @@ import aptech.project.educhain.data.entities.blogs.Blog;
 import aptech.project.educhain.data.entities.blogs.UserBlogVote;
 import aptech.project.educhain.data.repositories.blogs.BlogRepository;
 import aptech.project.educhain.data.repositories.blogs.UserBlogVoteRepository;
-import aptech.project.educhain.domain.services.accounts.AuthService;
+import aptech.project.educhain.data.serviceImpl.accounts.AuthService;
 
 @Component
 public class VoteBlogUseCase {

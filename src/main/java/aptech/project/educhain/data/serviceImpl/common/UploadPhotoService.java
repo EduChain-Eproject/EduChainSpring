@@ -1,12 +1,12 @@
-package aptech.project.educhain.domain.services.common;
-
-import org.springframework.web.multipart.MultipartFile;
+package aptech.project.educhain.data.serviceImpl.common;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+
+import org.springframework.web.multipart.MultipartFile;
 
 public class UploadPhotoService {
     public String uploadPhoto(String uploadDir, MultipartFile photo) throws IOException {
@@ -16,7 +16,7 @@ public class UploadPhotoService {
             Files.createDirectories(path);
         }
 
-        String fileName = photo.getOriginalFilename() ;
+        String fileName = photo.getOriginalFilename();
         if (fileName == null) {
             throw new IllegalArgumentException("File name cannot be null");
         }

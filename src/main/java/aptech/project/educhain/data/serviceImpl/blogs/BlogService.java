@@ -1,4 +1,4 @@
-package aptech.project.educhain.domain.services.blogs;
+package aptech.project.educhain.data.serviceImpl.blogs;
 
 import java.util.List;
 import java.util.Map;
@@ -7,8 +7,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import aptech.project.educhain.data.entities.blogs.Blog;
-import aptech.project.educhain.data.serviceInterfaces.blogs.IBlogService;
-import aptech.project.educhain.data.serviceInterfaces.blogs.BlogSorting.SortStrategy;
+import aptech.project.educhain.domain.services.blogs.IBlogService;
+import aptech.project.educhain.domain.services.blogs.BlogSorting.SortStrategy;
 import aptech.project.educhain.domain.useCases.blogs.BlogUseCases.CreateBlogUseCase;
 import aptech.project.educhain.domain.useCases.blogs.BlogUseCases.DeleteBlogUseCase;
 import aptech.project.educhain.domain.useCases.blogs.BlogUseCases.FindAllBlogUseCase;

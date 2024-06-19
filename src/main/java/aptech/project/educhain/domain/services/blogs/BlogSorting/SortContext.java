@@ -1,4 +1,4 @@
-package aptech.project.educhain.data.serviceInterfaces.blogs.BlogSorting;
+package aptech.project.educhain.domain.services.blogs.BlogSorting;
 
 import aptech.project.educhain.data.entities.blogs.Blog;
 
@@ -11,7 +11,7 @@ public class SortContext {
         this.sortStrategy = sortStrategy;
     }
 
-    public List<Blog> executeSort(List<Blog> items){
+    public List<Blog> executeSort(List<Blog> items) {
         return sortStrategy.sort(items);
     }
 }

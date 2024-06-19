@@ -1,4 +1,4 @@
-package aptech.project.educhain.domain.services.accounts;
+package aptech.project.educhain.data.serviceImpl.accounts;
 
 import aptech.project.educhain.data.entities.accounts.Role;
 import aptech.project.educhain.data.entities.accounts.User;
@@ -15,21 +15,21 @@ import java.util.Collection;
 import java.util.stream.Collectors;
 
 @Service
-public class OurUserDetailService  implements UserDetailsService {
+public class OurUserDetailService implements UserDetailsService {
 
-    @Autowired
-    private AuthUserRepository authUserRepository;
+  @Autowired
+  private AuthUserRepository authUserRepository;
 
-    @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-      return authUserRepository.findByEmail(username).orElse(null);
+  @Override
+  public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+    return authUserRepository.findByEmail(username).orElse(null);
 
-    }
+  }
 
-    private Collection<? extends GrantedAuthority> mapRolesToAuthorities(Collection<Role> roles) {
-        Collection<? extends GrantedAuthority> mapRoles = roles.stream()
-                .map(role -> new SimpleGrantedAuthority(role.name()))
-                .collect(Collectors.toList());
-        return mapRoles;
-    }
+  private Collection<? extends GrantedAuthority> mapRolesToAuthorities(Collection<Role> roles) {
+    Collection<? extends GrantedAuthority> mapRoles = roles.stream()
+        .map(role -> new SimpleGrantedAuthority(role.name()))
+        .collect(Collectors.toList());
+    return mapRoles;
+  }
 }

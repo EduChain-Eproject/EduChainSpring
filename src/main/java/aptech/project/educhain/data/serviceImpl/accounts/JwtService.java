@@ -1,4 +1,4 @@
-package aptech.project.educhain.domain.services.accounts;
+package aptech.project.educhain.data.serviceImpl.accounts;
 
 import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
@@ -17,8 +17,8 @@ import org.springframework.stereotype.Component;
 import aptech.project.educhain.data.entities.accounts.RefreshToken;
 import aptech.project.educhain.data.entities.accounts.User;
 import aptech.project.educhain.data.repositories.accounts.JwtRepository;
-import aptech.project.educhain.data.serviceInterfaces.accounts.IAuthService;
-import aptech.project.educhain.data.serviceInterfaces.accounts.IJwtService;
+import aptech.project.educhain.domain.services.accounts.IAuthService;
+import aptech.project.educhain.domain.services.accounts.IJwtService;
 import aptech.project.educhain.endpoint.responses.JwtResponse;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;

@@ -1,4 +1,4 @@
-package aptech.project.educhain.data.serviceInterfaces.accounts;
+package aptech.project.educhain.domain.services.accounts;
 
 import aptech.project.educhain.data.entities.accounts.User;
 import aptech.project.educhain.endpoint.responses.JwtResponse;

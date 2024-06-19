@@ -17,9 +17,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import aptech.project.educhain.data.entities.accounts.EmailToken;
 import aptech.project.educhain.data.entities.accounts.User;
-import aptech.project.educhain.data.serviceInterfaces.accounts.IAuthService;
-import aptech.project.educhain.data.serviceInterfaces.accounts.IEmailService;
-import aptech.project.educhain.data.serviceInterfaces.accounts.IJwtService;
+import aptech.project.educhain.domain.services.accounts.IAuthService;
+import aptech.project.educhain.domain.services.accounts.IEmailService;
+import aptech.project.educhain.domain.services.accounts.IJwtService;
 import aptech.project.educhain.endpoint.requests.accounts.LoginRequest;
 import aptech.project.educhain.endpoint.requests.accounts.RegisterRequest;
 import aptech.project.educhain.endpoint.responses.JwtResponse;

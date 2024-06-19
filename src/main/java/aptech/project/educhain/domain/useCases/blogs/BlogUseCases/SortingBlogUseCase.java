@@ -7,12 +7,12 @@ import org.springframework.stereotype.Component;
 
 import aptech.project.educhain.data.entities.blogs.Blog;
 import aptech.project.educhain.data.repositories.blogs.BlogRepository;
-import aptech.project.educhain.data.serviceInterfaces.blogs.BlogSorting.AscendingNameSort;
-import aptech.project.educhain.data.serviceInterfaces.blogs.BlogSorting.AscendingTimeSort;
-import aptech.project.educhain.data.serviceInterfaces.blogs.BlogSorting.DescendingNameSort;
-import aptech.project.educhain.data.serviceInterfaces.blogs.BlogSorting.DescendingTimeSort;
-import aptech.project.educhain.data.serviceInterfaces.blogs.BlogSorting.SortContext;
-import aptech.project.educhain.data.serviceInterfaces.blogs.BlogSorting.SortStrategy;
+import aptech.project.educhain.domain.services.blogs.BlogSorting.AscendingNameSort;
+import aptech.project.educhain.domain.services.blogs.BlogSorting.AscendingTimeSort;
+import aptech.project.educhain.domain.services.blogs.BlogSorting.DescendingNameSort;
+import aptech.project.educhain.domain.services.blogs.BlogSorting.DescendingTimeSort;
+import aptech.project.educhain.domain.services.blogs.BlogSorting.SortContext;
+import aptech.project.educhain.domain.services.blogs.BlogSorting.SortStrategy;
 
 @Component
 public class SortingBlogUseCase {
