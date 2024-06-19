@@ -11,5 +11,5 @@ public class CreateCourseResponse {
     private String description;
     private Double price;
     private String status;
-    private List<CategoryDTO> categories;
+    private List<CategoryDTO> categoryDtos;
 }

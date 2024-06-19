@@ -1,6 +1,7 @@
 package aptech.project.educhain.domain.useCases.courses.course.CreateCourseUsecase;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +15,7 @@ import aptech.project.educhain.data.entities.courses.Course;
 import aptech.project.educhain.data.repositories.accounts.AuthUserRepository;
 import aptech.project.educhain.data.repositories.courses.CategoryRepository;
 import aptech.project.educhain.data.repositories.courses.CourseRepository;
+import aptech.project.educhain.domain.dtos.courses.CategoryDTO;
 import aptech.project.educhain.domain.dtos.courses.CourseDTO;
 
 @Component
@@ -47,6 +49,9 @@ public class CreateCourseUsecase implements Usecase<CourseDTO, CreateCourseParam
             Course savedCourse = courseRepository.saveAndFlush(course);
 
             CourseDTO courseDTO = modelMapper.map(savedCourse, CourseDTO.class);
+            courseDTO.setCategoryDtos(savedCourse.getCategories().stream()
+                    .map(category -> modelMapper.map(category, CategoryDTO.class))
+                    .collect(Collectors.toList()));
 
             return AppResult.successResult(courseDTO);
         } catch (Exception e) {

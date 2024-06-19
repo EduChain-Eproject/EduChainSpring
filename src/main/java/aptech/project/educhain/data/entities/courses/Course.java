@@ -1,15 +1,26 @@
 package aptech.project.educhain.data.entities.courses;
 
+import java.util.List;
+
 import aptech.project.educhain.data.entities.BaseModel;
 import aptech.project.educhain.data.entities.accounts.User;
 import aptech.project.educhain.data.entities.accounts.UserInterest;
 import aptech.project.educhain.data.entities.others.CourseFeedback;
-import jakarta.persistence.*;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.util.List;
 
 @Entity
 @Table(name = "tbl_courses")
