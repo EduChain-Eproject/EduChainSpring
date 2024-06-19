@@ -21,7 +21,7 @@ public class UserCourse extends BaseModel {
     private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "course", referencedColumnName = "id")
+    @JoinColumn(name = "course_id", referencedColumnName = "id")
     private Course course;
 
     @Column(name = "enrollmentDate")

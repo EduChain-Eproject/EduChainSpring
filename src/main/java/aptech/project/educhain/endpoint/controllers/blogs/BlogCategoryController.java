@@ -22,7 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import aptech.project.educhain.data.entities.blogs.BlogCategory;
 import aptech.project.educhain.data.serviceImpl.blogs.BlogCategoryService;
-import aptech.project.educhain.domain.dto.blogs.BlogCategoryDTO;
+import aptech.project.educhain.domain.dtos.blogs.BlogCategoryDTO;
 import aptech.project.educhain.endpoint.requests.blogs.BlogCategoryRequest;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;

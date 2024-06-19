@@ -1,4 +1,4 @@
-package aptech.project.educhain.domain.dto.blogs;
+package aptech.project.educhain.domain.dtos.blogs;
 
 import lombok.Data;
 

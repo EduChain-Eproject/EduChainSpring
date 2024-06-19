@@ -32,7 +32,7 @@ import aptech.project.educhain.data.serviceImpl.accounts.AuthService;
 import aptech.project.educhain.data.serviceImpl.blogs.BlogCategoryService;
 import aptech.project.educhain.data.serviceImpl.blogs.BlogService;
 import aptech.project.educhain.data.serviceImpl.common.UploadPhotoService;
-import aptech.project.educhain.domain.dto.blogs.BlogDTO;
+import aptech.project.educhain.domain.dtos.blogs.BlogDTO;
 import aptech.project.educhain.endpoint.requests.blogs.FilterBlogRequest;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;

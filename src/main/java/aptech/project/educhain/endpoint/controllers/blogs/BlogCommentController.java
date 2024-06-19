@@ -24,7 +24,7 @@ import aptech.project.educhain.data.serviceImpl.accounts.AuthService;
 import aptech.project.educhain.data.serviceImpl.blogs.BlogCommentService;
 import aptech.project.educhain.data.serviceImpl.blogs.BlogService;
 import aptech.project.educhain.data.serviceImpl.common.UploadPhotoService;
-import aptech.project.educhain.domain.dto.blogs.BlogCommentDTO;
+import aptech.project.educhain.domain.dtos.blogs.BlogCommentDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
