@@ -2,7 +2,6 @@ package aptech.project.educhain.domain.dtos.courses;
 
 import java.util.List;
 
-import aptech.project.educhain.domain.dtos.accounts.UserDTO;
 import lombok.Data;
 
 @Data
@@ -15,7 +14,7 @@ public class CourseDTO {
 
     // private UserDTO teacher;
 
-    // private List<CategoryDTO> categories;
+    private List<CategoryDTO> categoryDtos;
 
     // private List<Chapter> chapters;
 
