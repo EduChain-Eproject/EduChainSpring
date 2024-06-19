@@ -57,11 +57,11 @@ public class User extends BaseModel implements UserDetails {
     @Column(name = "isVerify")
     private Boolean isVerify;
 
-    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL,fetch = FetchType.LAZY)
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @ToString.Exclude
     private RefreshToken refreshToken;
 
-    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL,fetch = FetchType.LAZY)
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @ToString.Exclude
     private EmailToken emailToken;
 
@@ -72,7 +72,7 @@ public class User extends BaseModel implements UserDetails {
     private List<Comment> comments;
 
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    private List<UserCourse> userCourses;
+    private List<UserCourse> coursesParticipated;
 
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<UserHomework> userHomeworks;
@@ -107,12 +107,10 @@ public class User extends BaseModel implements UserDetails {
     @OneToMany(mappedBy = "sender", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<Notification> sentNotifications;
 
-
-
-    //Using UserDetail interface for config spring security
+    // Using UserDetail interface for config spring security
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return  List.of(new SimpleGrantedAuthority(role.name()));
+        return List.of(new SimpleGrantedAuthority(role.name()));
     }
 
     @Override
