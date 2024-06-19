@@ -1,7 +1,4 @@
-package aptech.project.educhain.data.serviceInterfaces.blogs;
-
-import aptech.project.educhain.data.entities.blogs.Blog;
-import aptech.project.educhain.data.serviceInterfaces.blogs.BlogSorting.SortStrategy;
+package aptech.project.educhain.domain.services.blogs;
 
 import java.util.List;
 import java.util.Map;

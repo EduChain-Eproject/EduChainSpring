@@ -1,4 +1,4 @@
-package aptech.project.educhain.data.serviceInterfaces.blogs;
+package aptech.project.educhain.domain.services.blogs;
 
 import aptech.project.educhain.data.entities.blogs.Blog;
 

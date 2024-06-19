@@ -33,6 +33,7 @@ import aptech.project.educhain.data.serviceImpl.blogs.BlogCategoryService;
 import aptech.project.educhain.data.serviceImpl.blogs.BlogService;
 import aptech.project.educhain.data.serviceImpl.common.UploadPhotoService;
 import aptech.project.educhain.domain.dtos.blogs.BlogDTO;
+import aptech.project.educhain.domain.services.blogs.UserBlogVoteService;
 import aptech.project.educhain.endpoint.requests.blogs.FilterBlogRequest;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -47,6 +48,9 @@ public class BlogController {
 
     @Autowired
     BlogService service;
+
+    @Autowired
+    UserBlogVoteService userBlogVoteService;
 
     @Autowired
     UploadPhotoService uploadPhotoService;
@@ -117,7 +121,7 @@ public class BlogController {
             @PathVariable Integer id) {
         User user = userService.findUserById(userId);
         Blog blog = service.findOneBlog(id);
-        Blog updatedBlog = service.vote(userId, id, vote);
+        Blog updatedBlog = userBlogVoteService.vote(userId, id, vote);
         return modelMapper.map(updatedBlog, BlogDTO.class);
     }
 

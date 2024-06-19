@@ -7,10 +7,9 @@ import aptech.project.educhain.data.entities.accounts.User;
 import aptech.project.educhain.data.entities.blogs.Blog;
 import aptech.project.educhain.data.entities.blogs.UserBlogVote;
 import aptech.project.educhain.data.repositories.blogs.BlogRepository;
-import aptech.project.educhain.domain.services.accounts.AuthService;
+import aptech.project.educhain.data.repositories.blogs.UserBlogVoteRepository;
+import aptech.project.educhain.data.serviceImpl.accounts.AuthService;
 import aptech.project.educhain.domain.useCases.blogs.BlogUseCases.FindOneBlogUseCase;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 @Component
 public class VoteBlogUseCase {
@@ -25,7 +24,8 @@ public class VoteBlogUseCase {
 
     @Autowired
     FindOneBlogUseCase findOneBlogUseCase;
-    public Blog execute(Integer userId, Integer blogId, int vote){
+
+    public Blog execute(Integer userId, Integer blogId, int vote) {
         User user = authService.findUserById(userId);
         Blog blog = findOneBlogUseCase.execute(blogId);
         UserBlogVote userBlogVote = voteRepository.findUserBlogVoteByUserAndAndBlog(user, blog);

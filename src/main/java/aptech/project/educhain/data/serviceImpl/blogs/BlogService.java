@@ -1,12 +1,4 @@
-package aptech.project.educhain.domain.services.blogs;
-
-import aptech.project.educhain.data.entities.blogs.Blog;
-import aptech.project.educhain.data.serviceInterfaces.blogs.BlogSorting.SortStrategy;
-import aptech.project.educhain.data.serviceInterfaces.blogs.IBlogService;
-import aptech.project.educhain.domain.useCases.blogs.BlogCommentUseCases.VoteBlogUseCase;
-import aptech.project.educhain.domain.useCases.blogs.BlogUseCases.*;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
+package aptech.project.educhain.data.serviceImpl.blogs;
 
 import java.util.List;
 import java.util.Map;
@@ -27,7 +19,6 @@ import aptech.project.educhain.domain.useCases.blogs.BlogUseCases.SortingBlogUse
 import aptech.project.educhain.domain.useCases.blogs.BlogUseCases.UpdateBlogUseCase;
 import aptech.project.educhain.domain.useCases.blogs.BlogUseCases.ValidateCreateUseCase;
 import aptech.project.educhain.domain.useCases.blogs.BlogUseCases.ValidateUpdateUseCase;
-import aptech.project.educhain.domain.useCases.blogs.BlogUseCases.VoteBlogUseCase;
 
 @Service
 public class BlogService implements IBlogService {
