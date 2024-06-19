@@ -18,8 +18,8 @@ import java.util.List;
 @NoArgsConstructor
 public class Course extends BaseModel {
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
-    @JoinColumn(name = "courseCategory_id", referencedColumnName = "id", nullable = true)
-    private CourseCategory courseCategory;
+    @JoinColumn(name = "user_id", referencedColumnName = "id")
+    private User teacher;
 
     @Column(name = "title")
     private String title;
@@ -30,18 +30,19 @@ public class Course extends BaseModel {
     @Column(name = "price")
     private Double price;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", referencedColumnName = "id")
-    private User teacher;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status")
+    private CourseStatus status;
 
-    @Column(name = "isActive")
-    private Boolean isActive;
+    @ManyToMany
+    @JoinTable(name = "tbl_course_categories", joinColumns = @JoinColumn(name = "course_id"), inverseJoinColumns = @JoinColumn(name = "category_id"))
+    private List<Category> categories;
 
     @OneToMany(mappedBy = "course", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<Chapter> chapters;
 
     @OneToMany(mappedBy = "course", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    private List<UserCourse> userCourses;
+    private List<UserCourse> participatedUsers;
 
     @OneToMany(mappedBy = "course", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<UserInterest> userInterests;

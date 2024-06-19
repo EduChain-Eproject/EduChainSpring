@@ -9,14 +9,16 @@ import lombok.NoArgsConstructor;
 import java.util.List;
 
 @Entity
-@Table(name = "tbl_course_category")
+@Table(name = "tbl_course_categories")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 public class CourseCategory extends BaseModel {
-    @Column(name = "category_name")
-    private String categoryName;
+    @ManyToOne
+    @JoinColumn(name = "course_id", referencedColumnName = "id")
+    private Course course;
 
-    @OneToMany(mappedBy = "courseCategory", fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
-    private List<Course> courses;
+    @ManyToOne
+    @JoinColumn(name = "category_id", referencedColumnName = "id")
+    private Category category;
 }

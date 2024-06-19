@@ -1,12 +1,18 @@
 package aptech.project.educhain.domain.useCases.blogs.BlogUseCases;
 
-import aptech.project.educhain.data.entities.blogs.Blog;
-import aptech.project.educhain.data.repositories.blogs.BlogRepository;
-import aptech.project.educhain.data.serviceInterfaces.blogs.BlogSorting.*;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
+import aptech.project.educhain.data.entities.blogs.Blog;
+import aptech.project.educhain.data.repositories.blogs.BlogRepository;
+import aptech.project.educhain.domain.services.blogs.BlogSorting.AscendingNameSort;
+import aptech.project.educhain.domain.services.blogs.BlogSorting.AscendingTimeSort;
+import aptech.project.educhain.domain.services.blogs.BlogSorting.DescendingNameSort;
+import aptech.project.educhain.domain.services.blogs.BlogSorting.DescendingTimeSort;
+import aptech.project.educhain.domain.services.blogs.BlogSorting.SortContext;
+import aptech.project.educhain.domain.services.blogs.BlogSorting.SortStrategy;
 
 @Component
 public class SortingBlogUseCase {
@@ -17,11 +23,12 @@ public class SortingBlogUseCase {
         SortContext sortContext = new SortContext(sortStrategy);
         return sortContext.executeSort(blogs);
     }
+
     public SortStrategy getSortStrategy(String sortStrategy) {
         if (sortStrategy == null) {
             return new DescendingTimeSort();
         }
-        switch (sortStrategy){
+        switch (sortStrategy) {
             case "ascTitle":
                 return new AscendingNameSort();
             case "descTitle":

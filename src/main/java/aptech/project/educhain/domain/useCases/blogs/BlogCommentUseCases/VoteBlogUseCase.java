@@ -1,5 +1,8 @@
 package aptech.project.educhain.domain.useCases.blogs.BlogCommentUseCases;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
 import aptech.project.educhain.data.entities.accounts.User;
 import aptech.project.educhain.data.entities.blogs.Blog;
 import aptech.project.educhain.data.entities.blogs.UserBlogVote;
@@ -15,6 +18,9 @@ public class VoteBlogUseCase {
     BlogRepository blogRepository;
 
     @Autowired
+    UserBlogVoteRepository voteRepository;
+
+    @Autowired
     AuthService authService;
 
     @Autowired
@@ -23,8 +29,8 @@ public class VoteBlogUseCase {
         User user = authService.findUserById(userId);
         Blog blog = findOneBlogUseCase.execute(blogId);
         UserBlogVote userBlogVote = voteRepository.findUserBlogVoteByUserAndAndBlog(user, blog);
-        if (userBlogVote != null){
-            if(vote == 0){
+        if (userBlogVote != null) {
+            if (vote == 0) {
                 voteRepository.delete(userBlogVote);
             } else {
                 userBlogVote.setVote(vote);

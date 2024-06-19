@@ -1,28 +1,41 @@
 package aptech.project.educhain.endpoint.controllers.blogs;
 
-import aptech.project.educhain.data.entities.accounts.User;
-import aptech.project.educhain.data.entities.blogs.Blog;
-import aptech.project.educhain.data.entities.blogs.BlogCategory;
-import aptech.project.educhain.domain.services.accounts.AuthService;
-import aptech.project.educhain.domain.dto.blogs.BlogDTO;
-import aptech.project.educhain.endpoint.requests.blogs.FilterBlogRequest;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.tags.Tag;
-import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
-
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
+import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
+
+import aptech.project.educhain.data.entities.accounts.User;
+import aptech.project.educhain.data.entities.blogs.Blog;
+import aptech.project.educhain.data.entities.blogs.BlogCategory;
+import aptech.project.educhain.data.serviceImpl.accounts.AuthService;
+import aptech.project.educhain.data.serviceImpl.blogs.BlogCategoryService;
+import aptech.project.educhain.data.serviceImpl.blogs.BlogService;
+import aptech.project.educhain.data.serviceImpl.common.UploadPhotoService;
+import aptech.project.educhain.domain.dtos.blogs.BlogDTO;
+import aptech.project.educhain.endpoint.requests.blogs.FilterBlogRequest;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 @Tag(name = "Blog")
 @RestController
@@ -36,6 +49,9 @@ public class BlogController {
     BlogService service;
 
     @Autowired
+    UploadPhotoService uploadPhotoService;
+
+    @Autowired
     AuthService userService;
 
     @Autowired
@@ -46,7 +62,7 @@ public class BlogController {
 
     @Operation(summary = "Get all blog")
     @GetMapping("")
-    public List<BlogDTO> findAll(){
+    public List<BlogDTO> findAll() {
         List<Blog> blogs = service.findAll();
 
         return blogs.stream().map(blog -> modelMapper.map(blog, BlogDTO.class)).collect(Collectors.toList());
@@ -54,26 +70,24 @@ public class BlogController {
 
     @Operation(summary = "Get 1 blog")
     @GetMapping("/{id}")
-    public BlogDTO findOne(@PathVariable Integer id){
-        Blog blog =  service.findBlog(id);
+    public BlogDTO findOne(@PathVariable Integer id) {
+        Blog blog = service.findOneBlog(id);
 
         return modelMapper.map(blog, BlogDTO.class);
     }
 
     @Operation(summary = "Add new blog")
     @PostMapping(value = "", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<?> create(@RequestParam("title") String title
-            , @RequestParam("userId") Integer userId
-            , @RequestParam("blogCategoryId") Integer blogCategoryId
-            , @RequestParam("blogText") String blogText
-            , @RequestParam("photo") MultipartFile photo){
+    public ResponseEntity<?> create(@RequestParam("title") String title, @RequestParam("userId") Integer userId,
+            @RequestParam("blogCategoryId") Integer blogCategoryId, @RequestParam("blogText") String blogText,
+            @RequestParam("photo") MultipartFile photo) {
         Map<String, String> errors = service.validateFields(title, userId, blogCategoryId, blogText);
         if (!errors.isEmpty()) {
             return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
         }
 
         try {
-            String fileName = service.uploadPhoto(uploadDir, photo);
+            String fileName = uploadPhotoService.uploadPhoto(uploadDir, photo);
 
             Blog blog = new Blog();
             User user = userService.findUserById(userId);
@@ -100,29 +114,27 @@ public class BlogController {
     public BlogDTO vote(
             @RequestParam Integer userId,
             @RequestParam Integer vote,
-            @PathVariable Integer id){
+            @PathVariable Integer id) {
         User user = userService.findUserById(userId);
-        Blog blog = service.findBlog(id);
+        Blog blog = service.findOneBlog(id);
         Blog updatedBlog = service.vote(userId, id, vote);
         return modelMapper.map(updatedBlog, BlogDTO.class);
     }
 
     @Operation(summary = "Edit blog")
     @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<?> update(@PathVariable Integer id
-            , @RequestParam("title") String title
-            , @RequestParam("blogCategoryId") Integer blogCategoryId
-            , @RequestParam("blogText") String blogText
-            , @RequestParam("photo") MultipartFile photo){
+    public ResponseEntity<?> update(@PathVariable Integer id, @RequestParam("title") String title,
+            @RequestParam("blogCategoryId") Integer blogCategoryId, @RequestParam("blogText") String blogText,
+            @RequestParam("photo") MultipartFile photo) {
         Map<String, String> errors = service.validateFieldsUpdate(title, blogCategoryId, blogText);
         if (!errors.isEmpty()) {
             return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
         }
 
         try {
-            String fileName = service.uploadPhoto(uploadDir, photo);
+            String fileName = uploadPhotoService.uploadPhoto(uploadDir, photo);
 
-            Blog blog = service.findBlog(id);
+            Blog blog = service.findOneBlog(id);
             BlogCategory category = blogCategoryService.findBlogCategory(blogCategoryId);
 
             blog.setTitle(title);
@@ -151,13 +163,13 @@ public class BlogController {
 
     @Operation(summary = "Delete blog")
     @DeleteMapping("/{id}")
-    public boolean delete(@PathVariable Integer id){
+    public boolean delete(@PathVariable Integer id) {
         return service.delete(id);
     }
 
     @Operation(summary = "Filter")
     @GetMapping("/filter")
-    public List<BlogDTO> filter(@RequestBody FilterBlogRequest rq){
+    public List<BlogDTO> filter(@RequestBody FilterBlogRequest rq) {
         List<Blog> blogs = service.findAll();
         if (rq.getCategoryId() != null) {
             blogs = service.findByCategory(blogs, rq.getCategoryId());

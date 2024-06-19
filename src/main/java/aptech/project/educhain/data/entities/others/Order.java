@@ -1,16 +1,22 @@
-package aptech.project.educhain.models;
+package aptech.project.educhain.data.entities.others;
+
+import java.math.BigDecimal;
+import java.util.Date;
 
 import aptech.project.educhain.data.entities.BaseModel;
 import aptech.project.educhain.data.entities.accounts.User;
 import aptech.project.educhain.data.entities.courses.Course;
-import aptech.project.educhain.data.entities.others.Coupon;
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.math.BigDecimal;
-import java.util.Date;
 
 @Data
 @NoArgsConstructor
@@ -41,6 +47,6 @@ public class Order extends BaseModel {
     private OrderStatus status;
 }
 
-    enum OrderStatus {
-        Pending, Paid, Cancelled
-    }
+enum OrderStatus {
+    Pending, Paid, Cancelled
+}

@@ -1,6 +1,5 @@
 package aptech.project.educhain.common.config;
 
-import aptech.project.educhain.domain.services.accounts.OurUserDetailService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -16,6 +15,9 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+
+import aptech.project.educhain.data.serviceImpl.accounts.OurUserDetailService;
+
 @Configuration
 @EnableWebSecurity
 public class SercurityConfig {
@@ -28,37 +30,39 @@ public class SercurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
         httpSecurity.csrf(AbstractHttpConfigurer::disable).authorizeHttpRequests(request -> request
-                        .requestMatchers("/Auth/**").permitAll()
-                        //fix spring security for other rout down here:
-                        .requestMatchers("/ADMIN/**").hasAnyAuthority("ADMIN")
-                        .requestMatchers("/USER/**").hasAnyAuthority("USER")
-                        .anyRequest().permitAll())
-                        .formLogin(
-                                form -> form
-                                        .loginProcessingUrl("/Auth/login")
-                                        .permitAll()
-                        )
+                .requestMatchers("/Auth/**").permitAll()
+                // fix spring security for other rout down here:
+                .requestMatchers("/ADMIN/**").hasAnyAuthority("ADMIN")
+                .requestMatchers("/USER/**").hasAnyAuthority("USER")
+                .anyRequest().permitAll())
+                .formLogin(
+                        form -> form
+                                .loginProcessingUrl("/Auth/login")
+                                .permitAll())
                 .sessionManagement(manager -> manager.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authenticationProvider(authenticationProvider()).addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+                .authenticationProvider(authenticationProvider())
+                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
         httpSecurity.csrf(csrf -> csrf.disable());
         return httpSecurity.build();
     }
 
     @Bean
-    public AuthenticationProvider authenticationProvider(){
+    public AuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider daoAuthenticationProvider = new DaoAuthenticationProvider();
         daoAuthenticationProvider.setUserDetailsService(ourUserDetailsService);
-        //cut down the hashpassword for easier test check
+        // cut down the hashpassword for easier test check
         daoAuthenticationProvider.setPasswordEncoder(passWordEncoder());
         return daoAuthenticationProvider;
     }
+
     @Bean
-    public PasswordEncoder passWordEncoder(){
-        return  new BCryptPasswordEncoder();
+    public PasswordEncoder passWordEncoder() {
+        return new BCryptPasswordEncoder();
     }
 
     @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception{
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration)
+            throws Exception {
         return authenticationConfiguration.getAuthenticationManager();
     }
 }
