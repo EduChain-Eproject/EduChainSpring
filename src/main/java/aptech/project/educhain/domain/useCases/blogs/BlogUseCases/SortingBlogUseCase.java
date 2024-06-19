@@ -13,7 +13,7 @@ public class SortingBlogUseCase {
     @Autowired
     BlogRepository blogRepository;
 
-    public List<Blog> execute(List<Blog> blogs, aptech.project.educhain.services.blogs.IBlogService.BlogSorting.SortStrategy sortStrategy) {
+    public List<Blog> execute(List<Blog> blogs, SortStrategy sortStrategy) {
         SortContext sortContext = new SortContext(sortStrategy);
         return sortContext.executeSort(blogs);
     }

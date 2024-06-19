@@ -1,7 +1,7 @@
 package aptech.project.educhain.data.serviceInterfaces.blogs;
 
 import aptech.project.educhain.data.entities.blogs.Blog;
-import aptech.project.educhain.services.blogs.IBlogService.BlogSorting.SortStrategy;
+import aptech.project.educhain.data.serviceInterfaces.blogs.BlogSorting.SortStrategy;
 
 import java.util.List;
 import java.util.Map;
@@ -26,6 +26,4 @@ public interface IBlogService {
     public Map<String, String> validateFields(String title, Integer userId, Integer blogCategoryId, String blogText);
 
     public Map<String, String> validateFieldsUpdate(String title, Integer blogCategoryId, String blogText);
-
-    public Blog vote(Integer userId, Integer blogId, int vote);
 }

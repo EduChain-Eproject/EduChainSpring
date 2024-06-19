@@ -1,11 +1,10 @@
 package aptech.project.educhain.domain.services.blogs;
 
 import aptech.project.educhain.data.entities.blogs.Blog;
-import aptech.project.educhain.data.repositories.blogs.UserBlogVoteRepository;
-import aptech.project.educhain.domain.services.accounts.AuthService;
+import aptech.project.educhain.data.serviceInterfaces.blogs.BlogSorting.SortStrategy;
 import aptech.project.educhain.data.serviceInterfaces.blogs.IBlogService;
+import aptech.project.educhain.domain.useCases.blogs.BlogCommentUseCases.VoteBlogUseCase;
 import aptech.project.educhain.domain.useCases.blogs.BlogUseCases.*;
-import aptech.project.educhain.services.blogs.IBlogService.BlogSorting.SortStrategy;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -43,9 +42,6 @@ public class BlogService implements IBlogService {
 
     @Autowired
     ValidateUpdateUseCase validateUpdateUseCase;
-
-    @Autowired
-    VoteBlogUseCase voteBlogUseCase;
 
     @Override
     public Blog findOneBlog(Integer id) {
@@ -95,11 +91,6 @@ public class BlogService implements IBlogService {
     @Override
     public Map<String, String> validateFieldsUpdate(String title, Integer blogCategoryId, String blogText) {
         return validateUpdateUseCase.execute(title, blogCategoryId, blogText);
-    }
-
-    @Override
-    public Blog vote(Integer userId, Integer blogId, int vote) {
-        return voteBlogUseCase.execute(userId, blogId, vote);
     }
 }
 
