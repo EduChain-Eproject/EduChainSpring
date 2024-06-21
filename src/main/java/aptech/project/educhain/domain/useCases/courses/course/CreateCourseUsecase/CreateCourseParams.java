@@ -7,7 +7,7 @@ import lombok.Data;
 
 @Data
 public class CreateCourseParams {
-    private List<Integer> categoryId;
+    private List<Integer> categoryIds;
 
     private String title;
 

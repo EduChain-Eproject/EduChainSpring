@@ -28,7 +28,7 @@ public class CourseController {
     @Autowired
     private ModelMapper modelMapper;
 
-    @PostMapping("")
+    @PostMapping("create")
     public ResponseEntity<?> createCourse(@RequestBody CreateCourseRequest request, BindingResult rs) {
         if (rs.hasErrors()) {
             StringBuilder errors = new StringBuilder();

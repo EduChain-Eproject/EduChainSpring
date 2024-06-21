@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class CreateCourseRequest {
-    private List<Integer> categoryId = List.of(1);
+    private List<Integer> categoryIds = List.of(1);
 
     @NotEmpty(message = "Email is required")
     private String title;

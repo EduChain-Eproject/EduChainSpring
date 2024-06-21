@@ -37,7 +37,7 @@ public class CreateCourseUsecase implements Usecase<CourseDTO, CreateCourseParam
         try {
             Course course = modelMapper.map(params, Course.class);
 
-            List<Category> categories = categoryRepository.findAllById(params.getCategoryId());
+            List<Category> categories = categoryRepository.findAllById(params.getCategoryIds());
             var teacher = authUserRepository.findById(params.getTeacherId());
 
             if (!teacher.isPresent()) {

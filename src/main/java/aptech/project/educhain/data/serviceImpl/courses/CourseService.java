@@ -5,7 +5,7 @@ import org.springframework.stereotype.Service;
 
 import aptech.project.educhain.common.result.AppResult;
 import aptech.project.educhain.domain.dtos.courses.CourseDTO;
-import aptech.project.educhain.domain.services.courses.course.ICourseService;
+import aptech.project.educhain.domain.services.courses.ICourseService;
 import aptech.project.educhain.domain.useCases.courses.course.CreateCourseUsecase.CreateCourseParams;
 import aptech.project.educhain.domain.useCases.courses.course.CreateCourseUsecase.CreateCourseUsecase;
 
