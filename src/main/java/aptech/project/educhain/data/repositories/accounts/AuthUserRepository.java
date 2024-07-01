@@ -9,6 +9,8 @@ import java.util.Optional;
 public interface AuthUserRepository extends JpaRepository<User,Integer> {
    @Query("SELECT u FROM User u WHERE u.id = :id")
    User findUserWithId(int id);
+   @Query("SELECT u FROM User u WHERE u.email = :email")
+   User findUserWithEmail(String email);
    Optional<User> findByEmail(String email);
    @Query("SELECT u FROM User u WHERE u.email = :email")
    User findUserByEmail(String email);

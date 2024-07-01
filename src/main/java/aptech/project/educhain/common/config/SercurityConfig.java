@@ -33,12 +33,13 @@ public class SercurityConfig {
                 .requestMatchers("/Auth/**").permitAll()
                 // fix spring security for other rout down here:
                 .requestMatchers("/ADMIN/**").hasAnyAuthority("ADMIN")
-                .requestMatchers("/USER/**").hasAnyAuthority("USER")
+                .requestMatchers("/COMMON/**").hasAnyAuthority("STUDENT","TEACHER")
+                .requestMatchers("/STUDENT/**").hasAnyAuthority("STUDENT")
                 .anyRequest().permitAll())
-                .formLogin(
-                        form -> form
-                                .loginProcessingUrl("/Auth/login")
-                                .permitAll())
+//                .formLogin(
+//                        form -> form
+//                                .loginProcessingUrl("/Auth/login")
+//                                .permitAll())
                 .sessionManagement(manager -> manager.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider())
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
