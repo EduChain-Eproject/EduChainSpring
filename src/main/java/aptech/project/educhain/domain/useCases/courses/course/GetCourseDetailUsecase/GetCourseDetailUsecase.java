@@ -13,6 +13,7 @@ import aptech.project.educhain.common.usecase.Usecase;
 import aptech.project.educhain.data.entities.courses.Course;
 import aptech.project.educhain.data.repositories.courses.CourseRepository;
 import aptech.project.educhain.domain.dtos.courses.CategoryDTO;
+import aptech.project.educhain.domain.dtos.courses.ChapterDTO;
 import aptech.project.educhain.domain.dtos.courses.CourseDTO;
 
 @Component
@@ -33,6 +34,9 @@ public class GetCourseDetailUsecase implements Usecase<CourseDTO, Integer> {
                 CourseDTO courseDTO = modelMapper.map(course, CourseDTO.class);
                 courseDTO.setCategoryDtos(course.getCategories().stream()
                         .map(category -> modelMapper.map(category, CategoryDTO.class))
+                        .collect(Collectors.toList()));
+                courseDTO.setChapterDtos(course.getChapters().stream()
+                        .map(chapter -> modelMapper.map(chapter, ChapterDTO.class))
                         .collect(Collectors.toList()));
                 return AppResult.successResult(courseDTO);
             } else {

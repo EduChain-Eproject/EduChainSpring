@@ -9,6 +9,8 @@ import aptech.project.educhain.domain.services.courses.IChapterService;
 import aptech.project.educhain.domain.useCases.courses.chapter.CreateChapterUsecase.CreateChapterParams;
 import aptech.project.educhain.domain.useCases.courses.chapter.CreateChapterUsecase.CreateChapterUsecase;
 import aptech.project.educhain.domain.useCases.courses.chapter.DeleteChapterUsecase.DeleteChapterUsecase;
+import aptech.project.educhain.domain.useCases.courses.chapter.GetChapterDetailUsecase.GetChapterDetailParams;
+import aptech.project.educhain.domain.useCases.courses.chapter.GetChapterDetailUsecase.GetChapterDetailUsecase;
 import aptech.project.educhain.domain.useCases.courses.chapter.UpdateChapterUsecase.UpdateChapterParams;
 import aptech.project.educhain.domain.useCases.courses.chapter.UpdateChapterUsecase.UpdateChapterUsecase;
 
@@ -22,6 +24,9 @@ public class ChapterService implements IChapterService {
 
     @Autowired
     DeleteChapterUsecase deleteChapterUsecase;
+
+    @Autowired
+    GetChapterDetailUsecase getChapterDetailUsecase;
 
     @Override
     public AppResult<ChapterDTO> createChapter(CreateChapterParams params) {
@@ -37,4 +42,10 @@ public class ChapterService implements IChapterService {
     public AppResult<Void> deleteChapter(Integer chapterId) {
         return deleteChapterUsecase.execute(chapterId);
     }
+
+    @Override
+    public AppResult<ChapterDTO> getChapterDetail(GetChapterDetailParams params) {
+        return getChapterDetailUsecase.execute(params);
+    }
+
 }
