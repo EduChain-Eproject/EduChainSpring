@@ -12,15 +12,15 @@ public class CourseDTO {
     private Double price;
     private String status;
 
-    // private UserDTO teacher;
-
     private List<CategoryDTO> categoryDtos;
 
-    // private List<Chapter> chapters;
+    // private UserDTO teacherDto;
 
-    // private List<UserCourse> participatedUsers;
+    private List<ChapterDTO> chapterDtos;
 
-    // private List<UserInterest> userInterests;
+    // private List<UserCourseDto> participatedUserDtos;
 
-    // private List<CourseFeedback> courseFeedbacks;
+    // private List<UserInterestDto> userInterestDtos;
+
+    // private List<CourseFeedbackDto> courseFeedbackDtos;
 }

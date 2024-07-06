@@ -2,7 +2,7 @@ package aptech.project.educhain.endpoint.requests.courses.course.teacher;
 
 import java.util.List;
 
-import jakarta.validation.constraints.NotEmpty;
+import aptech.project.educhain.data.entities.courses.CourseStatus;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -10,14 +10,10 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class CreateCourseRequest {
+public class UpdateCourseRequest {
     private List<Integer> categoryIds;
-
-    @NotEmpty(message = "Email is required")
     private String title;
-
-    @NotEmpty(message = "Email is required")
     private String description;
-
     private Double price;
+    private CourseStatus status;
 }
