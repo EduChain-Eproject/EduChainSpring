@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -22,8 +23,22 @@ public class Question extends BaseModel {
     private String questionText;
 
     @OneToMany(mappedBy = "question", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    private List<Answers> answers;
+    private List<Answers> answers = new ArrayList<>();
 
-    @OneToMany(mappedBy = "question", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    private List<UserAnswer> userAnswers;
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "correct_answer_id")
+    private Answers correctAnswer;
+
+    @PrePersist
+    public void prePersist() {
+        if (answers.isEmpty()) {
+            for (int i = 0; i < 4; i++) {
+                Answers answer = new Answers();
+                answer.setQuestion(this);
+                answer.setAnswerText("Answer " + (i + 1));
+                answers.add(answer);
+            }
+        }
+    }
 }
+

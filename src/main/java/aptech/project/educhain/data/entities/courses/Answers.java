@@ -21,9 +21,10 @@ public class Answers extends BaseModel {
     @Column(name = "answerText", columnDefinition = "TEXT")
     private String answerText;
 
-    @Column(name = "isCorrect")
-    private Boolean isCorrect;
-
     @OneToMany(mappedBy = "answer", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<UserAnswer> userAnswers;
+
+    public Answers(String answerText){
+        this.answerText = answerText;
+    }
 }
