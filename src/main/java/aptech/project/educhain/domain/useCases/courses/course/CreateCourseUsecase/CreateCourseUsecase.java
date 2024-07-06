@@ -52,7 +52,6 @@ public class CreateCourseUsecase implements Usecase<CourseDTO, CreateCourseParam
             courseDTO.setCategoryDtos(savedCourse.getCategories().stream()
                     .map(category -> modelMapper.map(category, CategoryDTO.class))
                     .collect(Collectors.toList()));
-
             return AppResult.successResult(courseDTO);
         } catch (Exception e) {
             return AppResult.failureResult(new Failure("Failed to create course: " + e.getMessage()));

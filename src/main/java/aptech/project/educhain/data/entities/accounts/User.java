@@ -9,6 +9,7 @@ import aptech.project.educhain.data.entities.chats.UserChat;
 import aptech.project.educhain.data.entities.courses.*;
 import aptech.project.educhain.data.entities.others.Coupon;
 import aptech.project.educhain.data.entities.others.CourseFeedback;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import lombok.AllArgsConstructor;
@@ -57,10 +58,20 @@ public class User extends BaseModel implements UserDetails {
     @Column(name = "isVerify")
     private Boolean isVerify;
 
+    @Column(name = "avatarPath")
+    private String avatarPath;
+
+    @JsonIgnoreProperties("user")
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL,fetch = FetchType.LAZY)
+    @ToString.Exclude
+    private UserSession userSession;
+
+    @JsonIgnoreProperties("user")
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @ToString.Exclude
     private RefreshToken refreshToken;
 
+    @JsonIgnoreProperties("user")
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @ToString.Exclude
     private EmailToken emailToken;
