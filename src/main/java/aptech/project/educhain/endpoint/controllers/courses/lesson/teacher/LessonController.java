@@ -10,12 +10,14 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import aptech.project.educhain.common.result.AppResult;
 import aptech.project.educhain.data.serviceImpl.courses.LessonService;
@@ -38,7 +40,7 @@ public class LessonController {
     @Autowired
     private ModelMapper modelMapper;
 
-    @GetMapping("/{lessonId}")
+    @GetMapping("/detail/{lessonId}")
     public ResponseEntity<?> getLessonDetail(@PathVariable("lessonId") Integer lessonId) {
         AppResult<LessonDTO> result = lessonService.getLessonDetail(lessonId);
         if (result.isSuccess()) {
@@ -49,7 +51,10 @@ public class LessonController {
     }
 
     @PostMapping("/create")
-    public ResponseEntity<?> createLesson(@RequestBody CreateLessonRequest request, BindingResult rs) {
+    public ResponseEntity<?> createLesson(
+            @RequestParam("file") MultipartFile file,
+            @ModelAttribute CreateLessonRequest request,
+            BindingResult rs) {
         if (rs.hasErrors()) {
             StringBuilder errors = new StringBuilder();
             List<ObjectError> errorList = rs.getAllErrors();
@@ -59,18 +64,31 @@ public class LessonController {
             return ResponseEntity.badRequest().body(errors.toString());
         }
 
-        var lesson = lessonService.createLesson(modelMapper.map(request, CreateLessonParams.class));
+        try {
+            // String videoURL = fileUploadService.uploadFile(file);
+            // request.setVideoURL(videoURL);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("File upload failed: " + e.getMessage());
+        }
+
+        CreateLessonParams params = modelMapper.map(request, CreateLessonParams.class);
+
+        AppResult<LessonDTO> lesson = lessonService.createLesson(params);
 
         if (lesson.isSuccess()) {
             var res = modelMapper.map(lesson.getSuccess(), CreateLessonResponse.class);
             return new ResponseEntity<>(res, HttpStatus.CREATED);
         }
+
         return new ResponseEntity<>(lesson.getFailure().getMessage(), HttpStatus.BAD_REQUEST);
     }
 
     @PutMapping("/update/{lessonId}")
     public ResponseEntity<?> updateLesson(@PathVariable("lessonId") Integer lessonId,
-            @RequestBody UpdateLessonRequest request, BindingResult rs) {
+            @RequestParam("file") MultipartFile file,
+            @ModelAttribute UpdateLessonRequest request,
+            BindingResult rs) {
         if (rs.hasErrors()) {
             StringBuilder errors = new StringBuilder();
             List<ObjectError> errorList = rs.getAllErrors();
@@ -80,10 +98,18 @@ public class LessonController {
             return ResponseEntity.badRequest().body(errors.toString());
         }
 
+        try {
+            // String videoURL = fileUploadService.uploadFile(file);
+            // request.setVideoURL(videoURL);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("File upload failed: " + e.getMessage());
+        }
+
         UpdateLessonParams params = modelMapper.map(request, UpdateLessonParams.class);
         params.setId(lessonId);
 
-        var lesson = lessonService.updateLesson(params);
+        AppResult<LessonDTO> lesson = lessonService.updateLesson(params);
 
         if (lesson.isSuccess()) {
             var res = modelMapper.map(lesson.getSuccess(), UpdateLessonResponse.class);
@@ -96,7 +122,7 @@ public class LessonController {
     public ResponseEntity<?> deleteLesson(@PathVariable("lessonId") Integer lessonId) {
         var result = lessonService.deleteLesson(lessonId);
         if (result.isSuccess()) {
-            return ResponseEntity.ok().body("Lesson deleted successfully");
+            return ResponseEntity.ok().body(lessonId);
         }
         return ResponseEntity.badRequest().body(result.getFailure().getMessage());
     }
