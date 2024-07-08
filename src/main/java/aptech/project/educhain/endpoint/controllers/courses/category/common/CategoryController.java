@@ -1,4 +1,4 @@
-package aptech.project.educhain.endpoint.controllers.courses.category.teacher;
+package aptech.project.educhain.endpoint.controllers.courses.category.common;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -17,7 +17,7 @@ import aptech.project.educhain.domain.dtos.courses.CategoryDTO;
 import aptech.project.educhain.endpoint.responses.courses.category.teacher.GetListCategoryResponse;
 
 @RestController
-@RequestMapping("/TEACHER/api/category")
+@RequestMapping("/COMMON/api/category")
 public class CategoryController {
     @Autowired
     private CategoryService categoryService;

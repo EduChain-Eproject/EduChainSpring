@@ -1,5 +1,7 @@
 package aptech.project.educhain.data.serviceImpl.courses;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
@@ -13,6 +15,9 @@ import aptech.project.educhain.domain.useCases.courses.course.DeleteCourseUsecas
 import aptech.project.educhain.domain.useCases.courses.course.GetCourseDetailUsecase.GetCourseDetailUsecase;
 import aptech.project.educhain.domain.useCases.courses.course.GetCoursesByTeacherUsecase.GetCoursesByTeacherParams;
 import aptech.project.educhain.domain.useCases.courses.course.GetCoursesByTeacherUsecase.GetCoursesByTeacherUsecase;
+import aptech.project.educhain.domain.useCases.courses.course.GetRelatedCoursesUsecase.GetRelatedCoursesUsecase;
+import aptech.project.educhain.domain.useCases.courses.course.SearchCoursesUseCase.CourseSearchParams;
+import aptech.project.educhain.domain.useCases.courses.course.SearchCoursesUseCase.SearchCoursesUseCase;
 import aptech.project.educhain.domain.useCases.courses.course.UpdateCourseUsecase.UpdateCourseParams;
 import aptech.project.educhain.domain.useCases.courses.course.UpdateCourseUsecase.UpdateCourseUsecase;
 
@@ -32,6 +37,12 @@ public class CourseService implements ICourseService {
 
     @Autowired
     GetCourseDetailUsecase getCourseDetailUsecase;
+
+    @Autowired
+    SearchCoursesUseCase searchCoursesUseCase;
+
+    @Autowired
+    GetRelatedCoursesUsecase getRelatedCoursesUsecase;
 
     @Override
     public AppResult<CourseDTO> createCourse(CreateCourseParams params) {
@@ -56,5 +67,14 @@ public class CourseService implements ICourseService {
     @Override
     public AppResult<CourseDTO> deleteCourse(int courseId) {
         return deleteCourseUsecase.execute(courseId);
+    }
+
+    @Override
+    public AppResult<Page<CourseDTO>> searchCourses(CourseSearchParams rapams) {
+        return searchCoursesUseCase.execute(rapams);
+    }
+
+    public AppResult<List<CourseDTO>> getRelatedCourses(Integer courseId) {
+        return getRelatedCoursesUsecase.execute(courseId);
     }
 }
