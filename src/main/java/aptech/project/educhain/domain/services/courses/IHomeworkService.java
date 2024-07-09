@@ -18,7 +18,7 @@ public interface IHomeworkService {
 
     public AppResult<HomeworkDTO> createHomework(CreateHomeworkParam param);
 
-    public AppResult<HomeworkDTO> updateHomework(int id, UpdateHomeworkParam param);
+    public AppResult<HomeworkDTO> updateHomework(UpdateHomeworkParam param);
 
-    public AppResult<Boolean> deleteHomework(DeleteHomeworkParam param);
+    public AppResult<Void> deleteHomework(DeleteHomeworkParam param);
 }

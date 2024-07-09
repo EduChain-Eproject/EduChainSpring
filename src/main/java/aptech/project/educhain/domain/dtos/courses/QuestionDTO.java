@@ -13,11 +13,13 @@ import java.util.List;
 
 @Data
 public class QuestionDTO{
-    private Integer homework;
+    private Integer id;
+
+    private Integer homeworkId;
 
     private String questionText;
 
-    private List<Answers> answers;
+    private List<AnswerDTO> answers;
 
-    private Integer correctAnswer;
+    private Integer correctAnswerId;
 }

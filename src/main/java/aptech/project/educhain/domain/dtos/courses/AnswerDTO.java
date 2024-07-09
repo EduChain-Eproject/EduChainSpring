@@ -12,9 +12,7 @@ import java.util.List;
 
 @Data
 public class AnswerDTO{
-    private Integer id;
-
-    private Integer question;
-
+    private Integer answerId;
+    private Integer questionId;
     private String answerText;
 }

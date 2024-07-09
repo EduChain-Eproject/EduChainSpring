@@ -8,5 +8,6 @@ import java.util.List;
 
 @Data
 public class UpdateAnswerParam {
+    private int id;
     private String answerText;
 }

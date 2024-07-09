@@ -10,7 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
-public class DeleteHomeworkUseCase  implements Usecase<Boolean, DeleteHomeworkParam> {
+public class DeleteHomeworkUseCase  implements Usecase<Void, DeleteHomeworkParam> {
     @Autowired
     HomeworkRepository homeworkRepository;
 
@@ -18,13 +18,16 @@ public class DeleteHomeworkUseCase  implements Usecase<Boolean, DeleteHomeworkPa
     ModelMapper modelMapper;
 
     @Override
-    public AppResult<Boolean> execute(DeleteHomeworkParam params) {
-        try{
-            Homework homework = homeworkRepository.findById(params.getId()).get();
-            homeworkRepository.delete(homework);
-            return AppResult.successResult(true);
-        }catch(Exception ex){
-            return AppResult.failureResult(new Failure("Failed to delete homework: " + ex.getMessage()));
+    public AppResult<Void> execute(DeleteHomeworkParam param) {
+        try {
+            if (homeworkRepository.existsById(param.getId())) {
+                homeworkRepository.deleteById(param.getId());
+                return AppResult.successResult(null);
+            } else {
+                return AppResult.failureResult(new Failure("Homework not found with ID: " + param.getId()));
+            }
+        } catch (Exception e) {
+            return AppResult.failureResult(new Failure("Error deleting homework: " + e.getMessage()));
         }
     }
 }

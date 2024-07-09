@@ -4,16 +4,15 @@ import aptech.project.educhain.common.result.AppResult;
 import aptech.project.educhain.common.result.Failure;
 import aptech.project.educhain.common.usecase.Usecase;
 import aptech.project.educhain.data.entities.courses.Answers;
-import aptech.project.educhain.data.entities.courses.Question;
-import aptech.project.educhain.data.repositories.accounts.AuthUserRepository;
+import aptech.project.educhain.data.entities.courses.Homework;
 import aptech.project.educhain.data.repositories.courses.AnswerRepository;
-import aptech.project.educhain.data.repositories.courses.QuestionRepository;
 import aptech.project.educhain.domain.dtos.courses.AnswerDTO;
-import aptech.project.educhain.domain.dtos.courses.QuestionDTO;
-import aptech.project.educhain.domain.useCases.courses.Question.UpdateHomeworkUseCase.UpdateQuestionParam;
+import aptech.project.educhain.domain.dtos.courses.HomeworkDTO;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import java.util.Optional;
 
 @Component
 public class UpdateAnswerUseCase implements Usecase<AnswerDTO, UpdateAnswerParam> {
@@ -25,15 +24,23 @@ public class UpdateAnswerUseCase implements Usecase<AnswerDTO, UpdateAnswerParam
 
     @Override
     public AppResult<AnswerDTO> execute(UpdateAnswerParam params) {
-        try {
-            Answers answers = modelMapper.map(params, Answers.class);
-            answers.setAnswerText(params.getAnswerText());
-
-            Answers saveAnswer = answerRepository.saveAndFlush(answers);
-            AnswerDTO answerDTO = modelMapper.map(saveAnswer, AnswerDTO.class);
-            return AppResult.successResult(answerDTO);
-        } catch (Exception e) {
-            return AppResult.failureResult(new Failure("Failed to update: " + e.getMessage()));
+    try{
+        Optional<Answers> answersOptional = answerRepository.findById(params.getId());
+        if (!answersOptional.isPresent()) {
+            return AppResult.failureResult(new Failure("Answer not found with ID: " + params.getId()));
         }
+
+        Answers ans = answersOptional.get();
+        ans.setAnswerText(params.getAnswerText());
+
+        Answers saveAnswer = answerRepository.saveAndFlush(ans);
+
+        AnswerDTO answerDTO = modelMapper.map(saveAnswer, AnswerDTO.class);
+        answerDTO.setQuestionId(ans.getQuestion().getId());
+        answerDTO.setAnswerId(ans.getId());
+        return AppResult.successResult(answerDTO);
+    } catch (Exception e) {
+        return AppResult.failureResult(new Failure("Failed to update homework: " + e.getMessage()));
+    }
     }
 }

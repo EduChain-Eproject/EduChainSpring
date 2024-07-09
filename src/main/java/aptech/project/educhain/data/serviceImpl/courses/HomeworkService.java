@@ -52,13 +52,12 @@ public class HomeworkService implements IHomeworkService {
     }
 
     @Override
-    public AppResult<HomeworkDTO> updateHomework(int id, UpdateHomeworkParam param) {
-        param.setHomeworkId(id);
+    public AppResult<HomeworkDTO> updateHomework(UpdateHomeworkParam param) {
         return updateHomeworkUseCase.execute(param);
     }
 
     @Override
-    public AppResult<Boolean> deleteHomework(DeleteHomeworkParam param) {
+    public AppResult<Void> deleteHomework(DeleteHomeworkParam param) {
         return deleteHomeworkUseCase.execute(param);
     }
 }

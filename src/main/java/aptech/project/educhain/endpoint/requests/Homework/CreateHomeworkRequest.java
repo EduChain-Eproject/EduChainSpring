@@ -7,6 +7,8 @@ import org.hibernate.validator.constraints.Length;
 
 @Data
 public class CreateHomeworkRequest {
+    private int lessonId;
+
     @NotEmpty
     @Length(min = 5, max = 100, message = "Title between 5 and 100 characters")
     private String title;

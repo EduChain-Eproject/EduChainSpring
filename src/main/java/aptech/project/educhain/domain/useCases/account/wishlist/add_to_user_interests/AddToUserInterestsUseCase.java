@@ -36,7 +36,7 @@ public class AddToUserInterestsUseCase implements Usecase<UserInterestsDTO, AddT
           if(findUser.getRole().name().equals("TEACHER")){
               return AppResult.failureResult(new Failure("You don't have permission to do this action"));
           }
-          Course findCourse = courseRepository.findCourseWithId(params.getCourse_id());
+          Course findCourse = courseRepository.findById(params.getCourse_id()).get();
           // map data
           UserInterest userInterest = new UserInterest();
           userInterest.setCourse(findCourse);

@@ -39,6 +39,9 @@ public class Question extends BaseModel {
                 answers.add(answer);
             }
         }
+        if (this.correctAnswer == null) {
+            this.correctAnswer = answers.get(0);
+        }
     }
 }
 
