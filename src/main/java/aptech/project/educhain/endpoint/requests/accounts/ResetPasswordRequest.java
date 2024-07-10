@@ -20,4 +20,6 @@ public class ResetPasswordRequest {
     )
     @NotEmpty(message = "Password is required")
     private String password;
+    @NotEmpty(message = "code not empty")
+    private String code;
 }

@@ -4,6 +4,7 @@ import java.util.List;
 
 import aptech.project.educhain.data.entities.accounts.ResetPasswordToken;
 import aptech.project.educhain.domain.dtos.accounts.UserDTO;
+import aptech.project.educhain.endpoint.requests.accounts.ResetEmailRequest;
 import aptech.project.educhain.endpoint.requests.accounts.ResetPasswordRequest;
 import jakarta.servlet.http.HttpServletRequest;
 import org.modelmapper.ModelMapper;
@@ -66,13 +67,10 @@ public class AuthController {
             String encodedPassword = passwordEncoder.encode(loginRequest.getPassword());
             UserDetails userDetails = userDetailsService.loadUserByUsername(loginRequest.getEmail());
 
-//            if(!user.getPassword().equals(loginRequest.getPassword())){
-//                return ResponseEntity.badRequest().body(new ResponseWithMessage<>(null,"wrong password"));
-//            }
             if(!passwordEncoder.matches(loginRequest.getPassword(),userDetails.getPassword())){
                 return ResponseEntity.badRequest().body(new ResponseWithMessage<>(null,"wrong password"));
             }
-                if(user.getEmail() == null ){
+            if(user.getEmail() == null ){
                 return ResponseEntity.badRequest().body(new ResponseWithMessage<>(null,"cant find account"));
             }
             if(!user.getIsVerify()){
@@ -97,7 +95,6 @@ public class AuthController {
         UserDTO userDtoResponse =  modelMapper.map(user,UserDTO.class);
         return ResponseEntity.ok(new ResponseWithMessage<>( userDtoResponse,"success"));
     }
-
     @GetMapping("getUser")
     public ResponseEntity<?> getUser(HttpServletRequest request){
         String token = request.getHeader("Authorization");
@@ -110,7 +107,6 @@ public class AuthController {
         UserDTO userDtoResponse =  modelMapper.map(user,UserDTO.class);
         return ResponseEntity.ok(userDtoResponse);
     }
-
 
 
     @PostMapping("/logout")
@@ -139,6 +135,9 @@ public class AuthController {
             return ResponseEntity.badRequest().body("your email already exit please use other email");
             //send mails    a
         }
+        if (regis.getRole() == null) {
+            return new ResponseEntity<>("Invalid role", HttpStatus.BAD_REQUEST);
+        }
         User user = iAuthService.register(regis);
         EmailToken emailToken =  iAuthService.createTokenEmail(user.getId());
         String url = baseUrlVerify + emailToken.getVerifyToken();
@@ -164,10 +163,10 @@ public class AuthController {
     }
 
     //send mail reset-password
-    @PostMapping("/reset_password")
-    public ResponseEntity<String> resetPasswordRequest(@RequestBody  String email){
+    @PostMapping("/send_mail")
+    public ResponseEntity<String> sendMail(@RequestBody ResetEmailRequest request){
         //check email exits
-        User user = iAuthService.findUserByEmail(email);
+        User user = iAuthService.findUserByEmail(request.getEmail());
         if(user.getEmail() == null){
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Can't find your email");
         }
@@ -179,8 +178,8 @@ public class AuthController {
     }
 
     //api for reset password
-    @PostMapping("/reset_action")
-    public ResponseEntity<String> resetAction(@Valid @RequestBody ResetPasswordRequest req, BindingResult rs, @RequestParam("code") String token){
+    @PostMapping("/reset_password")
+    public ResponseEntity<String> resetAction(@Valid @RequestBody ResetPasswordRequest req, BindingResult rs){
         if(rs.hasErrors()){
             StringBuilder errors = new StringBuilder();
             //ObjectError
@@ -191,7 +190,7 @@ public class AuthController {
             return ResponseEntity.badRequest().body(errors.toString());
         }
         //check resutl and give client message
-        var checkResult = iAuthService.resetPasswordAction(token,req.getPassword());
+        var checkResult = iAuthService.resetPasswordAction(req.getCode(),req.getPassword());
         if (checkResult == 0){
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("system cant find your token");
         }

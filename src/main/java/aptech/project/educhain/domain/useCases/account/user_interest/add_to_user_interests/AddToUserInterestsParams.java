@@ -1,4 +1,4 @@
-package aptech.project.educhain.domain.useCases.account.wishlist.add_to_user_interests;
+package aptech.project.educhain.domain.useCases.account.user_interest.add_to_user_interests;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

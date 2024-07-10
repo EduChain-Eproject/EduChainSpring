@@ -1,4 +1,4 @@
-package aptech.project.educhain.endpoint.requests.accounts.wish_list;
+package aptech.project.educhain.endpoint.requests.accounts.user_interests;
 
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -8,9 +8,9 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class WishListRequest {
+public class UserInterestRequest {
     @NotNull(message = "cant recognize user")
-        private int user_id;
+    private int student_id;
     @NotNull(message = "cant recognize course")
     private int course_id;
 }

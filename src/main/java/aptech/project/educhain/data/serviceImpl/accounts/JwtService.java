@@ -140,16 +140,13 @@ public class JwtService implements IJwtService {
     // check valid accessToken for jwtconfig
     public boolean isTokenValid(String token, UserDetails userDetails) {
         String usernameFromToken = extractUserName(token);
-
         String usernameFromUserDetails = userDetails.getUsername();
-
         if (!usernameFromToken.equals(usernameFromUserDetails)) {
             return false;
         }
         if (isTokenExpired(token)) {
             return false;
         }
-
         return true;
     }
 }

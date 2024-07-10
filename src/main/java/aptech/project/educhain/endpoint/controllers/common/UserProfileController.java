@@ -1,11 +1,11 @@
 package aptech.project.educhain.endpoint.controllers.common;
 
-import aptech.project.educhain.data.serviceImpl.user_profile.UserProfileServiceImpl;
 import aptech.project.educhain.domain.dtos.UserProfile.UserProfileDTO;
+import aptech.project.educhain.domain.services.user_profile.UserProfileService;
 import aptech.project.educhain.domain.useCases.account.user_profile.get_profile_usecase.GetUserProfileParam;
 import aptech.project.educhain.domain.useCases.account.user_profile.update_profile_usecase.UpdateUserProfileParam;
 import aptech.project.educhain.endpoint.requests.accounts.user_profile.UpdateUserRequest;
-import aptech.project.educhain.endpoint.responses.user_profile.UserProfileResponse;
+import aptech.project.educhain.endpoint.responses.common.UserProfileResponse;
 import jakarta.validation.Valid;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,18 +19,19 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
+@CrossOrigin("http://localhost:5173")
 @RequestMapping("COMMON")
 public class UserProfileController {
     @Autowired
     ModelMapper modelMapper;
     @Autowired
-    UserProfileServiceImpl userProfileServiceImpl;
+    UserProfileService userProfileService;
 
     @GetMapping("/get-user-profile/{email}")
     public ResponseEntity<?> getUserProfile(@PathVariable("email") String email){
         GetUserProfileParam params = new GetUserProfileParam();
         params.setEmail(email);
-        var result =  userProfileServiceImpl.getUserProfile(params);
+        var result =  userProfileService.getUserProfile(params);
         if(result.isSuccess()){
             var res = modelMapper.map(result.getSuccess(),UserProfileDTO.class);
             return  new ResponseEntity<>(res,HttpStatus.OK);
@@ -50,12 +51,11 @@ public class UserProfileController {
             return ResponseEntity.badRequest().body(errors.toString());
         }
         UpdateUserProfileParam updateUserProfileParam = modelMapper.map(updateUserRequest,UpdateUserProfileParam.class);
-        var result = userProfileServiceImpl.updateProfile(updateUserProfileParam);
+        var result = userProfileService.updateProfile(updateUserProfileParam);
         if(result.isSuccess()){
             var res = modelMapper.map(result.getSuccess(), UserProfileResponse.class);
             return new ResponseEntity<>(res, HttpStatus.OK);
         }
         return  new ResponseEntity<>(result.getFailure().getMessage(), HttpStatus.BAD_REQUEST);
     }
-
 }
