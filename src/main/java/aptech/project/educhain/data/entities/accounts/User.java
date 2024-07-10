@@ -76,6 +76,12 @@ public class User extends BaseModel implements UserDetails {
     @ToString.Exclude
     private EmailToken emailToken;
 
+
+    @JsonIgnoreProperties("user")
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ToString.Exclude
+    private List<ResetPasswordToken> resetPasswordTokens;
+
     @OneToMany(mappedBy = "teacher", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<Course> courses;
 

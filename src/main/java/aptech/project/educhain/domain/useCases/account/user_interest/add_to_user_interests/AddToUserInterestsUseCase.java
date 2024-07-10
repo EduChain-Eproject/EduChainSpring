@@ -1,4 +1,4 @@
-package aptech.project.educhain.domain.useCases.account.wishlist.add_to_user_interests;
+package aptech.project.educhain.domain.useCases.account.user_interest.add_to_user_interests;
 
 import aptech.project.educhain.common.result.AppResult;
 import aptech.project.educhain.common.result.Failure;
@@ -8,7 +8,7 @@ import aptech.project.educhain.data.entities.accounts.UserInterest;
 import aptech.project.educhain.data.entities.courses.Category;
 import aptech.project.educhain.data.entities.courses.Course;
 import aptech.project.educhain.data.repositories.accounts.AuthUserRepository;
-import aptech.project.educhain.data.repositories.accounts.UserWishListRepository;
+import aptech.project.educhain.data.repositories.accounts.UserInterestRepository;
 import aptech.project.educhain.data.repositories.courses.CourseCategoryRepository;
 import aptech.project.educhain.data.repositories.courses.CourseRepository;
 import aptech.project.educhain.domain.dtos.UserInterests.UserInterestsDTO;
@@ -20,7 +20,7 @@ import java.util.List;
 @Component
 public class AddToUserInterestsUseCase implements Usecase<UserInterestsDTO, AddToUserInterestsParams> {
     @Autowired
-    UserWishListRepository userWishListRepository;
+    UserInterestRepository userWishListRepository;
     @Autowired
     CourseRepository courseRepository;
     @Autowired

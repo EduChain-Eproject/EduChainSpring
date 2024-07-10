@@ -1,4 +1,4 @@
-package aptech.project.educhain.endpoint.responses.user_profile;
+package aptech.project.educhain.endpoint.responses.common;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

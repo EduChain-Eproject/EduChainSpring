@@ -38,7 +38,7 @@ public class AuthService implements IAuthService {
     public UserSessionRepository userSessionRepository;
     @Autowired
     @Lazy
-    private PasswordEncoder encoder;
+    private PasswordEncoder passwordEncoder;
     @Value("${base.url.default.avatar}")
     private String defaultAvatar;
 
@@ -82,8 +82,8 @@ public class AuthService implements IAuthService {
         try{
             User user = new User();
             user.setEmail(reg.getEmail());
-            var encode = encoder.encode(reg.getPassword());
-            user.setPassword(encoder.encode(reg.getPassword()));
+            var encode = passwordEncoder.encode(reg.getPassword());
+            user.setPassword(passwordEncoder.encode(reg.getPassword()));
             user.setFirstName(reg.getFirstName());
             user.setLastName(reg.getLastName());
             user.setPhone(reg.getPhone());
@@ -199,7 +199,8 @@ public class AuthService implements IAuthService {
                 return -2;
             }
             //change password
-            user.setPassword(password);
+            String encodePassword = passwordEncoder.encode(password);
+            user.setPassword(encodePassword);
             authUserRepository.save(user);
             return 1;
         }
