@@ -14,12 +14,8 @@ import java.util.List;
 @Data
 public class QuestionDTO{
     private Integer id;
-
     private Integer homeworkId;
-
     private String questionText;
-
     private List<AnswerDTO> answers;
-
     private Integer correctAnswerId;
 }
