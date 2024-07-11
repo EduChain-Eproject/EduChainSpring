@@ -39,4 +39,7 @@ public interface CourseRepository extends JpaRepository<Course, Integer> {
         @Query("SELECT DISTINCT c FROM Course c JOIN c.categories cat WHERE cat IN :categories AND c.id <> :courseId")
         List<Course> findDistinctByCategoriesInAndIdNot(@Param("categories") List<Category> categories,
                         @Param("courseId") Integer courseId);
+
+        @Query("SELECT c FROM Course c WHERE c.id = :courseId")
+        Course findCourseWithId(@Param("courseId") int courseId);
 }

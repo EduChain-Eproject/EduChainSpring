@@ -16,6 +16,5 @@ public class CourseSearchParams {
     private int size = 10;
     private String sortBy = "title";
     private List<Integer> categoryIds;
-
     private CourseStatus status;
 }

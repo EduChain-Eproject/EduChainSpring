@@ -2,10 +2,10 @@ package aptech.project.educhain.endpoint.controllers.auth;
 
 import java.util.List;
 
+import aptech.project.educhain.data.entities.accounts.RefreshToken;
 import aptech.project.educhain.data.entities.accounts.ResetPasswordToken;
 import aptech.project.educhain.domain.dtos.accounts.UserDTO;
-import aptech.project.educhain.endpoint.requests.accounts.ResetEmailRequest;
-import aptech.project.educhain.endpoint.requests.accounts.ResetPasswordRequest;
+import aptech.project.educhain.endpoint.requests.accounts.*;
 import jakarta.servlet.http.HttpServletRequest;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,8 +24,6 @@ import aptech.project.educhain.data.entities.accounts.User;
 import aptech.project.educhain.domain.services.accounts.IAuthService;
 import aptech.project.educhain.domain.services.accounts.IEmailService;
 import aptech.project.educhain.domain.services.accounts.IJwtService;
-import aptech.project.educhain.endpoint.requests.accounts.LoginRequest;
-import aptech.project.educhain.endpoint.requests.accounts.RegisterRequest;
 import aptech.project.educhain.endpoint.responses.JwtResponse;
 import aptech.project.educhain.endpoint.responses.ResponseWithMessage;
 import jakarta.validation.Valid;
@@ -108,7 +106,6 @@ public class AuthController {
         return ResponseEntity.ok(userDtoResponse);
     }
 
-
     @PostMapping("/logout")
     public ResponseEntity<String> logOut(@RequestBody  String email){
         User user = iAuthService.findUserByEmail(email);
@@ -148,7 +145,27 @@ public class AuthController {
         return ResponseEntity.ok("please check your email to verify");
     }
 
-    //catch token
+    //reset access token
+    @PostMapping("reset-access-token")
+    public ResponseEntity<ResponseWithMessage> resetAccessToken(ReNewToken token){
+     String accessToken = token.getAccessToken().substring(7);
+        var email = iJwtService.extractUserName(accessToken);
+        if(email == null){
+            return ResponseEntity.badRequest().body(new ResponseWithMessage<>(null,"cant recognize email"));
+        }
+        var isRefreshTokenValid = iJwtService.isRefreshTokenExpired(token.getRefreshToken());
+        if(!isRefreshTokenValid){
+            return ResponseEntity.badRequest().body(new ResponseWithMessage<>(null,"your token expire or invalid please re-login"));
+        }
+        User user = iAuthService.findUserByEmail(email);
+        String newToken = iJwtService.generateToken(user);
+        JwtResponse jwtResponse = new JwtResponse();
+        jwtResponse.setAccessToken(newToken);
+        jwtResponse.setRefreshToken(token.getRefreshToken());
+        return ResponseEntity.ok(new ResponseWithMessage<>(jwtResponse,"Ok"));
+    }
+
+    //catch token verify
     @GetMapping("/verify")
     public ResponseEntity<String> verifyToken(@RequestParam("code") String token){
         EmailToken checkToken = iAuthService.verifyEmailToken(token);

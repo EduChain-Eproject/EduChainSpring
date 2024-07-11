@@ -3,6 +3,7 @@ package aptech.project.educhain.data.serviceImpl.accounts;
 import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
 import java.sql.Timestamp;
+import java.time.Instant;
 import java.util.Base64;
 import java.util.Date;
 import java.util.function.Function;
@@ -148,5 +149,16 @@ public class JwtService implements IJwtService {
             return false;
         }
         return true;
+    }
+
+    //find and check refresh token expired
+    public boolean isRefreshTokenExpired(String token) {
+        Timestamp expireAt = jwtRepository.findExpireAtByToken(token);
+        if (expireAt == null) {
+            //token is dead
+            return false;
+        }
+        Instant now = Instant.now();
+        return expireAt.toInstant().isBefore(now);
     }
 }
