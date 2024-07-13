@@ -59,24 +59,24 @@ public class CourseController {
         return ResponseEntity.badRequest().body(result.getFailure().getMessage());
     }
 
-//    @GetMapping("/detail/{courseId}")
-//    public ResponseEntity<?> getCourseDetail(@PathVariable Integer courseId) {
-//        AppResult<CourseDTO> result = courseService.getCourseDetail(courseId);
-//        if (result.isSuccess()) {
-//            var successValue = result.getSuccess();
-//
-//            var res = modelMapper.map(successValue, GetCourseDetailResponse.class);
-//
-//            res.setNumberOfEnrolledStudents(successValue.getParticipatedUserDtos().size());
-//
-//            AppResult<List<CourseDTO>> relatedCoursesResult = courseService.getRelatedCourses(courseId);
-//
-//            if (relatedCoursesResult.isSuccess()) {
-//                res.setRelatedCourseDtos(relatedCoursesResult.getSuccess());
-//            }
-//
-//            return ResponseEntity.ok().body(res);
-//        }
-//        return ResponseEntity.badRequest().body(result.getFailure().getMessage());
-    //}
+    @GetMapping("/detail/{courseId}")
+    public ResponseEntity<?> getCourseDetail(@PathVariable Integer courseId) {
+        AppResult<CourseDTO> result = courseService.getCourseDetail(courseId);
+        if (result.isSuccess()) {
+            var successValue = result.getSuccess();
+
+            var res = modelMapper.map(successValue, GetCourseDetailResponse.class);
+
+            res.setNumberOfEnrolledStudents(successValue.getParticipatedUserDtos().size());
+
+            AppResult<List<CourseDTO>> relatedCoursesResult = courseService.getRelatedCourses(courseId);
+
+            if (relatedCoursesResult.isSuccess()) {
+                res.setRelatedCourseDtos(relatedCoursesResult.getSuccess());
+            }
+
+            return ResponseEntity.ok().body(res);
+        }
+        return ResponseEntity.badRequest().body(result.getFailure().getMessage());
+    }
 }

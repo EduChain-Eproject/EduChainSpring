@@ -2,11 +2,6 @@ package aptech.project.educhain.endpoint.controllers.auth;
 
 import java.util.List;
 
-import aptech.project.educhain.data.entities.accounts.ResetPasswordToken;
-import aptech.project.educhain.domain.dtos.accounts.UserDTO;
-import aptech.project.educhain.endpoint.requests.accounts.ResetEmailRequest;
-import aptech.project.educhain.endpoint.requests.accounts.ResetPasswordRequest;
-import jakarta.servlet.http.HttpServletRequest;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -17,15 +12,26 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.ObjectError;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import aptech.project.educhain.data.entities.accounts.EmailToken;
+import aptech.project.educhain.data.entities.accounts.ResetPasswordToken;
 import aptech.project.educhain.data.entities.accounts.User;
+import aptech.project.educhain.domain.dtos.accounts.UserDTO;
 import aptech.project.educhain.domain.services.accounts.IAuthService;
 import aptech.project.educhain.domain.services.accounts.IEmailService;
 import aptech.project.educhain.domain.services.accounts.IJwtService;
 import aptech.project.educhain.endpoint.requests.accounts.LoginRequest;
 import aptech.project.educhain.endpoint.requests.accounts.RegisterRequest;
+import aptech.project.educhain.endpoint.requests.accounts.ResetEmailRequest;
+import aptech.project.educhain.endpoint.requests.accounts.ResetPasswordRequest;
 import aptech.project.educhain.endpoint.responses.JwtResponse;
 import aptech.project.educhain.endpoint.responses.ResponseWithMessage;
 import jakarta.validation.Valid;
@@ -95,19 +101,6 @@ public class AuthController {
         UserDTO userDtoResponse =  modelMapper.map(user,UserDTO.class);
         return ResponseEntity.ok(new ResponseWithMessage<>( userDtoResponse,"success"));
     }
-    @GetMapping("getUser")
-    public ResponseEntity<?> getUser(HttpServletRequest request){
-        String token = request.getHeader("Authorization");
-        if(token == null){
-            return null;
-        }
-        String newToken = token.substring(7);
-        var email = iJwtService.extractUserName(newToken);
-        User user = iAuthService.findUserByEmail(email);
-        UserDTO userDtoResponse =  modelMapper.map(user,UserDTO.class);
-        return ResponseEntity.ok(userDtoResponse);
-    }
-
 
     @PostMapping("/logout")
     public ResponseEntity<String> logOut(@RequestBody  String email){
