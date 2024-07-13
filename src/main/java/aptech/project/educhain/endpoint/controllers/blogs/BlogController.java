@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import aptech.project.educhain.data.entities.blogs.BlogComment;
+import aptech.project.educhain.domain.dtos.blogs.BlogCommentDTO;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -71,13 +73,46 @@ public class BlogController {
 
         return blogs.stream().map(blog -> modelMapper.map(blog, BlogDTO.class)).collect(Collectors.toList());
     }
+    
+
+    private BlogCommentDTO mapChildComment(BlogComment comment, Integer blogId) {
+        BlogCommentDTO dto = modelMapper.map(comment, BlogCommentDTO.class);
+        dto.setBlogId(blogId); // Set the blogId inherited from the parent comment
+        if (comment.getParentComment() != null) {
+            dto.setParentCommentId(comment.getParentComment().getId());
+        }
+        // Recursively map child comments, if any
+        List<BlogCommentDTO> childComments = comment.getReplies().stream()
+                .map(child -> mapChildComment(child, blogId))
+                .collect(Collectors.toList());
+        dto.setReplies(childComments);
+        return dto;
+    }
 
     @Operation(summary = "Get 1 blog")
     @GetMapping("/{id}")
     public BlogDTO findOne(@PathVariable Integer id) {
         Blog blog = service.findOneBlog(id);
 
-        return modelMapper.map(blog, BlogDTO.class);
+        BlogDTO blogDTO =  modelMapper.map(blog, BlogDTO.class);
+        List<BlogComment> comments = blog.getBlogComments();
+        List<BlogCommentDTO> commentDTOs = comments.stream().map(comment -> {
+            BlogCommentDTO dto = modelMapper.map(comment, BlogCommentDTO.class);
+            if (comment.getBlog() != null) {
+                dto.setBlogId(comment.getBlog().getId());
+            }
+            if (comment.getParentComment() != null) {
+                dto.setParentCommentId(comment.getParentComment().getId());
+            }
+            // Map child comments
+            List<BlogCommentDTO> childComments = comment.getReplies().stream()
+                    .map(child -> mapChildComment(child, dto.getBlogId()))
+                    .collect(Collectors.toList());
+            dto.setReplies(childComments);
+            return dto;
+        }).toList();
+        blogDTO.setBlogComments(commentDTOs);
+        return blogDTO;
     }
 
     @Operation(summary = "Add new blog")
@@ -91,8 +126,7 @@ public class BlogController {
         }
 
         try {
-            String fileName = uploadPhotoService.uploadPhoto(uploadDir, photo);
-
+            String fileName = uploadPhotoService.uploadPhoto(photo);
             Blog blog = new Blog();
             User user = userService.findUserById(userId);
             BlogCategory category = blogCategoryService.findBlogCategory(blogCategoryId);
@@ -136,7 +170,7 @@ public class BlogController {
         }
 
         try {
-            String fileName = uploadPhotoService.uploadPhoto(uploadDir, photo);
+            String fileName = uploadPhotoService.uploadPhoto(photo);
 
             Blog blog = service.findOneBlog(id);
             BlogCategory category = blogCategoryService.findBlogCategory(blogCategoryId);

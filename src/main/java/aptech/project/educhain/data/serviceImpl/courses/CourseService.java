@@ -12,7 +12,6 @@ import aptech.project.educhain.domain.services.courses.ICourseService;
 import aptech.project.educhain.domain.useCases.courses.course.CreateCourseUsecase.CreateCourseParams;
 import aptech.project.educhain.domain.useCases.courses.course.CreateCourseUsecase.CreateCourseUsecase;
 import aptech.project.educhain.domain.useCases.courses.course.DeleteCourseUsecase.DeleteCourseUsecase;
-import aptech.project.educhain.domain.useCases.courses.course.GetCourseDetailUsecase.GetCourseDetailUsecase;
 import aptech.project.educhain.domain.useCases.courses.course.GetCoursesByTeacherUsecase.GetCoursesByTeacherParams;
 import aptech.project.educhain.domain.useCases.courses.course.GetCoursesByTeacherUsecase.GetCoursesByTeacherUsecase;
 import aptech.project.educhain.domain.useCases.courses.course.GetRelatedCoursesUsecase.GetRelatedCoursesUsecase;
@@ -35,8 +34,8 @@ public class CourseService implements ICourseService {
     @Autowired
     DeleteCourseUsecase deleteCourseUsecase;
 
-    @Autowired
-    GetCourseDetailUsecase getCourseDetailUsecase;
+//    @Autowired
+//    GetCourseDetailUsecase getCourseDetailUsecase;
 
     @Autowired
     SearchCoursesUseCase searchCoursesUseCase;
@@ -54,10 +53,10 @@ public class CourseService implements ICourseService {
         return getCoursesByTeacherUsecase.execute(params);
     }
 
-    @Override
-    public AppResult<CourseDTO> getCourseDetail(Integer courseId) {
-        return getCourseDetailUsecase.execute(courseId);
-    }
+//    @Override
+//    //public AppResult<CourseDTO> getCourseDetail(Integer courseId) {
+//        return getCourseDetailUsecase.execute(courseId);
+//    }
 
     @Override
     public AppResult<CourseDTO> updateCourse(UpdateCourseParams params) {
@@ -67,6 +66,11 @@ public class CourseService implements ICourseService {
     @Override
     public AppResult<CourseDTO> deleteCourse(int courseId) {
         return deleteCourseUsecase.execute(courseId);
+    }
+
+    @Override
+    public AppResult<CourseDTO> getCourseDetail(Integer courseId) {
+        return null;
     }
 
     @Override

@@ -31,6 +31,7 @@ public class SercurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
         httpSecurity.csrf(AbstractHttpConfigurer::disable).authorizeHttpRequests(request -> request
                 .requestMatchers("/Auth/**").permitAll()
+                        .requestMatchers("/uploads/**").permitAll()
                 // fix spring security for other rout down here:
                 .requestMatchers("/ADMIN/**").hasAnyAuthority("ADMIN")
                 .requestMatchers("/COMMON/**").hasAnyAuthority("STUDENT","TEACHER")

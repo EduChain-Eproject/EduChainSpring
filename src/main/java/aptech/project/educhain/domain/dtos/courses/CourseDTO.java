@@ -19,7 +19,7 @@ public class CourseDTO {
 
     private List<ChapterDTO> chapterDtos;
 
-    private List<UserCourseDTO> participatedUserDtos;
+    //private List<UserCourseDTO> participatedUserDtos;
 
     // private List<UserInterestDto> userInterestDtos;
 
