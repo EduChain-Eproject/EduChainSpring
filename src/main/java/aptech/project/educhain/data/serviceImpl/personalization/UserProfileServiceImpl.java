@@ -3,6 +3,7 @@ package aptech.project.educhain.data.serviceImpl.personalization;
 import aptech.project.educhain.common.result.AppResult;
 import aptech.project.educhain.domain.dtos.UserProfile.UserProfileDTO;
 import aptech.project.educhain.domain.services.personalization.UserProfileService;
+import aptech.project.educhain.domain.useCases.home.get_famous_course.famous_course_usecase.GetMostPopularCourseUsecase;
 import aptech.project.educhain.domain.useCases.personalization.user_profile.get_profile_usecase.GetUserProfileParam;
 import aptech.project.educhain.domain.useCases.personalization.user_profile.get_profile_usecase.GetUserProfileUseCase;
 import aptech.project.educhain.domain.useCases.personalization.user_profile.update_profile_usecase.UpdateUserProfileParam;
@@ -18,6 +19,7 @@ public class UserProfileServiceImpl implements UserProfileService {
 
     @Autowired
     UpdateUserProfileUseCase userProfileUseCase;
+
 
     @Override
     public AppResult<UserProfileDTO> getUserProfile(GetUserProfileParam params) {
