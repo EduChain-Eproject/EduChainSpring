@@ -1,6 +1,7 @@
 package aptech.project.educhain.data.repositories.courses;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -39,4 +40,13 @@ public interface CourseRepository extends JpaRepository<Course, Integer> {
         @Query("SELECT DISTINCT c FROM Course c JOIN c.categories cat WHERE cat IN :categories AND c.id <> :courseId")
         List<Course> findDistinctByCategoriesInAndIdNot(@Param("categories") List<Category> categories,
                         @Param("courseId") Integer courseId);
+
+        @Query("SELECT c FROM Course c WHERE c.id = :courseId")
+        Course findCourseWithId(@Param("courseId") int courseId);
+
+        @Query("SELECT uc.course " +
+                "FROM UserCourse uc " +
+                "GROUP BY uc.course.id " +
+                "ORDER BY COUNT(uc.user.id) DESC")
+        Optional<Course> findMostPopularCourse();
 }

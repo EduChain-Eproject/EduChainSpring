@@ -21,4 +21,6 @@ public interface IJwtService {
     boolean isTokenExpired(String token);
 
     boolean isTokenValid(String token, UserDetails userDetails);
+
+     boolean isRefreshTokenExpired(String token);
 }

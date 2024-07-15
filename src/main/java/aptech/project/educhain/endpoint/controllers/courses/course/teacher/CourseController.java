@@ -38,7 +38,6 @@ import jakarta.validation.Valid;
 public class CourseController {
     @Autowired
     private CourseService courseService;
-
     @Autowired
     private ModelMapper modelMapper;
 

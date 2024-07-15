@@ -21,7 +21,7 @@ public class CourseDTO {
 
     private List<UserCourseDTO> participatedUserDtos;
 
-    // private List<UserInterestDto> userInterestDtos;
+//     private List<UserInterestDto> userInterestDtos;
 
     private List<CourseFeedbackDTO> courseFeedbackDtos;
 }

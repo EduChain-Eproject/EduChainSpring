@@ -60,7 +60,7 @@ public class GetCourseDetailUsecase implements Usecase<CourseDTO, Integer> {
                 courseDTO.setParticipatedUserDtos(course.getParticipatedUsers().stream()
                         .map(student -> {
                             UserCourseDTO dto = modelMapper.map(student, UserCourseDTO.class);
-                            dto.setUserDto(modelMapper.map(student.getUser(), UserDTO.class));
+                           //dto.setUserDto(modelMapper.map(student.getUser(), UserDTO.class));
                             return dto;
                         })
                         .collect(Collectors.toList()));

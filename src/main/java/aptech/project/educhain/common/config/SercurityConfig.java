@@ -32,6 +32,7 @@ public class SercurityConfig {
         httpSecurity.csrf(AbstractHttpConfigurer::disable).authorizeHttpRequests(request -> request
                 .requestMatchers("/Auth/**").permitAll()
                 .requestMatchers("/uploads/**").permitAll()
+                .requestMatchers("/home/**").permitAll()
                 // fix spring security for other rout down here:
                 .requestMatchers("/ADMIN/**").hasAnyAuthority("ADMIN")
                 .requestMatchers("/STUDENT/**").hasAnyAuthority("STUDENT")
