@@ -18,7 +18,7 @@ import aptech.project.educhain.domain.dtos.courses.ChapterDTO;
 import aptech.project.educhain.domain.dtos.courses.CourseDTO;
 import aptech.project.educhain.domain.dtos.courses.CourseFeedbackDTO;
 import aptech.project.educhain.domain.dtos.courses.LessonDTO;
-import aptech.project.educhain.domain.dtos.courses.UserCourseDto;
+import aptech.project.educhain.domain.dtos.courses.UserCourseDTO;
 
 @Component
 public class GetCourseDetailUsecase implements Usecase<CourseDTO, Integer> {
@@ -59,7 +59,7 @@ public class GetCourseDetailUsecase implements Usecase<CourseDTO, Integer> {
 
                 courseDTO.setParticipatedUserDtos(course.getParticipatedUsers().stream()
                         .map(student -> {
-                            UserCourseDto dto = modelMapper.map(student, UserCourseDto.class);
+                            UserCourseDTO dto = modelMapper.map(student, UserCourseDTO.class);
                             dto.setUserDto(modelMapper.map(student.getUser(), UserDTO.class));
                             return dto;
                         })

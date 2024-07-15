@@ -7,7 +7,7 @@ import aptech.project.educhain.domain.dtos.accounts.UserDTO;
 import lombok.Data;
 
 @Data
-public class UserCourseDto {
+public class UserCourseDTO {
     private UserDTO userDto;
 
     private CourseDTO courseDto;
