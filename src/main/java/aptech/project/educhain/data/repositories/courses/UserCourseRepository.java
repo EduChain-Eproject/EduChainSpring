@@ -22,7 +22,6 @@ public interface UserCourseRepository extends JpaRepository<UserCourse, Integer>
                                                       @Param("titleSearch") String titleSearch,
                                                       Pageable pageable);
 
-
     @Query("SELECT uc.course " +
             "FROM UserCourse uc " +
             "GROUP BY uc.course " +
@@ -30,4 +29,20 @@ public interface UserCourseRepository extends JpaRepository<UserCourse, Integer>
             "LIMIT 4")
     List<Course> findMostPopularCourse();
 
+    @Query("SELECT COUNT(DISTINCT uc.user.id) " +
+            "FROM UserCourse uc " +
+            "WHERE uc.course.id = :courseId")
+    Long countDistinctStudentsByCourse(@Param("courseId") int courseId);
+
+    @Query("SELECT COUNT(DISTINCT uc.user.id) FROM UserCourse uc")
+    Long countDistinctStudents();
+
+//    @Query("SELECT u.firstName || ' ' || u.lastName as teacherName, u.email as teacherEmail, COUNT(uc.id) as studentCount " +
+//            "FROM UserCourse uc " +
+//            "JOIN uc.course c " +
+//            "JOIN c.teacher u " +
+//            "GROUP BY u.id " +
+//            "ORDER BY studentCount DESC " +
+//            "LIMIT 1")
+//    Object[] findTeacherWithMostStudents();
 }

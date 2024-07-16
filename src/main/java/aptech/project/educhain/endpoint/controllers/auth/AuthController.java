@@ -101,6 +101,9 @@ public class AuthController {
         }
         String newToken = token.substring(7);
         var email = iJwtService.extractUserName(newToken);
+        if(email == null){
+            return ResponseEntity.badRequest().body("error when create token");
+        }
         User user = iAuthService.findUserByEmail(email);
         UserDTO userDtoResponse =  modelMapper.map(user,UserDTO.class);
         return ResponseEntity.ok(userDtoResponse);
