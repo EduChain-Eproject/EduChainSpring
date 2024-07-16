@@ -10,6 +10,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Date;
 import java.util.List;
+
 @Data
 @NoArgsConstructor
 @Getter
@@ -24,7 +25,7 @@ public class UserCourseDTO {
     private List<Category> categoryList;
 
     public UserCourseDTO(String teacherName, String teacherEmail, String title, Timestamp enrollmentDate,
-                         Double price, UserCourse.CompletionStatus completionStatus, List<Category> categoryList) {
+            Double price, UserCourse.CompletionStatus completionStatus, List<Category> categoryList) {
         this.teacherName = teacherName;
         this.teacherEmail = teacherEmail;
         this.title = title;

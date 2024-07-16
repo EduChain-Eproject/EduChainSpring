@@ -31,16 +31,17 @@ public class SercurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
         httpSecurity.csrf(AbstractHttpConfigurer::disable).authorizeHttpRequests(request -> request
                 .requestMatchers("/Auth/**").permitAll()
+                .requestMatchers("/uploads/**").permitAll()
                 .requestMatchers("/home/**").permitAll()
                 // fix spring security for other rout down here:
                 .requestMatchers("/ADMIN/**").hasAnyAuthority("ADMIN")
-                .requestMatchers("/COMMON/**").hasAnyAuthority("STUDENT","TEACHER")
                 .requestMatchers("/STUDENT/**").hasAnyAuthority("STUDENT")
+                .requestMatchers("/COMMON/**").authenticated()
                 .anyRequest().permitAll())
-//                .formLogin(
-//                        form -> form
-//                                .loginProcessingUrl("/Auth/login")
-//                                .permitAll())
+                // .formLogin(
+                // form -> form
+                // .loginProcessingUrl("/Auth/login")
+                // .permitAll())
                 .sessionManagement(manager -> manager.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider())
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);

@@ -2,6 +2,9 @@ package aptech.project.educhain.data.entities.blogs;
 
 import aptech.project.educhain.data.entities.BaseModel;
 import aptech.project.educhain.data.entities.accounts.User;
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;

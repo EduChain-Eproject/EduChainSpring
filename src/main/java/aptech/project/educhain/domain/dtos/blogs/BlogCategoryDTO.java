@@ -8,6 +8,5 @@ import java.sql.Timestamp;
 public class BlogCategoryDTO {
     private Integer id;
     private Timestamp createdAt;
-    private String name;
-
+    private String categoryName;
 }
