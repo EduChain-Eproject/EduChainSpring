@@ -1,51 +1,48 @@
-package aptech.project.educhain.endpoint.controllers.courses.homeworks;
+package aptech.project.educhain.endpoint.controllers.courses.homeworks.teacher;
 
-import aptech.project.educhain.common.result.AppResult;
-import aptech.project.educhain.common.usecase.NoParam;
-import aptech.project.educhain.data.entities.blogs.Blog;
-import aptech.project.educhain.data.entities.courses.CourseStatus;
-import aptech.project.educhain.data.entities.courses.Homework;
-import aptech.project.educhain.data.serviceImpl.courses.HomeworkService;
-import aptech.project.educhain.domain.dtos.blogs.BlogDTO;
-import aptech.project.educhain.domain.dtos.courses.AnswerDTO;
-import aptech.project.educhain.domain.dtos.courses.CategoryDTO;
-import aptech.project.educhain.domain.dtos.courses.ChapterDTO;
-import aptech.project.educhain.domain.dtos.courses.HomeworkDTO;
-import aptech.project.educhain.domain.useCases.courses.Homework.CreateHomeworkUseCase.CreateHomeworkParam;
-import aptech.project.educhain.domain.useCases.courses.Homework.DeleteHomeworkUseCase.DeleteHomeworkParam;
-import aptech.project.educhain.domain.useCases.courses.Homework.GetHomeworkdUseCase.GetHomeworkParam;
-import aptech.project.educhain.domain.useCases.courses.Homework.UpdateHomeworkUseCase.UpdateHomeworkParam;
-import aptech.project.educhain.domain.useCases.courses.chapter.GetChapterDetailUsecase.GetChapterDetailParams;
-import aptech.project.educhain.domain.useCases.courses.course.CreateCourseUsecase.CreateCourseParams;
-import aptech.project.educhain.endpoint.requests.Homework.CreateHomeworkRequest;
-import aptech.project.educhain.endpoint.requests.Homework.UpdateHomeworkRequest;
-import aptech.project.educhain.endpoint.requests.courses.course.teacher.CreateCourseRequest;
-import aptech.project.educhain.endpoint.responses.courses.category.teacher.GetListCategoryResponse;
-import aptech.project.educhain.endpoint.responses.courses.chapter.teacher.CreateChapterResponse;
-import aptech.project.educhain.endpoint.responses.courses.chapter.teacher.GetChapterDetailResponse;
-import aptech.project.educhain.endpoint.responses.courses.course.teacher.CreateCourseResponse;
-import aptech.project.educhain.endpoint.responses.courses.homework.CreateHomeworkResponse;
-import aptech.project.educhain.endpoint.responses.courses.homework.GetHomeworkResponse;
-import aptech.project.educhain.endpoint.responses.courses.homework.GetListHomeworkResponse;
-import aptech.project.educhain.endpoint.responses.courses.homework.UpdateHomeworkResponse;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.Valid;
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.ObjectError;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
-import java.util.stream.Collectors;
+import aptech.project.educhain.common.result.AppResult;
+import aptech.project.educhain.common.usecase.NoParam;
+import aptech.project.educhain.data.serviceImpl.courses.HomeworkService;
+import aptech.project.educhain.domain.dtos.courses.HomeworkDTO;
+import aptech.project.educhain.domain.services.accounts.IJwtService;
+import aptech.project.educhain.domain.useCases.courses.Homework.CreateHomeworkUseCase.CreateHomeworkParam;
+import aptech.project.educhain.domain.useCases.courses.Homework.DeleteHomeworkUseCase.DeleteHomeworkParam;
+import aptech.project.educhain.domain.useCases.courses.Homework.GetHomeworkdUseCase.GetHomeworkParam;
+import aptech.project.educhain.domain.useCases.courses.Homework.UpdateHomeworkUseCase.UpdateHomeworkParam;
+import aptech.project.educhain.endpoint.requests.Homework.CreateHomeworkRequest;
+import aptech.project.educhain.endpoint.requests.Homework.UpdateHomeworkRequest;
+import aptech.project.educhain.endpoint.responses.courses.homework.CreateHomeworkResponse;
+import aptech.project.educhain.endpoint.responses.courses.homework.GetHomeworkResponse;
+import aptech.project.educhain.endpoint.responses.courses.homework.GetListHomeworkResponse;
+import aptech.project.educhain.endpoint.responses.courses.homework.UpdateHomeworkResponse;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
 
 @Tag(name = "Homework")
 @RestController
 @CrossOrigin
-@RequestMapping("/api/homework")
+@RequestMapping("/TEACHER/api/homework")
 public class HomeworkController {
     @Autowired
     HomeworkService homeworkService;
@@ -53,9 +50,11 @@ public class HomeworkController {
     @Autowired
     ModelMapper modelMapper;
 
+    @Autowired
+    IJwtService iJwtService;
 
     @Operation(summary = "Get all homework")
-    @GetMapping("")
+    @GetMapping("list")
     public ResponseEntity<?> getHomeworks() {
         AppResult<List<HomeworkDTO>> result = homeworkService.getHomeworks(NoParam.get());
         if (result.isSuccess()) {
@@ -70,9 +69,9 @@ public class HomeworkController {
     }
 
     @Operation(summary = "Get 1 homework")
-    @GetMapping("/{id}")
-    public ResponseEntity<?> getHomework(@PathVariable Integer id) {
-        AppResult<HomeworkDTO> result = homeworkService.getHomework(new GetHomeworkParam(id));
+    @GetMapping("detail/{homework_id}")
+    public ResponseEntity<?> getHomework(@PathVariable Integer homework_id) {
+        AppResult<HomeworkDTO> result = homeworkService.getHomework(new GetHomeworkParam(homework_id));
         if (result.isSuccess()) {
             var res = modelMapper.map(result.getSuccess(), GetHomeworkResponse.class);
             return ResponseEntity.ok().body(res);
@@ -81,8 +80,9 @@ public class HomeworkController {
     }
 
     @Operation(summary = "Create homework")
-    @PostMapping()
-    public ResponseEntity<?> createHomework(@Valid @RequestBody CreateHomeworkRequest request, BindingResult rs) {
+    @PostMapping("create")
+    public ResponseEntity<?> createHomework(@Valid @RequestBody CreateHomeworkRequest request, BindingResult rs,
+            HttpServletRequest httpServletRequest) {
         if (rs.hasErrors()) {
             StringBuilder errors = new StringBuilder();
             List<ObjectError> errorList = rs.getAllErrors();
@@ -92,8 +92,9 @@ public class HomeworkController {
             return ResponseEntity.badRequest().body(errors.toString());
         }
 
+        var createtorId = iJwtService.getUserByHeaderToken(httpServletRequest.getHeader("Authorization")).getId();
         CreateHomeworkParam params = modelMapper.map(request, CreateHomeworkParam.class);
-        params.setUserId(2);
+        params.setUserId(createtorId);
 
         var homework = homeworkService.createHomework(params);
         if (homework.isSuccess()) {
@@ -104,7 +105,7 @@ public class HomeworkController {
     }
 
     @Operation(summary = "Update homework")
-    @PutMapping("{id}")
+    @PutMapping("update/{id}")
     public ResponseEntity<?> updateHomework(
             @PathVariable Integer id,
             @Valid @RequestBody UpdateHomeworkRequest request,
@@ -130,11 +131,11 @@ public class HomeworkController {
     }
 
     @Operation(summary = "Delete homework")
-    @DeleteMapping("{id}")
+    @DeleteMapping("delete/{id}")
     public ResponseEntity<?> deleteChapter(@PathVariable Integer id) {
         var result = homeworkService.deleteHomework(new DeleteHomeworkParam(id));
         if (result.isSuccess()) {
-            return ResponseEntity.ok().body("Delete homework with id: + " + id);
+            return ResponseEntity.ok().body(id);
         }
         return ResponseEntity.badRequest().body(result.getFailure().getMessage());
     }

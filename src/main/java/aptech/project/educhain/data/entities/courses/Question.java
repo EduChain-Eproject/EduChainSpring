@@ -1,13 +1,22 @@
 package aptech.project.educhain.data.entities.courses;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import aptech.project.educhain.data.entities.BaseModel;
-import jakarta.persistence.*;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @Entity
 @Table(name = "tbl_questions")
@@ -24,6 +33,9 @@ public class Question extends BaseModel {
 
     @OneToMany(mappedBy = "question", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<Answers> answers = new ArrayList<>();
+
+    @OneToMany(mappedBy = "question", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private List<UserAnswer> userAnswers;
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "correct_answer_id")
@@ -44,4 +56,3 @@ public class Question extends BaseModel {
         }
     }
 }
-

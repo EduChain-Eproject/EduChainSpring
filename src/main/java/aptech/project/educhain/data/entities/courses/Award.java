@@ -1,9 +1,13 @@
 package aptech.project.educhain.data.entities.courses;
 
+import java.time.LocalDateTime;
+
 import aptech.project.educhain.data.entities.BaseModel;
 import aptech.project.educhain.data.entities.accounts.User;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
@@ -13,11 +17,11 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "tbl_user_answers")
+@Table(name = "tbl_awards")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class UserAnswer extends BaseModel {
+public class Award extends BaseModel {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", referencedColumnName = "id")
     private User user;
@@ -26,14 +30,16 @@ public class UserAnswer extends BaseModel {
     @JoinColumn(name = "homework_id", referencedColumnName = "id")
     private Homework homework;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "question_id", referencedColumnName = "id")
-    private Question question;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status")
+    private AwardStatus status; // PENDING, APPROVED, REJECTED
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "answer_id", referencedColumnName = "id")
-    private Answers answer;
+    @Column(name = "submission_date")
+    private LocalDateTime submissionDate;
 
-    @Column(name = "isCorrect")
-    private Boolean isCorrect;
+    @Column(name = "review_date")
+    private LocalDateTime reviewDate;
+
+    @Column(name = "comments", columnDefinition = "TEXT")
+    private String comments; // Comments from the teacher
 }

@@ -1,21 +1,23 @@
 package aptech.project.educhain.domain.useCases.courses.Homework.GetHomeworkdUseCase;
 
-import aptech.project.educhain.common.result.AppResult;
-import aptech.project.educhain.common.result.Failure;
-import aptech.project.educhain.common.usecase.Usecase;
-import aptech.project.educhain.data.entities.courses.Chapter;
-import aptech.project.educhain.data.entities.courses.Homework;
-import aptech.project.educhain.data.repositories.courses.HomeworkRepository;
-import aptech.project.educhain.domain.dtos.courses.ChapterDTO;
-import aptech.project.educhain.domain.dtos.courses.CourseDTO;
-import aptech.project.educhain.domain.dtos.courses.HomeworkDTO;
-import aptech.project.educhain.domain.dtos.courses.LessonDTO;
+import java.util.List;
+
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.Optional;
-import java.util.stream.Collectors;
+import aptech.project.educhain.common.result.AppResult;
+import aptech.project.educhain.common.result.Failure;
+import aptech.project.educhain.common.usecase.Usecase;
+import aptech.project.educhain.data.entities.courses.Answers;
+import aptech.project.educhain.data.entities.courses.Homework;
+import aptech.project.educhain.data.repositories.courses.HomeworkRepository;
+import aptech.project.educhain.domain.dtos.courses.AnswerDTO;
+import aptech.project.educhain.domain.dtos.courses.ChapterDTO;
+import aptech.project.educhain.domain.dtos.courses.CourseDTO;
+import aptech.project.educhain.domain.dtos.courses.HomeworkDTO;
+import aptech.project.educhain.domain.dtos.courses.LessonDTO;
+import aptech.project.educhain.domain.dtos.courses.QuestionDTO;
 
 @Component
 public class GetHomeworkUseCase implements Usecase<HomeworkDTO, GetHomeworkParam> {
@@ -28,12 +30,45 @@ public class GetHomeworkUseCase implements Usecase<HomeworkDTO, GetHomeworkParam
     @Override
     public AppResult<HomeworkDTO> execute(GetHomeworkParam params) {
         try {
-            Optional<Homework> homeworkOpt = homeworkRepository.findById(params.getId());
-            if (!homeworkOpt.isPresent()) {
-                return AppResult.failureResult(new Failure("Homework not found"));
-            }
-            HomeworkDTO homeworkDTO = modelMapper.map(homeworkOpt.get(), HomeworkDTO.class);
-            homeworkDTO.setLessonID(homeworkOpt.get().getLesson().getId());
+            Homework homework = homeworkRepository.findById(params.getId()).get();
+
+            HomeworkDTO homeworkDTO = modelMapper.map(homework, HomeworkDTO.class);
+
+            homeworkDTO.setLessonID(homework.getLesson().getId());
+
+            homeworkDTO.setLessonDto(
+                    modelMapper.map(homework.getLesson(), LessonDTO.class));
+
+            homeworkDTO.getLessonDto().setChapterDto(
+                    modelMapper.map(homework.getLesson().getChapter(), ChapterDTO.class));
+
+            homeworkDTO.getLessonDto().getChapterDto().setCourseDto(
+                    modelMapper.map(homework.getLesson().getChapter().getCourse(), CourseDTO.class));
+
+            List<QuestionDTO> questionDTOList = homework
+                    .getQuestions()
+                    .stream()
+                    .map(question -> {
+                        QuestionDTO dto = modelMapper.map(question, QuestionDTO.class);
+                        if (question.getCorrectAnswer() != null) {
+                            dto.setCorrectAnswerId(question.getCorrectAnswer().getId());
+                        }
+
+                        List<Answers> answersList = question.getAnswers().stream().toList();
+                        List<AnswerDTO> answerDTOList = answersList.stream().map(answers -> {
+                            AnswerDTO answerDTO = modelMapper.map(answers, AnswerDTO.class);
+                            answerDTO.setQuestionId(answers.getQuestion().getId());
+                            answerDTO.setAnswerId(answers.getId());
+                            return answerDTO;
+                        }).toList();
+
+                        dto.setAnswerDtos(answerDTOList);
+
+                        return dto;
+                    }).toList();
+
+            homeworkDTO.setQuestionDtos(questionDTOList);
+
             return AppResult.successResult(homeworkDTO);
         } catch (Exception e) {
             return AppResult.failureResult(new Failure("Failed to get homework details: " + e.getMessage()));

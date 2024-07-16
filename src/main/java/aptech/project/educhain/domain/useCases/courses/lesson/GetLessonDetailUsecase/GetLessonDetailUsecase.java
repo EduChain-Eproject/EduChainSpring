@@ -13,6 +13,7 @@ import aptech.project.educhain.data.entities.courses.Lesson;
 import aptech.project.educhain.data.repositories.courses.LessonRepository;
 import aptech.project.educhain.domain.dtos.courses.ChapterDTO;
 import aptech.project.educhain.domain.dtos.courses.CourseDTO;
+import aptech.project.educhain.domain.dtos.courses.HomeworkDTO;
 import aptech.project.educhain.domain.dtos.courses.LessonDTO;
 
 @Component
@@ -40,6 +41,12 @@ public class GetLessonDetailUsecase implements Usecase<LessonDTO, Integer> {
             lessonDTO
                     .getChapterDto()
                     .setCourseDto(modelMapper.map(lesson.getChapter().getCourse(), CourseDTO.class));
+            lessonDTO.setHomeworkDtos(
+                    lesson
+                            .getHomeworks()
+                            .stream()
+                            .map(hw -> modelMapper.map(hw, HomeworkDTO.class))
+                            .toList());
 
             return AppResult.successResult(lessonDTO);
         } catch (Exception e) {

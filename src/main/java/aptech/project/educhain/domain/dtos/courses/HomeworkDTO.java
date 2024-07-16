@@ -1,16 +1,9 @@
 package aptech.project.educhain.domain.dtos.courses;
 
-import aptech.project.educhain.data.entities.BaseModel;
-import aptech.project.educhain.data.entities.courses.Lesson;
-import aptech.project.educhain.data.entities.courses.Question;
-import aptech.project.educhain.data.entities.courses.UserHomework;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
 import java.util.List;
+
+import aptech.project.educhain.domain.dtos.accounts.UserDTO;
+import lombok.Data;
 
 @Data
 public class HomeworkDTO {
@@ -19,4 +12,11 @@ public class HomeworkDTO {
     private Integer lessonID;
     private String title;
     private String description;
+
+    private UserDTO userDto;
+    private LessonDTO lessonDto;
+    private List<QuestionDTO> questionDtos;
+    private List<UserAnswerDTO> userAnswerDtos;
+    private List<UserHomeworkDTO> userHomeworkDtos;
+    private List<AwardDTO> userAwardDtos;
 }
