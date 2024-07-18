@@ -17,33 +17,33 @@ import java.util.Date;
 @Table(name = "tbl_user_course")
 @Data
 @AllArgsConstructor
-public class UserCourse extends BaseModel {
-
-   @ToString.Exclude
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", referencedColumnName = "id")
-    private User user;
+ public class UserCourse extends BaseModel {
 
     @ToString.Exclude
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "course_id", referencedColumnName = "id")
-    private Course course;
+     @ManyToOne(fetch = FetchType.LAZY)
+     @JoinColumn(name = "user_id", referencedColumnName = "id")
+     private User user;
 
-    @Column(name = "enrollmentDate")
-    private Timestamp enrollmentDate;
+     @ToString.Exclude
+     @ManyToOne(fetch = FetchType.LAZY)
+     @JoinColumn(name = "course_id", referencedColumnName = "id")
+     private Course course;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "completionStatus")
-    private CompletionStatus completionStatus;
+     @Column(name = "enrollmentDate")
+     private Timestamp enrollmentDate;
 
-    @Column(name = "progress")
-    private BigDecimal progress;
+     @Enumerated(EnumType.STRING)
+     @Column(name = "completionStatus")
+     private CompletionStatus completionStatus;
 
-    public enum CompletionStatus {
-        NOT_STARTED, IN_PROGRESS, COMPLETED
-    }
+     @Column(name = "progress")
+     private BigDecimal progress;
 
-    public UserCourse() {
-        this.progress = BigDecimal.ZERO; // Set default value to BigDecimal.ZERO
-    }
-}
+     public enum CompletionStatus {
+         NOT_STARTED, IN_PROGRESS, COMPLETED
+     }
+
+     public UserCourse() {
+         this.progress = BigDecimal.ZERO; // Set default value to BigDecimal.ZERO
+     }
+ }

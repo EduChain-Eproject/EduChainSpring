@@ -2,9 +2,13 @@ package aptech.project.educhain.endpoint.controllers;
 
 import aptech.project.educhain.common.result.AppResult;
 import aptech.project.educhain.domain.dtos.courses.CourseDTO;
+import aptech.project.educhain.domain.dtos.home.CountStudentDTO;
+import aptech.project.educhain.domain.dtos.home.PopularTeacherDTO;
 import aptech.project.educhain.domain.services.home.HomeService;
 import aptech.project.educhain.domain.useCases.home.get_most_category.GetMostCategoryParams;
+import aptech.project.educhain.endpoint.responses.home.CountStudentResponse;
 import aptech.project.educhain.endpoint.responses.home.MostPopularCourseResponse;
+import aptech.project.educhain.endpoint.responses.home.MostPopularTeacherResponse;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -50,6 +54,26 @@ public class HomeController {
             return ResponseEntity.ok(result.getSuccess());
         }
         return ResponseEntity.badRequest().body(result.getFailure().getMessage());
+    }
+
+    @GetMapping("/most-popular-teacher")
+    public ResponseEntity<?> getMostPopularTeacher(){
+        AppResult<PopularTeacherDTO>  result = homeService.getMostPopularTeacher();
+        if(result.isSuccess()){
+          MostPopularTeacherResponse teacher =  modelMapper.map(result.getSuccess(),MostPopularTeacherResponse.class);
+            return ResponseEntity.ok(teacher);
+        }
+        return  ResponseEntity.badRequest().body(result.getFailure().getMessage());
+    }
+
+    @GetMapping("/count-student")
+    public ResponseEntity<?> countStudent(){
+        AppResult<CountStudentDTO> countStudent = homeService.countAllStudent();
+        if(countStudent.isSuccess()){
+            CountStudentResponse countStudentResponse = modelMapper.map(countStudent.getSuccess(),CountStudentResponse.class);
+            return ResponseEntity.ok(countStudentResponse);
+        }
+        return ResponseEntity.badRequest().body(countStudent.getFailure().getMessage());
     }
 }
 

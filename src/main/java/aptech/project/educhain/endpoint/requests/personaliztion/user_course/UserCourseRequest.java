@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class UserCourseRequest {
     private int student_id;
-    private int page = 0;
-    private int size = 3;
+    private int page;
+    private int size;
     private String titleSearch;
 }

@@ -33,9 +33,6 @@ public class AddToUserInterestsUseCase implements Usecase<UserInterestsDTO, AddT
       try{
           //add find user find course
           User findUser = authUserRepository.findUserWithId(params.getUser_id());
-          if(findUser.getRole().name().equals("TEACHER")){
-              return AppResult.failureResult(new Failure("You don't have permission to do this action"));
-          }
           Course findCourse = courseRepository.findById(params.getCourse_id()).get();
           // map data
           UserInterest userInterest = new UserInterest();
@@ -48,6 +45,7 @@ public class AddToUserInterestsUseCase implements Usecase<UserInterestsDTO, AddT
           wishListDTO.setTeacherName(findCourse.getTeacher().getEmail());
           wishListDTO.setCourse_id(findCourse.getId());
           wishListDTO.setStudent_id(findUser.getId());
+
           // take out category list by using course id
         // List<Category> listcategory = courseCategoryRepository.getCategoryByCourseId(findCourse.getId());
           List<Category> listcategory = findCourse.getCategories();

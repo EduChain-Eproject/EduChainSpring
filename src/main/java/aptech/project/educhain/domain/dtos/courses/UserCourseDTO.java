@@ -23,7 +23,6 @@ public class UserCourseDTO {
     private UserCourse.CompletionStatus completionStatus;
     private List<Category> categoryList;
 
-    // Constructor matching the query projection
     public UserCourseDTO(String teacherName, String teacherEmail, String title, Timestamp enrollmentDate,
             Double price, UserCourse.CompletionStatus completionStatus, List<Category> categoryList) {
         this.teacherName = teacherName;

@@ -8,9 +8,9 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserInterestRequest {
-    private int student_id;
-    private int page = 0;
-    private int size = 3;
-    private String titleSearch;
-}
+    public class UserInterestRequest {
+        private int student_id;
+        private int page ;
+        private int size ;
+        private String titleSearch;
+    }
