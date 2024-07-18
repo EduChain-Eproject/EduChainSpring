@@ -88,8 +88,8 @@ public class BlogService implements IBlogService {
     }
 
     @Override
-    public List<Blog> findByCategory(List<Blog> blogs, Integer id) {
-        return findBlogByCategoryUseCases.execute(blogs, id);
+    public List<Blog> findByCategory(List<Blog> blogs, Integer[] intArray) {
+        return findBlogByCategoryUseCases.execute(blogs, intArray);
     }
 
     @Override

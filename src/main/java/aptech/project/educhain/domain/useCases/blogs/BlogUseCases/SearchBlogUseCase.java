@@ -15,7 +15,10 @@ public class SearchBlogUseCase {
 
     public List<Blog> execute(List<Blog> blogs, String keyword){
         return blogs.stream()
-                .filter(blog -> blog.getTitle().contains(keyword) || blog.getBlogText().contains(keyword))
+                .filter(blog -> blog.getTitle().contains(keyword.toLowerCase())
+                        || blog.getBlogText().contains(keyword.toLowerCase())
+                        || blog.getUser().getUsername().contains(keyword.toLowerCase())
+                )
                 .collect(Collectors.toList());
     }
 }

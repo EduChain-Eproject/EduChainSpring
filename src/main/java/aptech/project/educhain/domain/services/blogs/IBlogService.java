@@ -21,7 +21,7 @@ public interface IBlogService {
 
     public List<Blog> search(List<Blog> blogs, String keyword);
 
-    public List<Blog> findByCategory(List<Blog> blogs, Integer id);
+    public List<Blog> findByCategory(List<Blog> blogs, Integer[] intArray);
 
     public Map<String, String> validateFields(String title, Integer userId, Integer blogCategoryId, String blogText);
 
