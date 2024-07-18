@@ -2,7 +2,6 @@ package aptech.project.educhain.data.entities.courses;
 
 import aptech.project.educhain.data.entities.BaseModel;
 import aptech.project.educhain.data.entities.accounts.User;
-import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
@@ -32,8 +31,5 @@ public class UserAnswer extends BaseModel {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "answer_id", referencedColumnName = "id")
-    private Answers answer;
-
-    @Column(name = "isCorrect")
-    private Boolean isCorrect;
+    private Answer answer;
 }

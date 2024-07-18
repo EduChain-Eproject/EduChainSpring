@@ -2,8 +2,9 @@ package aptech.project.educhain.data.entities.courses;
 
 import java.util.List;
 
-import aptech.project.educhain.data.entities.BaseModel;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+
+import aptech.project.educhain.data.entities.BaseModel;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.ManyToMany;
@@ -21,6 +22,9 @@ import lombok.ToString;
 public class Category extends BaseModel {
     @Column(name = "category_name")
     private String categoryName;
+
+    @Column(name = "category_description")
+    private String categoryDescription;
 
     @JsonIgnore
     @ToString.Exclude

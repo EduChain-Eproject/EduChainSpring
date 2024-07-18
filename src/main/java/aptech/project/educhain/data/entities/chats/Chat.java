@@ -1,15 +1,17 @@
 package aptech.project.educhain.data.entities.chats;
 
+import java.util.List;
+
 import aptech.project.educhain.data.entities.BaseModel;
-import aptech.project.educhain.data.entities.courses.Answers;
-import aptech.project.educhain.data.entities.courses.Homework;
-import aptech.project.educhain.data.entities.courses.UserAnswer;
-import jakarta.persistence.*;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.util.List;
 
 @Entity
 @Table(name = "tbl_chats")
