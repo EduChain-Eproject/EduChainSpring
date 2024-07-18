@@ -1,4 +1,4 @@
-package aptech.project.educhain.domain.useCases.blogs.BlogCommentUseCases;
+package aptech.project.educhain.domain.useCases.blogs.UserBlogVoteUseCases;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -29,6 +29,7 @@ public class VoteBlogUseCase {
         User user = authService.findUserById(userId);
         Blog blog = findOneBlogUseCase.execute(blogId);
         UserBlogVote userBlogVote = voteRepository.findUserBlogVoteByUserAndAndBlog(user, blog);
+
         if (userBlogVote != null) {
             if (vote == 0) {
                 voteRepository.delete(userBlogVote);
@@ -45,7 +46,6 @@ public class VoteBlogUseCase {
         }
 
         blog.setVoteUp(voteRepository.countByBlogAndVote(blog, 1));
-        blog.setVoteDown(voteRepository.countByBlogAndVote(blog, -1));
         return blogRepository.save(blog);
     }
 }

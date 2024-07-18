@@ -7,9 +7,9 @@ import org.springframework.stereotype.Component;
 
 import aptech.project.educhain.data.entities.blogs.Blog;
 import aptech.project.educhain.data.repositories.blogs.BlogRepository;
-import aptech.project.educhain.domain.services.blogs.BlogSorting.AscendingNameSort;
+import aptech.project.educhain.domain.services.blogs.BlogSorting.MostLikeSort;
 import aptech.project.educhain.domain.services.blogs.BlogSorting.AscendingTimeSort;
-import aptech.project.educhain.domain.services.blogs.BlogSorting.DescendingNameSort;
+import aptech.project.educhain.domain.services.blogs.BlogSorting.MostCommentNameSort;
 import aptech.project.educhain.domain.services.blogs.BlogSorting.DescendingTimeSort;
 import aptech.project.educhain.domain.services.blogs.BlogSorting.SortContext;
 import aptech.project.educhain.domain.services.blogs.BlogSorting.SortStrategy;
@@ -29,11 +29,10 @@ public class SortingBlogUseCase {
             return new DescendingTimeSort();
         }
         switch (sortStrategy) {
-            case "ascTitle":
-                return new AscendingNameSort();
-            case "descTitle":
-                return new DescendingNameSort();
-
+            case "mostLike":
+                return new MostLikeSort();
+            case "mostComment":
+                return new MostCommentNameSort();
             case "ascTime":
                 return new AscendingTimeSort();
             case "descTime":

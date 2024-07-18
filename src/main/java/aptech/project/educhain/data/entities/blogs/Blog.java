@@ -38,12 +38,11 @@ public class Blog extends BaseModel {
     @Column(name = "VoteUp", columnDefinition = "INT DEFAULT 0")
     private int voteUp;
 
-    @Column(name = "VoteDown", columnDefinition = "INT DEFAULT 0")
-    private int voteDown;
-
     @OneToMany(mappedBy = "blog", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<BlogComment> blogComments;
 
-    @OneToMany(mappedBy = "blog")
+    @OneToMany(mappedBy = "blog", cascade = CascadeType.ALL)
     private List<UserBlogVote> userBlogVotes;
+
+
 }

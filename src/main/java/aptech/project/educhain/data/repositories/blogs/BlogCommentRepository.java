@@ -8,4 +8,6 @@ import java.util.List;
 
 public interface BlogCommentRepository extends JpaRepository<BlogComment, Integer> {
     public List<BlogComment> findBlogCommentByBlogAndParentCommentIsNull(Blog blog);
+
+    public List<BlogComment> findBlogCommentByBlog(Blog blog);
 }

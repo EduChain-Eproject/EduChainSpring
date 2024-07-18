@@ -4,6 +4,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import aptech.project.educhain.data.entities.blogs.Blog;
+import aptech.project.educhain.domain.dtos.blogs.BlogCommentDTO;
+import aptech.project.educhain.domain.useCases.blogs.BlogCommentUseCases.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -14,57 +17,50 @@ import aptech.project.educhain.domain.services.blogs.IBlogCommentService;
 @Service
 public class BlogCommentService implements IBlogCommentService {
     @Autowired
-    BlogCommentRepository blogCommentRepository;
+    FindCommentUseCase findCommentUseCase;
 
     @Autowired
-    BlogService blogService;
+    FindCommentByBlogUseCase findCommentByBlogUseCase;
+
+    @Autowired
+    AddCommentUseCase addCommentUseCase;
+
+    @Autowired
+    EditCommentUseCase editCommentUseCase;
+
+    @Autowired
+    DeleteCommentUseCase deleteCommentUseCase;
+
+    @Autowired
+    MapChildCommentUseCase mapChildCommentUseCase;
 
     @Override
     public BlogComment findComment(Integer id) {
-        return blogCommentRepository.findById(id).get();
+        return findCommentUseCase.execute(id);
     }
 
     @Override
-    public List<BlogComment> findAll() {
-        return blogCommentRepository.findAll();
+    public List<BlogComment> findCommentByBlog(Integer id) {
+        return findCommentByBlogUseCase.execute(id);
     }
 
     @Override
-    public BlogComment create(BlogComment comment) {
-        try {
-            return blogCommentRepository.save(comment);
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
-        return null;
+    public BlogComment addComment(BlogComment comment) {
+        return addCommentUseCase.execute(comment);
     }
 
     @Override
-    public BlogComment update(Integer id, BlogComment comment) {
-        try {
-            BlogComment com = findComment(id);
-            if (com != null) {
-                com.setText(comment.getText());
-                return blogCommentRepository.save(com);
-            }
-            return null;
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
-        return null;
+    public BlogComment editComment(Integer id, BlogComment comment) {
+        return editCommentUseCase.execute(id, comment);
     }
 
     @Override
-    public boolean delete(Integer id) {
-        BlogComment comment = findComment(id);
-        if (comment != null) {
-            blogCommentRepository.delete(comment);
-            return true;
-        }
-        return false;
+    public boolean deleteComment(Integer id) {
+        return deleteCommentUseCase.execute(id);
     }
 
-    public List<BlogComment> getByBlog(Integer id) {
-        return blogCommentRepository.findBlogCommentByBlogAndParentCommentIsNull(blogService.findOneBlog(id));
+    @Override
+    public BlogCommentDTO mapChildCommentService(BlogComment comment, Integer blogId) {
+        return mapChildCommentUseCase.execute(comment, blogId);
     }
 }

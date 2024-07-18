@@ -6,13 +6,13 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-public class AscendingNameSort implements SortStrategy {
+public class MostCommentNameSort implements SortStrategy {
     @Override
     public List<Blog> sort(List<Blog> items) {
         Collections.sort(items, new Comparator<Blog>() {
             @Override
             public int compare(Blog o1, Blog o2) {
-                return o1.getTitle().compareTo(o2.getTitle());
+                return Integer.compare(o2.getBlogComments().size(), o1.getBlogComments().size());
             }
         });
         return items;
