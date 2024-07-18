@@ -6,6 +6,7 @@ import org.springframework.data.domain.Page;
 
 import aptech.project.educhain.common.result.AppResult;
 import aptech.project.educhain.domain.dtos.courses.CourseDTO;
+import aptech.project.educhain.domain.useCases.courses.course.ChangeCourseStatusUsecase.ChangeCourseStatusParams;
 import aptech.project.educhain.domain.useCases.courses.course.CreateCourseUsecase.CreateCourseParams;
 import aptech.project.educhain.domain.useCases.courses.course.GetCoursesByTeacherUsecase.GetCoursesByTeacherParams;
 import aptech.project.educhain.domain.useCases.courses.course.SearchCoursesUseCase.CourseSearchParams;
@@ -21,6 +22,8 @@ public interface ICourseService {
     AppResult<CourseDTO> deleteCourse(int courseId);
 
     AppResult<CourseDTO> getCourseDetail(Integer courseId);
+
+    AppResult<CourseDTO> changeCourseStatus(ChangeCourseStatusParams params);
 
     AppResult<Page<CourseDTO>> searchCourses(CourseSearchParams request);
 
