@@ -1,7 +1,6 @@
 package aptech.project.educhain.endpoint.controllers.courses.questions.teacher;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,7 +26,6 @@ import aptech.project.educhain.domain.useCases.courses.Question.UpdateQuestionUs
 import aptech.project.educhain.endpoint.requests.question.CreateQuestionRequest;
 import aptech.project.educhain.endpoint.requests.question.UpdateQuestionRequest;
 import aptech.project.educhain.endpoint.responses.courses.question.CreateQuestionResponse;
-import aptech.project.educhain.endpoint.responses.courses.question.GetListQuestionsByHomeworkResponse;
 import aptech.project.educhain.endpoint.responses.courses.question.GetQuestionResponse;
 import aptech.project.educhain.endpoint.responses.courses.question.UpdateQuestionResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -45,23 +43,8 @@ public class QuestionController {
     @Autowired
     ModelMapper modelMapper;
 
-    @Operation(summary = "Get all questions")
-    @GetMapping("/homework/{homework_id}")
-    public ResponseEntity<?> getQuestionsByHomework(@PathVariable Integer homework_id) {
-        AppResult<List<QuestionDTO>> result = questionService.getQuestionByHomework(homework_id);
-        if (result.isSuccess()) {
-            var res = result
-                    .getSuccess()
-                    .stream()
-                    .map(dto -> modelMapper.map(dto, GetListQuestionsByHomeworkResponse.class))
-                    .collect(Collectors.toList());
-            return ResponseEntity.ok().body(res);
-        }
-        return ResponseEntity.badRequest().body(result.getFailure().getMessage());
-    }
-
     @Operation(summary = "Get 1 question")
-    @GetMapping("/{id}")
+    @GetMapping("detail/{id}")
     public ResponseEntity<?> getQuestion(@PathVariable Integer id) {
         AppResult<QuestionDTO> result = questionService.getQuestion(id);
         if (result.isSuccess()) {
@@ -72,7 +55,7 @@ public class QuestionController {
     }
 
     @Operation(summary = "Create question")
-    @PostMapping()
+    @PostMapping("create")
     public ResponseEntity<?> createQuestion(@Valid @RequestBody CreateQuestionRequest request, BindingResult rs) {
         if (rs.hasErrors()) {
             StringBuilder errors = new StringBuilder();
@@ -95,7 +78,7 @@ public class QuestionController {
     }
 
     @Operation(summary = "Update question")
-    @PutMapping("{id}")
+    @PutMapping("update/{id}")
     public ResponseEntity<?> updateQuestion(
             @PathVariable Integer id,
             @Valid @RequestBody UpdateQuestionRequest request,
@@ -121,11 +104,11 @@ public class QuestionController {
     }
 
     @Operation(summary = "Delete question")
-    @DeleteMapping("{id}")
+    @DeleteMapping("delete/{id}")
     public ResponseEntity<?> deleteQuestion(@PathVariable Integer id) {
         var result = questionService.deleteQuestion(id);
         if (result.isSuccess()) {
-            return ResponseEntity.ok().body("Delete question with id: + " + id);
+            return ResponseEntity.ok().body(id);
         }
         return ResponseEntity.badRequest().body(result.getFailure().getMessage());
     }

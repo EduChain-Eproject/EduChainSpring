@@ -49,7 +49,7 @@ public class GetQuestionsByHomeworkUseCase implements Usecase<List<QuestionDTO>,
                 List<AnswerDTO> answerDTOList = answersList.stream().map(answers -> {
                     AnswerDTO answerDTO = modelMapper.map(answers, AnswerDTO.class);
                     answerDTO.setQuestionId(answers.getQuestion().getId());
-                    answerDTO.setAnswerId(answers.getId());
+                    answerDTO.setId(answers.getId());
                     return answerDTO;
                 }).toList();
                 dto.setAnswerDtos(answerDTOList);

@@ -1,7 +1,5 @@
 package aptech.project.educhain.domain.useCases.courses.Homework.GetHomeworkdUseCase;
 
-import java.util.List;
-
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -9,7 +7,6 @@ import org.springframework.stereotype.Component;
 import aptech.project.educhain.common.result.AppResult;
 import aptech.project.educhain.common.result.Failure;
 import aptech.project.educhain.common.usecase.Usecase;
-import aptech.project.educhain.data.entities.courses.Answers;
 import aptech.project.educhain.data.entities.courses.Homework;
 import aptech.project.educhain.data.repositories.courses.HomeworkRepository;
 import aptech.project.educhain.domain.dtos.courses.AnswerDTO;
@@ -45,29 +42,43 @@ public class GetHomeworkUseCase implements Usecase<HomeworkDTO, GetHomeworkParam
             homeworkDTO.getLessonDto().getChapterDto().setCourseDto(
                     modelMapper.map(homework.getLesson().getChapter().getCourse(), CourseDTO.class));
 
-            List<QuestionDTO> questionDTOList = homework
-                    .getQuestions()
-                    .stream()
-                    .map(question -> {
-                        QuestionDTO dto = modelMapper.map(question, QuestionDTO.class);
-                        if (question.getCorrectAnswer() != null) {
-                            dto.setCorrectAnswerId(question.getCorrectAnswer().getId());
-                        }
+            homeworkDTO.setQuestionDtos(
+                    homework.getQuestions().stream().map(
+                            q -> {
+                                QuestionDTO qDto = modelMapper.map(q, QuestionDTO.class);
 
-                        List<Answers> answersList = question.getAnswers().stream().toList();
-                        List<AnswerDTO> answerDTOList = answersList.stream().map(answers -> {
-                            AnswerDTO answerDTO = modelMapper.map(answers, AnswerDTO.class);
-                            answerDTO.setQuestionId(answers.getQuestion().getId());
-                            answerDTO.setAnswerId(answers.getId());
-                            return answerDTO;
-                        }).toList();
+                                qDto.setAnswerDtos(
+                                        q.getAnswers().stream().map(
+                                                a -> modelMapper.map(a, AnswerDTO.class)).toList());
 
-                        dto.setAnswerDtos(answerDTOList);
+                                qDto.setCorrectAnswerDto(modelMapper.map(q.getCorrectAnswer(), AnswerDTO.class));
 
-                        return dto;
-                    }).toList();
+                                return qDto;
+                            }).toList());
 
-            homeworkDTO.setQuestionDtos(questionDTOList);
+            // List<QuestionDTO> questionDTOList = homework
+            // .getQuestions()
+            // .stream()
+            // .map(question -> {
+            // QuestionDTO dto = modelMapper.map(question, QuestionDTO.class);
+            // if (question.getCorrectAnswer() != null) {
+            // dto.setCorrectAnswerId(question.getCorrectAnswer().getId());
+            // }
+
+            // List<Answers> answersList = question.getAnswers().stream().toList();
+            // List<AnswerDTO> answerDTOList = answersList.stream().map(answers -> {
+            // AnswerDTO answerDTO = modelMapper.map(answers, AnswerDTO.class);
+            // answerDTO.setQuestionId(answers.getQuestion().getId());
+            // answerDTO.setId(answers.getId());
+            // return answerDTO;
+            // }).toList();
+
+            // dto.setAnswerDtos(answerDTOList);
+
+            // return dto;
+            // }).toList();
+
+            // homeworkDTO.setQuestionDtos(questionDTOList);
 
             return AppResult.successResult(homeworkDTO);
         } catch (Exception e) {

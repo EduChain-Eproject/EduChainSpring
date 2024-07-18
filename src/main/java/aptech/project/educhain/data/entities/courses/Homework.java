@@ -40,9 +40,6 @@ public class Homework extends BaseModel {
     private List<Question> questions;
 
     @OneToMany(mappedBy = "homework", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    private List<UserAnswer> userAnswers;
-
-    @OneToMany(mappedBy = "homework", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<Award> userAwards;
 
     @OneToMany(mappedBy = "homework", fetch = FetchType.LAZY, cascade = CascadeType.ALL)

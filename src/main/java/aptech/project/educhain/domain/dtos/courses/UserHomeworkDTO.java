@@ -2,6 +2,7 @@ package aptech.project.educhain.domain.dtos.courses;
 
 import java.math.BigDecimal;
 import java.util.Date;
+import java.util.List;
 
 import aptech.project.educhain.domain.dtos.accounts.UserDTO;
 import lombok.Data;
@@ -16,5 +17,5 @@ public class UserHomeworkDTO {
 
     private HomeworkDTO homeworkDto;
     private UserDTO userDto;
-
+    private List<UserAnswerDTO> userAnswerDtos;
 }

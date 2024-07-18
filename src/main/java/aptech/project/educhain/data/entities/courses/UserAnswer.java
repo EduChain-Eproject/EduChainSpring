@@ -23,8 +23,8 @@ public class UserAnswer extends BaseModel {
     private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "homework_id", referencedColumnName = "id")
-    private Homework homework;
+    @JoinColumn(name = "user_homework_id", referencedColumnName = "id")
+    private UserHomework userHomework;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "question_id", referencedColumnName = "id")

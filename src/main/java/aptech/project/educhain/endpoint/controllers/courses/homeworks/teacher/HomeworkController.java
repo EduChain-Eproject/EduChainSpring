@@ -1,7 +1,6 @@
 package aptech.project.educhain.endpoint.controllers.courses.homeworks.teacher;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,7 +19,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import aptech.project.educhain.common.result.AppResult;
-import aptech.project.educhain.common.usecase.NoParam;
 import aptech.project.educhain.data.serviceImpl.courses.HomeworkService;
 import aptech.project.educhain.domain.dtos.courses.HomeworkDTO;
 import aptech.project.educhain.domain.services.accounts.IJwtService;
@@ -32,7 +30,6 @@ import aptech.project.educhain.endpoint.requests.Homework.CreateHomeworkRequest;
 import aptech.project.educhain.endpoint.requests.Homework.UpdateHomeworkRequest;
 import aptech.project.educhain.endpoint.responses.courses.homework.CreateHomeworkResponse;
 import aptech.project.educhain.endpoint.responses.courses.homework.GetHomeworkResponse;
-import aptech.project.educhain.endpoint.responses.courses.homework.GetListHomeworkResponse;
 import aptech.project.educhain.endpoint.responses.courses.homework.UpdateHomeworkResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -52,21 +49,6 @@ public class HomeworkController {
 
     @Autowired
     IJwtService iJwtService;
-
-    @Operation(summary = "Get all homework")
-    @GetMapping("list")
-    public ResponseEntity<?> getHomeworks() {
-        AppResult<List<HomeworkDTO>> result = homeworkService.getHomeworks(NoParam.get());
-        if (result.isSuccess()) {
-            var res = result
-                    .getSuccess()
-                    .stream()
-                    .map(dto -> modelMapper.map(dto, GetListHomeworkResponse.class))
-                    .collect(Collectors.toList());
-            return ResponseEntity.ok().body(res);
-        }
-        return ResponseEntity.badRequest().body(result.getFailure().getMessage());
-    }
 
     @Operation(summary = "Get 1 homework")
     @GetMapping("detail/{homework_id}")

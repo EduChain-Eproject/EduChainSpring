@@ -9,7 +9,7 @@ public class UserAnswerDTO {
     private UserDTO userDto;
     private Boolean isCorrect;
 
-    private HomeworkDTO homeworkDto;
+    private UserHomeworkDTO userHomeworkDto;
     private QuestionDTO questionDto;
     private AnswerDTO answerDto;
 

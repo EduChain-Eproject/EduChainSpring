@@ -1,9 +1,9 @@
 package aptech.project.educhain.endpoint.responses.courses.question;
 
+import java.util.List;
+
 import aptech.project.educhain.domain.dtos.courses.AnswerDTO;
 import lombok.Data;
-
-import java.util.List;
 
 @Data
 public class GetQuestionResponse {
@@ -11,7 +11,7 @@ public class GetQuestionResponse {
 
     private String questionText;
 
-    private List<AnswerDTO> answers;
+    private List<AnswerDTO> answerDtos;
 
     private Integer correctAnswerId;
 }

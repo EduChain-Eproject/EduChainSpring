@@ -53,13 +53,13 @@ public class UpdateQuestionUseCase implements Usecase<QuestionDTO, UpdateQuestio
             questionDTO.setAnswerDtos(answersList.stream().map(answers -> {
                 AnswerDTO answerDTO = modelMapper.map(answers, AnswerDTO.class);
                 answerDTO.setQuestionId(answers.getQuestion().getId());
-                answerDTO.setAnswerId(answers.getId());
+                answerDTO.setId(answers.getId());
                 return answerDTO;
             }).toList());
 
             return AppResult.successResult(questionDTO);
         } catch (Exception e) {
-            return AppResult.failureResult(new Failure("Failed to update homework: " + e.getMessage()));
+            return AppResult.failureResult(new Failure("Failed to update question: " + e.getMessage()));
         }
     }
 }
