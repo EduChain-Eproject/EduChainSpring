@@ -22,10 +22,12 @@ import aptech.project.educhain.common.result.AppResult;
 import aptech.project.educhain.data.entities.accounts.User;
 import aptech.project.educhain.data.serviceImpl.courses.CourseService;
 import aptech.project.educhain.domain.dtos.courses.CourseDTO;
+import aptech.project.educhain.domain.dtos.courses.UserCourseDTO;
 import aptech.project.educhain.domain.services.accounts.IJwtService;
 import aptech.project.educhain.domain.services.personalization.UserCourseService;
 import aptech.project.educhain.domain.useCases.courses.course.SearchCoursesUseCase.CourseSearchParams;
 import aptech.project.educhain.domain.useCases.personalization.user_course.add_user_course.AddUserCourseParams;
+import aptech.project.educhain.domain.useCases.personalization.user_course.get_user_course.GetUserCourseParams;
 import aptech.project.educhain.endpoint.requests.courses.course.student.CourseSearchRequest;
 import aptech.project.educhain.endpoint.responses.courses.course.student.GetCourseDetailResponse;
 import aptech.project.educhain.endpoint.responses.courses.course.student.SearchCourseResponse;
@@ -72,20 +74,28 @@ public class CourseController {
     }
 
     @GetMapping("/detail/{courseId}")
-    public ResponseEntity<?> getCourseDetail(@PathVariable Integer courseId) {
+    public ResponseEntity<?> getCourseDetail(@PathVariable Integer courseId, HttpServletRequest request) {
+        var user = iJwtService.getUserByHeaderToken(request.getHeader("Authorization"));
+
         AppResult<CourseDTO> result = courseService.getCourseDetail(courseId);
+
         if (result.isSuccess()) {
             var successValue = result.getSuccess();
 
-            var res = modelMapper.map(successValue, GetCourseDetailResponse.class);
+            AppResult<UserCourseDTO> result2 = userCourseService
+                    .getUserCourse(new GetUserCourseParams(user.getId(), courseId));
 
-            res.setNumberOfEnrolledStudents(successValue.getParticipatedUserDtos().size());
+            successValue.setNumberOfEnrolledStudents(successValue.getParticipatedUserDtos().size());
 
-            AppResult<List<CourseDTO>> relatedCoursesResult = courseService.getRelatedCourses(courseId);
-
-            if (relatedCoursesResult.isSuccess()) {
-                res.setRelatedCourseDtos(relatedCoursesResult.getSuccess());
+            if (result2.isSuccess()) {
+                successValue.setCurrentUserCourse(result2.getSuccess());
             }
+            AppResult<List<CourseDTO>> relatedCoursesResult = courseService.getRelatedCourses(courseId);
+            if (relatedCoursesResult.isSuccess()) {
+                successValue.setRelatedCourseDtos(relatedCoursesResult.getSuccess());
+            }
+
+            var res = modelMapper.map(successValue, GetCourseDetailResponse.class);
 
             return ResponseEntity.ok().body(res);
         }

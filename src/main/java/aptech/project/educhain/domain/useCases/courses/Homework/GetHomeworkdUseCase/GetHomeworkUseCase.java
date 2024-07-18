@@ -10,11 +10,13 @@ import aptech.project.educhain.common.usecase.Usecase;
 import aptech.project.educhain.data.entities.courses.Homework;
 import aptech.project.educhain.data.repositories.courses.HomeworkRepository;
 import aptech.project.educhain.domain.dtos.courses.AnswerDTO;
+import aptech.project.educhain.domain.dtos.courses.AwardDTO;
 import aptech.project.educhain.domain.dtos.courses.ChapterDTO;
 import aptech.project.educhain.domain.dtos.courses.CourseDTO;
 import aptech.project.educhain.domain.dtos.courses.HomeworkDTO;
 import aptech.project.educhain.domain.dtos.courses.LessonDTO;
 import aptech.project.educhain.domain.dtos.courses.QuestionDTO;
+import aptech.project.educhain.domain.dtos.courses.UserHomeworkDTO;
 
 @Component
 public class GetHomeworkUseCase implements Usecase<HomeworkDTO, GetHomeworkParam> {
@@ -56,29 +58,23 @@ public class GetHomeworkUseCase implements Usecase<HomeworkDTO, GetHomeworkParam
                                 return qDto;
                             }).toList());
 
-            // List<QuestionDTO> questionDTOList = homework
-            // .getQuestions()
-            // .stream()
-            // .map(question -> {
-            // QuestionDTO dto = modelMapper.map(question, QuestionDTO.class);
-            // if (question.getCorrectAnswer() != null) {
-            // dto.setCorrectAnswerId(question.getCorrectAnswer().getId());
-            // }
+            homeworkDTO.setUserAwardDtos(
+                    homework.getUserAwards().stream().map(
+                            ua -> {
+                                AwardDTO dto = modelMapper.map(ua, AwardDTO.class);
+                                dto.setHomeworkDtoId(homework.getId());
+                                return dto;
+                            }).toList());
 
-            // List<Answers> answersList = question.getAnswers().stream().toList();
-            // List<AnswerDTO> answerDTOList = answersList.stream().map(answers -> {
-            // AnswerDTO answerDTO = modelMapper.map(answers, AnswerDTO.class);
-            // answerDTO.setQuestionId(answers.getQuestion().getId());
-            // answerDTO.setId(answers.getId());
-            // return answerDTO;
-            // }).toList();
+            homeworkDTO.setUserHomeworkDtos(
+                    homework.getUserHomeworks().stream().map(
+                            uh -> {
+                                UserHomeworkDTO dto = modelMapper.map(uh, UserHomeworkDTO.class);
+                                dto.setHomeworkDtoId(homework.getId());
+                                return dto;
+                            }).toList());
 
-            // dto.setAnswerDtos(answerDTOList);
-
-            // return dto;
-            // }).toList();
-
-            // homeworkDTO.setQuestionDtos(questionDTOList);
+            homeworkDTO.mergeAwardsToUserHomework();
 
             return AppResult.successResult(homeworkDTO);
         } catch (Exception e) {

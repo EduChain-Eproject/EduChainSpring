@@ -36,8 +36,8 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 
-@Tag(name = "Homework")
-@RestController
+@Tag(name = "TeacherHomework")
+@RestController("TeacherHomework")
 @CrossOrigin
 @RequestMapping("/TEACHER/api/homework")
 public class HomeworkController {
