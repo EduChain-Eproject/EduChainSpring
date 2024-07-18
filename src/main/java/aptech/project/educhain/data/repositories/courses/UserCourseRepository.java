@@ -18,7 +18,7 @@ public interface UserCourseRepository extends JpaRepository<UserCourse, Integer>
             "JOIN uc.course c " +
             "WHERE uc.user.id = :studentId " +
             "AND (:titleSearch IS NULL OR c.title LIKE %:titleSearch%)")
-    List<UserCourse> findAllByStudentIdAndTitleSearch(@Param("studentId") int studentId,
+    Page<UserCourse> findAllByStudentIdAndTitleSearch(@Param("studentId") int studentId,
                                                       @Param("titleSearch") String titleSearch,
                                                       Pageable pageable);
 

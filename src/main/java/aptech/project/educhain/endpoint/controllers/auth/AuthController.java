@@ -2,6 +2,9 @@ package aptech.project.educhain.endpoint.controllers.auth;
 
 import java.util.List;
 
+import aptech.project.educhain.data.entities.accounts.UserSession;
+import aptech.project.educhain.data.repositories.accounts.UserSessionRepository;
+import aptech.project.educhain.endpoint.requests.accounts.*;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -28,11 +31,6 @@ import aptech.project.educhain.domain.dtos.accounts.UserDTO;
 import aptech.project.educhain.domain.services.accounts.IAuthService;
 import aptech.project.educhain.domain.services.accounts.IEmailService;
 import aptech.project.educhain.domain.services.accounts.IJwtService;
-import aptech.project.educhain.endpoint.requests.accounts.LoginRequest;
-import aptech.project.educhain.endpoint.requests.accounts.ReNewToken;
-import aptech.project.educhain.endpoint.requests.accounts.RegisterRequest;
-import aptech.project.educhain.endpoint.requests.accounts.ResetEmailRequest;
-import aptech.project.educhain.endpoint.requests.accounts.ResetPasswordRequest;
 import aptech.project.educhain.endpoint.responses.JwtResponse;
 import aptech.project.educhain.endpoint.responses.ResponseWithMessage;
 import jakarta.servlet.http.HttpServletRequest;
@@ -54,7 +52,8 @@ public class AuthController {
     private IAuthService iAuthService;
     @Autowired
     private ModelMapper modelMapper;
-
+    @Autowired
+    private UserSessionRepository userSessionRepository;
     @Autowired
     private PasswordEncoder passwordEncoder;
     @Autowired
@@ -100,7 +99,7 @@ public class AuthController {
     }
 
     // get user by email
-    @GetMapping("user-by-email/{email}")
+    @GetMapping("/user-by-email/{email}")
     public ResponseEntity<ResponseWithMessage> getUserWithEmail(@PathVariable("email") String email) {
         User user = iAuthService.findUserByEmail(email);
         UserDTO userDtoResponse = modelMapper.map(user, UserDTO.class);
@@ -108,17 +107,11 @@ public class AuthController {
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<String> logOut(HttpServletRequest request) {
-        String token = request.getHeader("Authorization");
-        if (token == null) {
-            return null;
+    public ResponseEntity<String> logOut(@RequestBody LogOutRequest req) {
+        if(req == null){
+            return ResponseEntity.badRequest().body("error when find your email");
         }
-        String newToken = token.substring(7);
-        var email = iJwtService.extractUserName(newToken);
-        if(email == null){
-            return ResponseEntity.badRequest().body("error when create token");
-        }
-        User user = iAuthService.findUserByEmail(email);
+        User user = iAuthService.findUserByEmail(req.getEmail());
 
         boolean checkLogout = iAuthService.deleteUserSession(user.getId());
         if (!checkLogout) {
@@ -141,7 +134,7 @@ public class AuthController {
         User checkUser = iAuthService.findUserByEmail(regis.getEmail());
         if (checkUser != null) {
             return ResponseEntity.badRequest().body("your email already exit please use other email");
-            // send mails a
+            // send mails
         }
 
         User user = iAuthService.register(regis);
@@ -155,24 +148,27 @@ public class AuthController {
     }
 
     // reset access token
-    @PostMapping("reset-access-token")
-    public ResponseEntity<ResponseWithMessage> resetAccessToken(ReNewToken token) {
-        String accessToken = token.getAccessToken().substring(7);
-        var email = iJwtService.extractUserName(accessToken);
+    @PostMapping("/reset-access-token")
+    public ResponseEntity<ResponseWithMessage> resetAccessToken(@RequestBody ReNewToken token) {
+        var email = iJwtService.extractUserNameWhenTokenExpire(token.getAccessToken());
         if (email == null) {
             return ResponseEntity.badRequest().body(new ResponseWithMessage<>(null, "cant recognize email"));
         }
         var isRefreshTokenValid = iJwtService.isRefreshTokenExpired(token.getRefreshToken());
-        if (!isRefreshTokenValid) {
+        User user = iAuthService.findUserByEmail(email);
+        if (isRefreshTokenValid) {
+            UserSession userSession = userSessionRepository.findUserSessionWithId(user.getId());
+            userSessionRepository.delete(userSession);
             return ResponseEntity.badRequest()
                     .body(new ResponseWithMessage<>(null, "your token expire or invalid please re-login"));
         }
-        User user = iAuthService.findUserByEmail(email);
-        String newToken = iJwtService.generateToken(user);
+            String newToken = iJwtService.generateTokenAfterExpire(user);
         JwtResponse jwtResponse = new JwtResponse();
         jwtResponse.setAccessToken(newToken);
         jwtResponse.setRefreshToken(token.getRefreshToken());
         return ResponseEntity.ok(new ResponseWithMessage<>(jwtResponse, "Ok"));
+//
+//        return ResponseEntity.ok(new ResponseWithMessage<>(null, "Ok"));
     }
 
     // catch token verify

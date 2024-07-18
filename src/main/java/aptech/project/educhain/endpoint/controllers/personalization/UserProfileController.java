@@ -48,10 +48,13 @@ public class UserProfileController {
     public ResponseEntity<?> getUser(HttpServletRequest request) {
         String token = request.getHeader("Authorization");
         if (token == null) {
-            return null;
+            return  ResponseEntity.badRequest().body("error when take token form header");
         }
         String newToken = token.substring(7);
         var email = iJwtService.extractUserName(newToken);
+        if(email == null){
+            return  ResponseEntity.badRequest().body("invalid token from header");
+        }
         User user = iAuthService.findUserByEmail(email);
         UserDTO userDtoResponse = modelMapper.map(user, UserDTO.class);
         return ResponseEntity.ok(userDtoResponse);

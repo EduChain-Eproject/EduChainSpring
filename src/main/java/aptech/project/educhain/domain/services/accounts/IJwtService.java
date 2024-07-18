@@ -16,11 +16,16 @@ public interface IJwtService {
 
     <T> T extractClaims(String token, Function<Claims, T> claimsTFunction);
 
-    JwtResponse resetToken(String token);
-
     boolean isTokenExpired(String token);
 
     boolean isTokenValid(String token, UserDetails userDetails);
 
      boolean isRefreshTokenExpired(String token);
+
+    public <T> T extractClaimsWithTokenExpire(String token, Function<Claims, T> claimsTFunction);
+
+    public String extractUserNameWhenTokenExpire(String token);
+
+    String generateTokenAfterExpire(User user);
 }
+

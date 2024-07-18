@@ -11,6 +11,7 @@ import java.util.function.Function;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 
+import io.jsonwebtoken.ExpiredJwtException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
@@ -32,8 +33,10 @@ public class JwtService implements IJwtService {
     private IAuthService iAuthService;
 
     private final SecretKey Key;
-    private static final long ACCESS_EXPIRATION_TIME = 86400000;
-    private static final long REFRESH_EXPIRATION_TIME = 86400000;
+    private static final long ACCESS_EXPIRATION_TIME = 10000;
+
+    private static final long ACCESS_NEXT_EXPIRATION_TIME = 50000;
+    private static final long REFRESH_EXPIRATION_TIME = 86400000; // 24 hours in milliseconds
 
     // custom key for accessToken
     public JwtService() {
@@ -98,11 +101,21 @@ public class JwtService implements IJwtService {
     // get Email
     public String extractUserName(String token) {
         try {
-            return extractClaims(token, Claims::getSubject);
+            String userName = extractClaims(token, Claims::getSubject);
+            if (userName == null) {
+                // Handle case where subject claim is null (optional)
+                System.out.println("Subject claim not found in token");
+                return null; // or throw an exception or handle it based on your application's logic
+            }
+            return userName;
+        } catch (ExpiredJwtException ex) {
+            // Handle expired token exception
+            System.out.println("Token expired");
+            return null; // or throw an exception or handle it as per your application's logic
         } catch (Exception e) {
-            e.printStackTrace();
+            e.printStackTrace(); // Log or handle other exceptions
+            return null;
         }
-        return null;
     }
 
     // function for decode token
@@ -114,26 +127,62 @@ public class JwtService implements IJwtService {
                     .build()
                     .parseSignedClaims(token)
                     .getPayload());
+        }catch (ExpiredJwtException e) {
+           e.printStackTrace();
+           return null;
         } catch (Exception e) {
             e.printStackTrace();
+            return null;
         }
-        return null;
     }
 
     // reset accessToken when it expire
-    public JwtResponse resetToken(String token) {
-        String email = extractUserName(token);
-        User user = iAuthService.findUserByEmail(email);
-        if (isTokenExpired(token) || user == null) {
+    public <T> T extractClaimsWithTokenExpire(String token, Function<Claims, T> claimsTFunction) {
+        try {
+            return  claimsTFunction.apply(Jwts
+                    .parser()
+                    .verifyWith(Key)
+                    .build()
+                    .parseSignedClaims(token)
+                    .getPayload());
+
+        } catch (ExpiredJwtException e) {
+            Claims claims = e.getClaims();
+            return claimsTFunction.apply(claims);
+        } catch (Exception e) {
+            e.printStackTrace();
             return null;
-        } else {
-            JwtResponse jwtResponse = new JwtResponse();
-            jwtResponse.setAccessToken(generateRefreshToken(user.getId()));
-            jwtResponse.setAccessToken(generateToken(user));
-            return jwtResponse;
         }
     }
 
+    public String extractUserNameWhenTokenExpire(String token) {
+        try {
+            String userName = extractClaimsWithTokenExpire(token, Claims::getSubject);
+            if (userName == null) {
+                // Handle case where subject claim is null (optional)
+                System.out.println("Subject claim not found in token");
+                return null; // or throw an exception or handle it based on your application's logic
+            }
+            return userName;
+        } catch (ExpiredJwtException ex) {
+            // Handle expired token exception
+            System.out.println("Token expired");
+            return null; // or throw an exception or handle it as per your application's logic
+        } catch (Exception e) {
+            e.printStackTrace(); // Log or handle other exceptions
+            return null;
+        }
+    }
+    public String generateTokenAfterExpire(User user) {
+        return Jwts.builder()
+                .subject(user.getEmail())
+                .issuedAt(new Date(System.currentTimeMillis()))
+                .expiration(new Date(System.currentTimeMillis() + ACCESS_NEXT_EXPIRATION_TIME))
+                .signWith(Key)
+                .compact();
+    }
+
+    ///--------------------------------
     public boolean isTokenExpired(String token) {
         return extractClaims(token, Claims::getExpiration).before(new Date());
     }

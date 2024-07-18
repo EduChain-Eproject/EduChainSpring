@@ -30,7 +30,7 @@ public class UserCourseController {
         return new ResponseEntity<>(userCourseDTO.getFailure().getMessage(), HttpStatus.BAD_REQUEST);
     }
     //add course to course list after payment
-    @PostMapping("/add-user-course")
+        @PostMapping("/add-user-course")
     public ResponseEntity<?> addUserCourse(@RequestBody AddUserCourseRequest req) {
         AddUserCourseParams addUserCourseParams = modelMapper.map(req,AddUserCourseParams.class);
         var userCourse = userCourseService.addUserCourseWithParams(addUserCourseParams);

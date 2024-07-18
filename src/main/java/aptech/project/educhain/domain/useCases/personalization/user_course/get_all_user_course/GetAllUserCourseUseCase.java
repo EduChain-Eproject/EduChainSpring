@@ -30,40 +30,73 @@ public class GetAllUserCourseUseCase implements Usecase<Page<UserCourseDTO>, Use
     private CourseRepository courseRepository;
 
 
+//    @Override
+//    public AppResult<Page<UserCourseDTO>> execute(UserCourseParams params) {
+//        try {
+//            Pageable pageable = PageRequest.of(params.getPage(), params.getSize());
+//            Page<UserCourse> userCourses = userCourseRepository.findAllByStudentIdAndTitleSearch(params.getStudent_id(),params.getTitleSearch(),pageable);
+//
+//            List<UserCourseDTO> userCourseDTOs = userCourses.stream()
+//                    .map(userCourse -> {
+//                        User user = userCourse.getUser();
+//                        Course course = userCourse.getCourse();
+//                        if (course != null) {
+//                            return new UserCourseDTO(
+//                                    user.getFirstName(),
+//                                    user.getEmail(),
+//                                    course.getTitle(),
+//                                    userCourse.getEnrollmentDate(),
+//                                    course.getPrice(),
+//                                    userCourse.getCompletionStatus(),
+//                                    course.getCategories()
+//                            );
+//                        } else {
+//                            return null; // Or handle the case where course is null
+//                        }
+//                    })
+//                    .collect(Collectors.toList());
+//
+//            // Implement pagination manually
+//            int start = (int) pageable.getOffset();
+//            int end = Math.min((start + pageable.getPageSize()), userCourseDTOs.size());
+////            Page<UserCourseDTO> userCourseDTOPage = new PageImpl<>(userCourseDTOs.subList(start, end), pageable, userCourseDTOs.size());
+//            Page<UserCourseDTO> userCourseDTOPage = new PageImpl<>(userCourseDTOs, pageable, userCourses.getTotalElements());
+//            return AppResult.successResult(userCourseDTOPage);
+//        } catch (Exception e) {
+//            return AppResult.failureResult(new Failure("Fail to get user course"));
+//        }
+//    }
     @Override
     public AppResult<Page<UserCourseDTO>> execute(UserCourseParams params) {
-        try {
-            Pageable pageable = PageRequest.of(params.getPage(), params.getSize());
-            List<UserCourse> userCourses = userCourseRepository.findAllByStudentIdAndTitleSearch(params.getStudent_id(),params.getTitleSearch(),pageable);
+    try {
+        Pageable pageable = PageRequest.of(params.getPage(), params.getSize());
+        Page<UserCourse> userCoursesPage = userCourseRepository.findAllByStudentIdAndTitleSearch(params.getStudent_id(), params.getTitleSearch(), pageable);
 
-            List<UserCourseDTO> userCourseDTOs = userCourses.stream()
-                    .map(userCourse -> {
-                        User user = userCourse.getUser();
-                        Course course = userCourse.getCourse();
-                        if (course != null) {
-                            return new UserCourseDTO(
-                                    user.getFirstName(),
-                                    user.getEmail(),
-                                    course.getTitle(),
-                                    userCourse.getEnrollmentDate(),
-                                    course.getPrice(),
-                                    userCourse.getCompletionStatus(),
-                                    course.getCategories()
-                            );
-                        } else {
-                            return null; // Or handle the case where course is null
-                        }
-                    })
-                    .collect(Collectors.toList());
+        List<UserCourseDTO> userCourseDTOs = userCoursesPage.stream()
+                .map(userCourse -> {
+                    User user = userCourse.getUser();
+                    Course course = userCourse.getCourse();
+                    if (course != null) {
+                        return new UserCourseDTO(
+                                user.getFirstName(),
+                                user.getEmail(),
+                                course.getTitle(),
+                                userCourse.getEnrollmentDate(),
+                                course.getPrice(),
+                                userCourse.getCompletionStatus(),
+                                course.getCategories()
+                        );
+                    } else {
+                        return null; // Or handle the case where course is null
+                    }
+                })
+                .collect(Collectors.toList());
 
-            // Implement pagination manually
-            int start = (int) pageable.getOffset();
-            int end = Math.min((start + pageable.getPageSize()), userCourseDTOs.size());
-            Page<UserCourseDTO> userCourseDTOPage = new PageImpl<>(userCourseDTOs.subList(start, end), pageable, userCourseDTOs.size());
-            return AppResult.successResult(userCourseDTOPage);
-        } catch (Exception e) {
-            return AppResult.failureResult(new Failure("Fail to get user course"));
-        }
+        Page<UserCourseDTO> userCourseDTOPage = new PageImpl<>(userCourseDTOs, pageable, userCoursesPage.getTotalElements());
+        return AppResult.successResult(userCourseDTOPage);
+    } catch (Exception e) {
+        return AppResult.failureResult(new Failure("Fail to get user course"));
     }
+}
 
 }
