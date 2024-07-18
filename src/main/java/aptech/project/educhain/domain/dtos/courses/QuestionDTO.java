@@ -8,6 +8,7 @@ import lombok.Data;
 public class QuestionDTO {
     private Integer id;
     private String questionText;
+
     private Integer homeworkId;
     private Integer correctAnswerId;
 
@@ -15,4 +16,6 @@ public class QuestionDTO {
     private List<AnswerDTO> answerDtos;
     private List<UserAnswerDTO> userAnswerDtos;
     private AnswerDTO correctAnswerDto;
+
+    private UserAnswerDTO currentUserAnswerDto;
 }

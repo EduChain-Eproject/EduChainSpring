@@ -14,6 +14,8 @@ public class AwardDTO {
     private LocalDateTime reviewDate;
     private String comments;
 
+    private Integer homeworkDtoId;
+
     private UserDTO userDto;
     private HomeworkDTO homeworkDto;
 }

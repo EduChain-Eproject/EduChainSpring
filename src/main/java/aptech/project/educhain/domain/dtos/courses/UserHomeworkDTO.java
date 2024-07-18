@@ -15,7 +15,11 @@ public class UserHomeworkDTO {
     private BigDecimal grade;
     private Boolean isSubmitted;
 
+    private Integer homeworkDtoId;
+
     private HomeworkDTO homeworkDto;
     private UserDTO userDto;
     private List<UserAnswerDTO> userAnswerDtos;
+
+    private AwardDTO userAwardDto;
 }

@@ -6,9 +6,13 @@ import lombok.Data;
 @Data
 public class UserAnswerDTO {
     private Integer id;
-    private UserDTO userDto;
     private Boolean isCorrect;
 
+    private Integer userHomeworkId;
+    private Integer questionId;
+    private Integer answerId;
+
+    private UserDTO userDto;
     private UserHomeworkDTO userHomeworkDto;
     private QuestionDTO questionDto;
     private AnswerDTO answerDto;
