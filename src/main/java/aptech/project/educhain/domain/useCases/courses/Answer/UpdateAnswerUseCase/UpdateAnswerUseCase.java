@@ -1,4 +1,4 @@
-package aptech.project.educhain.domain.useCases.courses.Answers.UpdateAnswerUseCase;
+package aptech.project.educhain.domain.useCases.courses.Answer.UpdateAnswerUseCase;
 
 import java.util.Optional;
 
@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 import aptech.project.educhain.common.result.AppResult;
 import aptech.project.educhain.common.result.Failure;
 import aptech.project.educhain.common.usecase.Usecase;
-import aptech.project.educhain.data.entities.courses.Answers;
+import aptech.project.educhain.data.entities.courses.Answer;
 import aptech.project.educhain.data.repositories.courses.AnswerRepository;
 import aptech.project.educhain.domain.dtos.courses.AnswerDTO;
 
@@ -24,15 +24,15 @@ public class UpdateAnswerUseCase implements Usecase<AnswerDTO, UpdateAnswerParam
     @Override
     public AppResult<AnswerDTO> execute(UpdateAnswerParam params) {
         try {
-            Optional<Answers> answersOptional = answerRepository.findById(params.getId());
-            if (!answersOptional.isPresent()) {
+            Optional<Answer> answerOptional = answerRepository.findById(params.getId());
+            if (!answerOptional.isPresent()) {
                 return AppResult.failureResult(new Failure("Answer not found with ID: " + params.getId()));
             }
 
-            Answers ans = answersOptional.get();
+            Answer ans = answerOptional.get();
             ans.setAnswerText(params.getAnswerText());
 
-            Answers saveAnswer = answerRepository.saveAndFlush(ans);
+            Answer saveAnswer = answerRepository.saveAndFlush(ans);
 
             AnswerDTO answerDTO = modelMapper.map(saveAnswer, AnswerDTO.class);
             answerDTO.setQuestionId(ans.getQuestion().getId());

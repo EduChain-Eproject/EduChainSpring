@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 import aptech.project.educhain.common.result.AppResult;
 import aptech.project.educhain.common.result.Failure;
 import aptech.project.educhain.common.usecase.Usecase;
-import aptech.project.educhain.data.entities.courses.Answers;
+import aptech.project.educhain.data.entities.courses.Answer;
 import aptech.project.educhain.data.entities.courses.Question;
 import aptech.project.educhain.data.repositories.accounts.AuthUserRepository;
 import aptech.project.educhain.data.repositories.courses.AnswerRepository;
@@ -49,7 +49,7 @@ public class UpdateQuestionUseCase implements Usecase<QuestionDTO, UpdateQuestio
             QuestionDTO questionDTO = modelMapper.map(saveQuestion, QuestionDTO.class);
             questionDTO.setCorrectAnswerId(saveQuestion.getCorrectAnswer().getId());
             questionDTO.setHomeworkId(saveQuestion.getHomework().getId());
-            List<Answers> answersList = question.getAnswers().stream().toList();
+            List<Answer> answersList = question.getAnswers().stream().toList();
             questionDTO.setAnswerDtos(answersList.stream().map(answers -> {
                 AnswerDTO answerDTO = modelMapper.map(answers, AnswerDTO.class);
                 answerDTO.setQuestionId(answers.getQuestion().getId());

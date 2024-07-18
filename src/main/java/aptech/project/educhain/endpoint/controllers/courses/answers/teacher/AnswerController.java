@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import aptech.project.educhain.data.serviceImpl.courses.AnswerService;
-import aptech.project.educhain.domain.useCases.courses.Answers.UpdateAnswerUseCase.UpdateAnswerParam;
+import aptech.project.educhain.domain.useCases.courses.Answer.UpdateAnswerUseCase.UpdateAnswerParam;
 import aptech.project.educhain.endpoint.requests.answer.UpdateAnswerRequest;
 import aptech.project.educhain.endpoint.responses.courses.answer.UpdateAnswerResponse;
 import io.swagger.v3.oas.annotations.Operation;

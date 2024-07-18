@@ -1,4 +1,4 @@
-package aptech.project.educhain.domain.useCases.courses.Answers.GetAnswerByQuestionUseCase;
+package aptech.project.educhain.domain.useCases.courses.Answer.GetAnswerByQuestionUseCase;
 
 import java.util.List;
 
@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 import aptech.project.educhain.common.result.AppResult;
 import aptech.project.educhain.common.result.Failure;
 import aptech.project.educhain.common.usecase.Usecase;
-import aptech.project.educhain.data.entities.courses.Answers;
+import aptech.project.educhain.data.entities.courses.Answer;
 import aptech.project.educhain.data.entities.courses.Question;
 import aptech.project.educhain.data.repositories.courses.AnswerRepository;
 import aptech.project.educhain.data.repositories.courses.QuestionRepository;
@@ -33,7 +33,7 @@ public class GetAnswerByQuestionUseCase implements Usecase<List<AnswerDTO>, Inte
             if (qs == null) {
                 return AppResult.failureResult(new Failure("can not find question with id: " + id));
             }
-            List<Answers> answers = answerRepository.getAnswersByQuestion(qs);
+            List<Answer> answers = answerRepository.getAnswersByQuestion(qs);
             List<AnswerDTO> answerDTOList = answers.stream().map(ans -> {
                 AnswerDTO dto = modelMapper.map(ans, AnswerDTO.class);
                 dto.setQuestionId(ans.getQuestion().getId());

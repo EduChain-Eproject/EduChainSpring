@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 import aptech.project.educhain.common.result.AppResult;
 import aptech.project.educhain.common.result.Failure;
 import aptech.project.educhain.common.usecase.Usecase;
-import aptech.project.educhain.data.entities.courses.Answers;
+import aptech.project.educhain.data.entities.courses.Answer;
 import aptech.project.educhain.data.entities.courses.Homework;
 import aptech.project.educhain.data.entities.courses.Question;
 import aptech.project.educhain.data.repositories.accounts.AuthUserRepository;
@@ -45,9 +45,9 @@ public class CreateQuestionUseCase implements Usecase<QuestionDTO, CreateQuestio
                 return AppResult
                         .failureResult(new Failure("Failed to create question: maximum number of answers is 4"));
             } else if (params.getAnswerTexts().size() > 0) {
-                List<Answers> answers = new ArrayList<>();
+                List<Answer> answers = new ArrayList<>();
                 for (int i = 0; i < params.getAnswerTexts().size(); i++) {
-                    var answer = new Answers();
+                    var answer = new Answer();
                     answer.setQuestion(question);
                     answer.setAnswerText(params.getAnswerTexts().get(i));
                     answers.add(answer);
