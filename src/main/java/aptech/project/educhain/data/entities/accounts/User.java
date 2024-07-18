@@ -1,27 +1,43 @@
 package aptech.project.educhain.data.entities.accounts;
 
+import java.util.Collection;
+import java.util.List;
+
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import aptech.project.educhain.data.entities.BaseModel;
-import aptech.project.educhain.data.entities.others.Notification;
 import aptech.project.educhain.data.entities.blogs.Blog;
 import aptech.project.educhain.data.entities.blogs.BlogComment;
 import aptech.project.educhain.data.entities.chats.Message;
 import aptech.project.educhain.data.entities.chats.UserChat;
-import aptech.project.educhain.data.entities.courses.*;
+import aptech.project.educhain.data.entities.courses.Award;
+import aptech.project.educhain.data.entities.courses.Comment;
+import aptech.project.educhain.data.entities.courses.Course;
+import aptech.project.educhain.data.entities.courses.Homework;
+import aptech.project.educhain.data.entities.courses.UserAnswer;
+import aptech.project.educhain.data.entities.courses.UserCourse;
+import aptech.project.educhain.data.entities.courses.UserHomework;
 import aptech.project.educhain.data.entities.others.Coupon;
 import aptech.project.educhain.data.entities.others.CourseFeedback;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import jakarta.persistence.*;
+import aptech.project.educhain.data.entities.others.Notification;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.Table;
 import jakarta.validation.constraints.Email;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
-
-import java.util.Collection;
-import java.util.List;
 
 @Entity
 @Table(name = "tbl_users")
@@ -62,7 +78,7 @@ public class User extends BaseModel implements UserDetails {
     private String avatarPath;
 
     @JsonIgnoreProperties("user")
-    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL,fetch = FetchType.LAZY)
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @ToString.Exclude
     private UserSession userSession;
 
@@ -76,7 +92,6 @@ public class User extends BaseModel implements UserDetails {
     @ToString.Exclude
     private EmailToken emailToken;
 
-
     @JsonIgnoreProperties("user")
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @ToString.Exclude
@@ -88,6 +103,8 @@ public class User extends BaseModel implements UserDetails {
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<Homework> homeworks;
 
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private List<Award> userAwards;
 
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<Comment> comments;

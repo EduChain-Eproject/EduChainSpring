@@ -1,6 +1,5 @@
 package aptech.project.educhain.domain.useCases.courses.Question.UpdateQuestionUseCase;
 
-import aptech.project.educhain.data.entities.courses.Answers;
 import lombok.Data;
 
 @Data

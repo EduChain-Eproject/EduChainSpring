@@ -40,9 +40,6 @@ public class BlogCommentController {
     BlogCommentService blogCommentService;
 
     @Autowired
-    UploadPhotoService uploadPhotoService;
-
-    @Autowired
     ModelMapper modelMapper;
 
     @Autowired
@@ -51,43 +48,17 @@ public class BlogCommentController {
     @Autowired
     AuthService userService;
 
-    @Operation(summary = "Get all comment")
-    @GetMapping("")
-    private List<BlogCommentDTO> findAll() {
-        List<BlogComment> comments = blogCommentService.findAll();
-        return comments.stream().map(comment -> {
-            BlogCommentDTO dto = modelMapper.map(comment, BlogCommentDTO.class);
-            if (comment.getBlog() != null) {
-                dto.setBlogId(comment.getBlog().getId());
-            }
-            return dto;
-        }).collect(Collectors.toList());
-    }
-
-    @Operation(summary = "Get 1 category")
+    @Operation(summary = "Get 1 comment")
     @GetMapping("{id}")
     private BlogCommentDTO findOne(@PathVariable Integer id) {
         BlogComment comment = blogCommentService.findComment(id);
         return modelMapper.map(comment, BlogCommentDTO.class);
     }
 
-    private BlogCommentDTO mapChildComment(BlogComment comment, Integer blogId) {
-        BlogCommentDTO dto = modelMapper.map(comment, BlogCommentDTO.class);
-        dto.setBlogId(blogId); // Set the blogId inherited from the parent comment
-        if (comment.getParentComment() != null) {
-            dto.setParentCommentId(comment.getParentComment().getId());
-        }
-        // Recursively map child comments, if any
-        List<BlogCommentDTO> childComments = comment.getReplies().stream()
-                .map(child -> mapChildComment(child, blogId))
-                .collect(Collectors.toList());
-        dto.setReplies(childComments);
-        return dto;
-    }
     @GetMapping("/blog/{id}")
     public ResponseEntity<List<BlogCommentDTO>> findByBlog(@PathVariable Integer id) {
         try {
-            List<BlogComment> comments = blogCommentService.getByBlog(id);
+            List<BlogComment> comments = blogCommentService.findCommentByBlog(id);
             if (comments.isEmpty()) {
                 return new ResponseEntity<>(HttpStatus.NO_CONTENT);
             }
@@ -101,7 +72,7 @@ public class BlogCommentController {
                 }
                 // Map child comments
                 List<BlogCommentDTO> childComments = comment.getReplies().stream()
-                        .map(child -> mapChildComment(child, dto.getBlogId()))
+                        .map(child -> blogCommentService.mapChildCommentService(child, dto.getBlogId()))
                         .collect(Collectors.toList());
                 dto.setReplies(childComments);
                 return dto;
@@ -119,17 +90,8 @@ public class BlogCommentController {
     public ResponseEntity<?> create(@RequestParam("text") String text,
             @RequestParam("userId") Integer userId,
             @RequestParam("parentComment") String commentId,
-            @RequestParam("blogId") Integer blogId,
-            @RequestParam("photo") MultipartFile photo) {
-        // Map<String, String> errors = service.validateFields(title, userId,
-        // blogCategoryId, blogText);
-        // if (!errors.isEmpty()) {
-        // return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
-        // }
-
+            @RequestParam("blogId") Integer blogId) {
         try {
-            String fileName = uploadPhotoService.uploadPhoto(photo);
-
             BlogComment comment = new BlogComment();
             User user = userService.findUserById(userId);
             Blog blog = blogService.findOneBlog(blogId);
@@ -147,9 +109,8 @@ public class BlogCommentController {
             comment.setBlog(blog);
             comment.setText(text);
             comment.setParentComment(parent);
-            comment.setPhoto(fileName);
 
-            BlogComment createdComment = blogCommentService.create(comment);
+            BlogComment createdComment = blogCommentService.addComment(comment);
 
             BlogCommentDTO createdBlogCommentDTO = modelMapper.map(createdComment, BlogCommentDTO.class);
 

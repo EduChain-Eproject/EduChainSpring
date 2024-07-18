@@ -25,5 +25,5 @@ public class UserBlogVote extends BaseModel {
     private Blog blog;
 
     @Column(name = "vote")
-    private int vote; // 1 for upvote, -1 for downvote
+    private int vote;
 }

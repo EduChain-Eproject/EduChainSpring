@@ -6,6 +6,7 @@ import aptech.project.educhain.domain.dtos.accounts.UserDTO;
 import aptech.project.educhain.domain.dtos.courses.ChapterDTO;
 import aptech.project.educhain.domain.dtos.courses.CourseDTO;
 import aptech.project.educhain.domain.dtos.courses.CourseFeedbackDTO;
+import aptech.project.educhain.domain.dtos.courses.UserCourseDTO;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -25,5 +26,6 @@ public class GetCourseDetailResponse {
     private List<CourseFeedbackDTO> courseFeedbackDtos;
 
     private int numberOfEnrolledStudents;
+    private UserCourseDTO currentUserCourse;
     private List<CourseDTO> relatedCourseDtos;
 }

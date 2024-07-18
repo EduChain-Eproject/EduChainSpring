@@ -9,6 +9,8 @@ import org.springframework.stereotype.Service;
 import aptech.project.educhain.common.result.AppResult;
 import aptech.project.educhain.domain.dtos.courses.CourseDTO;
 import aptech.project.educhain.domain.services.courses.ICourseService;
+import aptech.project.educhain.domain.useCases.courses.course.ChangeCourseStatusUsecase.ChangeCourseStatusParams;
+import aptech.project.educhain.domain.useCases.courses.course.ChangeCourseStatusUsecase.ChangeCourseStatusUsecase;
 import aptech.project.educhain.domain.useCases.courses.course.CreateCourseUsecase.CreateCourseParams;
 import aptech.project.educhain.domain.useCases.courses.course.CreateCourseUsecase.CreateCourseUsecase;
 import aptech.project.educhain.domain.useCases.courses.course.DeleteCourseUsecase.DeleteCourseUsecase;
@@ -34,6 +36,9 @@ public class CourseService implements ICourseService {
 
     @Autowired
     DeleteCourseUsecase deleteCourseUsecase;
+
+    @Autowired
+    ChangeCourseStatusUsecase changeCourseStatusUsecase;
 
     @Autowired
     GetCourseDetailUsecase getCourseDetailUsecase;
@@ -67,6 +72,11 @@ public class CourseService implements ICourseService {
     @Override
     public AppResult<CourseDTO> deleteCourse(int courseId) {
         return deleteCourseUsecase.execute(courseId);
+    }
+
+    @Override
+    public AppResult<CourseDTO> changeCourseStatus(ChangeCourseStatusParams params) {
+        return changeCourseStatusUsecase.execute(params);
     }
 
     @Override

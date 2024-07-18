@@ -30,14 +30,8 @@ public class BlogComment extends BaseModel {
     @Column(name = "text", columnDefinition = "TEXT")
     private String text;
 
-    @Column(name = "photo")
-    private String photo;
-
     @Column(name = "VoteUp", columnDefinition = "INT DEFAULT 0")
     private int voteUp;
-
-    @Column(name = "VoteDown", columnDefinition = "INT DEFAULT 0")
-    private int voteDown;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "parent_id")

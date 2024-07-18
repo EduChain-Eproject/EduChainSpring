@@ -3,12 +3,17 @@ package aptech.project.educhain.endpoint.controllers.blogs;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 import aptech.project.educhain.data.entities.blogs.BlogComment;
+import aptech.project.educhain.data.entities.blogs.UserBlogVote;
 import aptech.project.educhain.domain.dtos.blogs.BlogCommentDTO;
+import aptech.project.educhain.domain.dtos.blogs.UserBlogVoteDTO;
+import aptech.project.educhain.endpoint.requests.blogs.VoteRequest;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -71,7 +76,14 @@ public class BlogController {
     public List<BlogDTO> findAll() {
         List<Blog> blogs = service.findAll();
 
-        return blogs.stream().map(blog -> modelMapper.map(blog, BlogDTO.class)).collect(Collectors.toList());
+        // Sắp xếp blog theo thứ tự mới nhất trước
+        List<Blog> sortedBlogs = blogs.stream()
+                .sorted(Comparator.comparing(Blog::getCreatedAt).reversed())
+                .collect(Collectors.toList());
+
+        return sortedBlogs.stream()
+                .map(blog -> modelMapper.map(blog, BlogDTO.class))
+                .collect(Collectors.toList());
     }
     
 
@@ -147,16 +159,24 @@ public class BlogController {
         }
     }
 
-    @Operation(summary = "Vote up or vote down")
-    @PostMapping("/vote/{id}")
+    @Operation(summary = "Vote")
+    @PostMapping("/vote")
     public BlogDTO vote(
-            @RequestParam Integer userId,
-            @RequestParam Integer vote,
-            @PathVariable Integer id) {
-        User user = userService.findUserById(userId);
-        Blog blog = service.findOneBlog(id);
-        Blog updatedBlog = userBlogVoteService.vote(userId, id, vote);
+            @RequestBody VoteRequest rq) {
+        Blog updatedBlog = userBlogVoteService.vote(rq.getUserId(), rq.getBlogId(), rq.getVote());
         return modelMapper.map(updatedBlog, BlogDTO.class);
+    }
+
+    @Operation(summary = "Find user blog vote")
+    @GetMapping("/userBlogVote")
+    public Boolean findUserBlogVote(
+            @RequestParam Integer blogId,
+            @RequestParam Integer userId) {
+        UserBlogVote userBlogVote = userBlogVoteService.findUserBlogVote(userId, blogId);
+        if (userBlogVote == null) {
+            return false;
+        }
+        return true;
     }
 
     @Operation(summary = "Edit blog")
@@ -205,18 +225,28 @@ public class BlogController {
         return service.delete(id);
     }
 
-    @Operation(summary = "Filter")
     @GetMapping("/filter")
-    public List<BlogDTO> filter(@RequestBody FilterBlogRequest rq) {
+    public List<BlogDTO> filter(
+            @RequestParam(required = false) String sortStrategy,
+            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) Integer[] categoryIdArray) {
+
+        System.out.println(sortStrategy);
+        System.out.println(keyword);
+        System.out.println(Arrays.stream(categoryIdArray).toList());
+
         List<Blog> blogs = service.findAll();
-        if (rq.getCategoryId() != null) {
-            blogs = service.findByCategory(blogs, rq.getCategoryId());
+        if (categoryIdArray != null && categoryIdArray.length > 0){
+            blogs = service.findByCategory(blogs, categoryIdArray);
+
         }
-        if (rq.getKeyword() != null) {
-            blogs = service.search(blogs, rq.getKeyword());
+        if (keyword != null || !keyword.isEmpty() || keyword != ""){
+            blogs = service.search(blogs, keyword);
+
         }
-        if (rq.getSortStrategy() != null) {
-            blogs = service.sorting(blogs, service.getSortStrategy(rq.getSortStrategy()));
+
+        if (sortStrategy != null || !sortStrategy.isEmpty() || sortStrategy != "" ){
+            blogs = service.sorting(blogs, service.getSortStrategy(sortStrategy));
         }
         return blogs.stream().map(blog -> modelMapper.map(blog, BlogDTO.class)).collect(Collectors.toList());
     }

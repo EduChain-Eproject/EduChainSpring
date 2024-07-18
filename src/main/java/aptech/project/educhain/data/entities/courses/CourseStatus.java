@@ -5,5 +5,6 @@ public enum CourseStatus {
     UNDER_REVIEW,
     APPROVED,
     DELETED,
-    DEACTIVATED
+    DEACTIVATED,
+    REACTIVATED
 }

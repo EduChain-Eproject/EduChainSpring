@@ -20,7 +20,9 @@ import org.springframework.web.bind.annotation.RestController;
 import aptech.project.educhain.common.result.AppResult;
 import aptech.project.educhain.data.serviceImpl.courses.CourseService;
 import aptech.project.educhain.domain.dtos.courses.CourseDTO;
+import aptech.project.educhain.domain.useCases.courses.course.ChangeCourseStatusUsecase.ChangeCourseStatusParams;
 import aptech.project.educhain.domain.useCases.courses.course.SearchCoursesUseCase.CourseSearchParams;
+import aptech.project.educhain.endpoint.requests.courses.course.censor.ApproveDeleteRequest;
 import aptech.project.educhain.endpoint.requests.courses.course.censor.CourseSearchRequest;
 import aptech.project.educhain.endpoint.responses.courses.course.censor.CourseByStatusResponse;
 import aptech.project.educhain.endpoint.responses.courses.course.teacher.GetCourseDetailResponse;
@@ -69,4 +71,14 @@ public class CourseController {
         return ResponseEntity.badRequest().body(result.getFailure().getMessage());
     }
 
+    @PostMapping("/approve-or-delete/{courseId}")
+    public ResponseEntity<?> approveCourse(@PathVariable("courseId") Integer courseId,
+            @RequestBody ApproveDeleteRequest request) {
+        var result = courseService.changeCourseStatus(new ChangeCourseStatusParams(courseId, request.getStatus()));
+        if (result.isSuccess()) {
+            return ResponseEntity.ok(result.getSuccess());
+        }
+
+        return ResponseEntity.badRequest().body(result.getFailure().getMessage());
+    }
 }
