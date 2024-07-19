@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import aptech.project.educhain.common.result.AppResult;
 import aptech.project.educhain.data.entities.accounts.User;
+import aptech.project.educhain.data.entities.courses.CourseStatus;
 import aptech.project.educhain.data.serviceImpl.courses.CourseService;
 import aptech.project.educhain.domain.dtos.courses.CourseDTO;
 import aptech.project.educhain.domain.dtos.courses.UserCourseDTO;
@@ -51,8 +52,10 @@ public class CourseController {
     @PostMapping("/list")
     public ResponseEntity<?> getCourses(@RequestBody CourseSearchRequest request) {
 
-        AppResult<Page<CourseDTO>> result = courseService.searchCourses(
-                modelMapper.map(request, CourseSearchParams.class));
+        var params = modelMapper.map(request, CourseSearchParams.class);
+        params.setStatus(CourseStatus.APPROVED);
+
+        AppResult<Page<CourseDTO>> result = courseService.searchCourses(params);
 
         if (result.isSuccess()) {
             Page<CourseDTO> courseDTOPage = result.getSuccess();
