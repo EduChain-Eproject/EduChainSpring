@@ -3,6 +3,7 @@ package aptech.project.educhain.endpoint.controllers.courses.homeworks.student;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -26,10 +27,12 @@ import aptech.project.educhain.domain.useCases.courses.UserHomework.GetUserHomew
 import aptech.project.educhain.domain.useCases.courses.UserHomework.SubmitHomeworkUseCase.SubmitHomeworkParams;
 import aptech.project.educhain.endpoint.requests.Homework.AnswerAQuestionReq;
 import aptech.project.educhain.endpoint.responses.courses.homework.GetHomeworkAndUserHomeworkResponse;
+import aptech.project.educhain.endpoint.responses.courses.homework.SubmitHomeworkResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
 
 @Tag(name = "StudentHomework")
 @RestController("StudentHomework")
@@ -89,10 +92,13 @@ public class HomeworkController {
         return ResponseEntity.badRequest().body(result1.getFailure().getMessage());
     }
 
-    @Operation(summary = "answer 1 homework")
+    @Operation(summary = "answer a question of a homework")
     @PostMapping("answer/{homework_id}")
-    public ResponseEntity<?> answerAQuestion(@PathVariable Integer homework_id, HttpServletRequest request,
-            @RequestBody AnswerAQuestionReq bodyReq) {
+    public ResponseEntity<?> answerAQuestion(
+            @PathVariable Integer homework_id,
+            @Valid @RequestBody AnswerAQuestionReq bodyReq,
+            BindingResult rs,
+            HttpServletRequest request) {
         var user = iJwtService.getUserByHeaderToken(request.getHeader("Authorization"));
 
         AppResult<UserAnswerDTO> result = userHomeworkService.answerQuestion(
@@ -105,12 +111,12 @@ public class HomeworkController {
         return ResponseEntity.badRequest().body(result.getFailure().getMessage());
     }
 
-    @Operation(summary = "submit 1 homework")
+    @Operation(summary = "submit a homework")
     @PostMapping("submit/{homework_id}")
     public ResponseEntity<?> submit(@PathVariable Integer homework_id, HttpServletRequest request) {
         var user = iJwtService.getUserByHeaderToken(request.getHeader("Authorization"));
 
-        AppResult<AwardDTO> result = userHomeworkService.submitHomework(
+        AppResult<SubmitHomeworkResponse> result = userHomeworkService.submitHomework(
                 new SubmitHomeworkParams(user.getId(), homework_id));
 
         if (result.isSuccess()) {

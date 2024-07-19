@@ -21,7 +21,7 @@ public class HomeworkDTO {
     private List<AwardDTO> userAwardDtos;
 
     public void mergeUserAnswersToQuestions(List<UserAnswerDTO> userAnswers) {
-        this.questionDtos.stream().map(q -> {
+        questionDtos = questionDtos.stream().map(q -> {
             for (UserAnswerDTO userAnswerDTO : userAnswers) {
                 if (userAnswerDTO.getQuestionId() == q.getId()) {
                     q.setCurrentUserAnswerDto(
@@ -29,28 +29,28 @@ public class HomeworkDTO {
                 }
             }
             return q;
-        });
+        }).toList();
     }
 
-    public void mergeAwardsToUserHomework(List<AwardDTO> awardDtos) {
-        this.userHomeworkDtos.stream().map(uh -> {
+    public void mergeAwardsToUserHomeworks(List<AwardDTO> awardDtos) {
+        userHomeworkDtos = userHomeworkDtos.stream().map(uh -> {
             for (AwardDTO award : awardDtos) {
                 if (award.getHomeworkDto().getId() == uh.getHomeworkDto().getId()) {
                     uh.setUserAwardDto(award);
                 }
             }
             return uh;
-        });
+        }).toList();
     }
 
-    public void mergeAwardsToUserHomework() {
-        this.userHomeworkDtos.stream().map(uh -> {
-            for (AwardDTO award : this.userAwardDtos) {
-                if (award.getHomeworkDto().getId() == uh.getHomeworkDto().getId()) {
+    public void mergeAwardsToUserHomeworks() {
+        userHomeworkDtos = userHomeworkDtos.stream().map(uh -> {
+            for (AwardDTO award : userAwardDtos) {
+                if (award.getHomeworkDtoId() == uh.getHomeworkDtoId()) {
                     uh.setUserAwardDto(award);
                 }
             }
             return uh;
-        });
+        }).toList();
     }
 }

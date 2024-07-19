@@ -69,7 +69,12 @@ public class AnswerQuestionUseCase implements Usecase<UserAnswerDTO, AnswerQuest
 
             userAnswer = userAnswerRepository.save(userAnswer);
 
-            return AppResult.successResult(modelMapper.map(userAnswer, UserAnswerDTO.class));
+            var dto = modelMapper.map(userAnswer, UserAnswerDTO.class);
+            dto.setAnswerId(params.getAnswerId());
+            dto.setQuestionId(params.getQuestionId());
+            dto.setUserHomeworkId(userHomework.getId());
+
+            return AppResult.successResult(dto);
         } catch (Exception e) {
             return AppResult.failureResult(new Failure("Failed to answer a question: " + e.getMessage()));
         }

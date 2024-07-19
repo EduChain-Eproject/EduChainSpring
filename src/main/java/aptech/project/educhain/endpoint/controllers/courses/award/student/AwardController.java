@@ -21,7 +21,7 @@ import jakarta.servlet.http.HttpServletRequest;
 @Tag(name = "StudentAward")
 @RestController("StudentAward")
 @CrossOrigin
-@RequestMapping("/STUDENT/api/Award")
+@RequestMapping("/STUDENT/api/award")
 public class AwardController {
     @Autowired
     AwardService AwardService;

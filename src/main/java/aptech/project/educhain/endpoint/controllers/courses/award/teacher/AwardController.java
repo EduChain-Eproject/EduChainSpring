@@ -6,6 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -22,7 +23,7 @@ import jakarta.servlet.http.HttpServletRequest;
 @Tag(name = "TeacherAward")
 @RestController("TeacherAward")
 @CrossOrigin
-@RequestMapping("/TEACHER/api/Award")
+@RequestMapping("/TEACHER/api/award")
 public class AwardController {
     @Autowired
     AwardService AwardService;
@@ -34,13 +35,15 @@ public class AwardController {
     IJwtService iJwtService;
 
     @Operation(summary = "approve/reject an award")
-    @PostMapping("approve_or_reject/{homework_id}")
-    public ResponseEntity<?> approveOrReject(@PathVariable Integer homework_id, HttpServletRequest request,
-            ApproveRejectAwardReq bodyReq) {
+    @PostMapping("approve_or_reject/{award_id}")
+    public ResponseEntity<?> approveOrReject(
+            @PathVariable Integer award_id,
+            @RequestBody ApproveRejectAwardReq bodyReq,
+            HttpServletRequest request) {
         var user = iJwtService.getUserByHeaderToken(request.getHeader("Authorization"));
 
         AppResult<AwardDTO> result = AwardService.approveOrRejectAward(
-                new ApproveOrRejectAwardParams(user.getId(), homework_id, bodyReq.getUpdatingAwardStatus()));
+                new ApproveOrRejectAwardParams(award_id, user.getId(), bodyReq.getUpdatingAwardStatus()));
 
         if (result.isSuccess()) {
             return ResponseEntity.ok().body(result.getSuccess()); // TODO: map to res here

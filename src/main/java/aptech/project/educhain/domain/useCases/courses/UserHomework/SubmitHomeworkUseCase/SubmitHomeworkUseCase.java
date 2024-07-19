@@ -25,9 +25,11 @@ import aptech.project.educhain.data.repositories.courses.QuestionRepository;
 import aptech.project.educhain.data.repositories.courses.UserAnswerRepository;
 import aptech.project.educhain.data.repositories.courses.UserHomeworkRepository;
 import aptech.project.educhain.domain.dtos.courses.AwardDTO;
+import aptech.project.educhain.domain.dtos.courses.UserHomeworkDTO;
+import aptech.project.educhain.endpoint.responses.courses.homework.SubmitHomeworkResponse;
 
 @Component
-public class SubmitHomeworkUseCase implements Usecase<AwardDTO, SubmitHomeworkParams> {
+public class SubmitHomeworkUseCase implements Usecase<SubmitHomeworkResponse, SubmitHomeworkParams> {
     @Autowired
     UserHomeworkRepository userHomeworkRepository;
 
@@ -53,7 +55,7 @@ public class SubmitHomeworkUseCase implements Usecase<AwardDTO, SubmitHomeworkPa
     ModelMapper modelMapper;
 
     @Override
-    public AppResult<AwardDTO> execute(SubmitHomeworkParams params) {
+    public AppResult<SubmitHomeworkResponse> execute(SubmitHomeworkParams params) {
         try {
             Optional<UserHomework> userHomeworkOptional = userHomeworkRepository
                     .findByUserIdAndHomeworkId(params.getUserId(), params.getHomeworkId());
@@ -90,7 +92,11 @@ public class SubmitHomeworkUseCase implements Usecase<AwardDTO, SubmitHomeworkPa
             award.setSubmissionDate(LocalDateTime.now());
             award = awardRepository.save(award);
 
-            return AppResult.successResult(modelMapper.map(award, AwardDTO.class));
+            SubmitHomeworkResponse res = new SubmitHomeworkResponse(
+                    modelMapper.map(userHomework, UserHomeworkDTO.class),
+                    modelMapper.map(award, AwardDTO.class));
+
+            return AppResult.successResult(res);
 
         } catch (Exception e) {
             return AppResult.failureResult(new Failure("Failed to submit homework: " + e.getMessage()));

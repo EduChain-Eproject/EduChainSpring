@@ -74,7 +74,7 @@ public class GetHomeworkUseCase implements Usecase<HomeworkDTO, GetHomeworkParam
                                 return dto;
                             }).toList());
 
-            homeworkDTO.mergeAwardsToUserHomework();
+            homeworkDTO.mergeAwardsToUserHomeworks();
 
             return AppResult.successResult(homeworkDTO);
         } catch (Exception e) {

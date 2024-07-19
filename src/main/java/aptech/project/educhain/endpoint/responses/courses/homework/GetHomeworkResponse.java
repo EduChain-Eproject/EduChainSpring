@@ -5,6 +5,7 @@ import java.util.List;
 import aptech.project.educhain.domain.dtos.courses.AwardDTO;
 import aptech.project.educhain.domain.dtos.courses.LessonDTO;
 import aptech.project.educhain.domain.dtos.courses.QuestionDTO;
+import aptech.project.educhain.domain.dtos.courses.UserHomeworkDTO;
 import lombok.Data;
 
 @Data
@@ -15,5 +16,6 @@ public class GetHomeworkResponse {
     private String title;
     private String description;
     private List<QuestionDTO> questionDtos;
+    private List<UserHomeworkDTO> userHomeworkDtos;
     private List<AwardDTO> userAwardDtos;
 }
