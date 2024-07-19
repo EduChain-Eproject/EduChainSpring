@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class AddToUserInterestsParams {
-    private int user_id;
+    private int student_id;
     private int course_id;
     private int id;
 }
