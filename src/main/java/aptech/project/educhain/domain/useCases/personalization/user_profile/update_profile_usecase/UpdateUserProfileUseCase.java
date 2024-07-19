@@ -27,47 +27,83 @@ public class UpdateUserProfileUseCase implements Usecase<UserProfileDTO, UpdateU
     @Value("${base.url.default.avatar}")
     private String defaultAvatar;
 
+
     @Override
     @Transactional
     public AppResult<UserProfileDTO> execute(UpdateUserProfileParam params) {
         try {
+            // Tìm user cần cập nhật dựa trên ID
             User findUser = authUserRepository.findUserWithId(params.getId());
-            String path = cloudinarySerivce.upload(params.getAvatarFile());
-            if( !mapProfile(findUser,params)){
-                cloudinarySerivce.delete(path);
-                return AppResult.failureResult(new Failure("Error while mapping to account"));
+
+            // Giữ lại avatarPath cũ
+            String oldAvatarPath = findUser.getAvatarPath();
+
+            // Cập nhật các trường không null từ params vào findUser
+            boolean isMapped = mapProfile(findUser, params);
+            if (!isMapped) {
+                return AppResult.failureResult(new Failure("Failed to map profile fields."));
             }
-            if (!findUser.getAvatarPath().equals(defaultAvatar)) {
-                cloudinarySerivce.deleteImageByUrl(findUser.getAvatarPath());
+
+            if (params.getAvatarFile() != null) {
+                // Nếu avatarFile không null, upload ảnh mới lên cloudinary và cập nhật avatarPath
+                String newPath = cloudinarySerivce.upload(params.getAvatarFile());
+
+                // Xóa ảnh cũ trên cloudinary nếu không phải là ảnh mặc định
+                if (!oldAvatarPath.equals(defaultAvatar)) {
+                    cloudinarySerivce.deleteImageByUrl(oldAvatarPath);
+                }
+
+                findUser.setAvatarPath(newPath);
+            } else {
+                // Nếu avatarFile là null, giữ nguyên giá trị avatarPath cũ
+                findUser.setAvatarPath(oldAvatarPath);
             }
-            findUser.setAvatarPath(path);
-            User newUser =  authUserRepository.save(findUser);
-            UserProfileDTO userProfileDTO = modelMapper.map(newUser, UserProfileDTO.class);
+
+            // Lưu lại user đã được cập nhật vào cơ sở dữ liệu
+            User updatedUser = authUserRepository.save(findUser);
+
+            // Map User đã cập nhật thành UserProfileDTO
+            UserProfileDTO userProfileDTO = modelMapper.map(updatedUser, UserProfileDTO.class);
+
             return AppResult.successResult(userProfileDTO);
 
         } catch (Exception e) {
-            return AppResult.failureResult(new Failure("Failed to create update profile: " + e.getMessage()));
+            return AppResult.failureResult(new Failure("Failed to update profile: " + e.getMessage()));
         }
     }
 
+
+
     public boolean mapProfile(User user, UpdateUserProfileParam params) {
-        Field[] fields = params.getClass().getDeclaredFields();
+        Field[] paramFields = params.getClass().getDeclaredFields();
         try {
-            for (Field field : fields) {
-                field.setAccessible(true);
-                Object sourceValue = field.get(params);
-                if (sourceValue != null && !field.getName().equals("id") && !field.getName().equals("avatarFile")) {
-                    Field targetField = user.getClass().getDeclaredField(field.getName());
-                    targetField.setAccessible(true);
-                    targetField.set(user, sourceValue);
+            for (Field paramField : paramFields) {
+                paramField.setAccessible(true);
+                Object sourceValue = paramField.get(params);
+
+                // Chỉ xử lý các trường không phải là id và avatarFile, và không null
+                if ((sourceValue != null && !(sourceValue instanceof String && ((String) sourceValue).isEmpty()) && !paramField.getName().equals("id") && !paramField.getName().equals("avatarFile"))) {
+                    // Tìm trường tương ứng trong đối tượng user
+                    try {
+                        Field userField = user.getClass().getDeclaredField(paramField.getName());
+                        userField.setAccessible(true);
+                        userField.set(user, sourceValue);
+                    } catch (NoSuchFieldException e) {
+                        // Trường không tồn tại trong đối tượng user
+                        System.err.println("Field " + paramField.getName() + " not found in User class.");
+                    }
                 }
             }
             return true;
+        } catch (IllegalAccessException e) {
+            System.err.println("Error accessing fields: " + e.getMessage());
+            return false;
         } catch (Exception e) {
-            System.err.println("Error during mapping: " + e.getMessage());
+            System.err.println("Unexpected error during mapping: " + e.getMessage());
             return false;
         }
     }
+
 
 
 }

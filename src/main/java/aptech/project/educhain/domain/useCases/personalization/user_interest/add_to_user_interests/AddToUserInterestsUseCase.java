@@ -32,12 +32,15 @@ public class AddToUserInterestsUseCase implements Usecase<UserInterestsDTO, AddT
     public AppResult<UserInterestsDTO> execute(AddToUserInterestsParams params) {
       try{
           //add find user find course
-          User findUser = authUserRepository.findUserWithId(params.getUser_id());
+          User findUser = authUserRepository.findUserWithId(params.getStudent_id());
           Course findCourse = courseRepository.findById(params.getCourse_id()).get();
           // map data
           UserInterest userInterest = new UserInterest();
           userInterest.setCourse(findCourse);
           userInterest.setUser(findUser);
+
+          // Save UserInterest to database
+          userWishListRepository.save(userInterest);
 
           UserInterestsDTO wishListDTO = new UserInterestsDTO();
           wishListDTO.setDescription(findCourse.getDescription());
