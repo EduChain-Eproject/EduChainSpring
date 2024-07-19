@@ -10,6 +10,8 @@ import lombok.Data;
 @Data
 public class CategoryDTO {
     private Integer id;
+    private String categoryDescription;
     private String categoryName;
+
     private List<CourseDTO> courseDtos;
 }

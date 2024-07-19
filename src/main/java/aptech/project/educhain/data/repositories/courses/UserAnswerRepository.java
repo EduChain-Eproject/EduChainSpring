@@ -1,9 +1,13 @@
 package aptech.project.educhain.data.repositories.courses;
 
-import aptech.project.educhain.data.entities.chats.Chat;
-import aptech.project.educhain.data.entities.courses.UserAnswer;
+import java.util.Optional;
+
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 
-public interface UserAnswerRepository extends JpaRepository<UserAnswer, Integer>{
+import aptech.project.educhain.data.entities.courses.UserAnswer;
 
+public interface UserAnswerRepository extends JpaRepository<UserAnswer, Integer> {
+    @Query("SELECT ua FROM UserAnswer ua WHERE ua.user.id = :userId AND ua.question.id = :questionId")
+    Optional<UserAnswer> findByUserIdAndQuestionId(Integer userId, Integer questionId);
 }

@@ -12,6 +12,7 @@ import lombok.NoArgsConstructor;
 public class ChapterDTO {
     private Integer id;
     private String chapterTitle;
+
     private CourseDTO courseDto;
     private List<LessonDTO> lessonDtos;
 }

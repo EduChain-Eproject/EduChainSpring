@@ -200,14 +200,29 @@ public class JwtService implements IJwtService {
         return true;
     }
 
-    //find and check refresh token expired
+    // find and check refresh token expired
     public boolean isRefreshTokenExpired(String token) {
         Timestamp expireAt = jwtRepository.findExpireAtByToken(token);
         if (expireAt == null) {
-            //token is dead
+            // token is dead
             return false;
         }
         Instant now = Instant.now();
         return expireAt.toInstant().isBefore(now);
+    }
+
+    @Override
+    public User getUserByHeaderToken(String token) {
+        if (token == null) {
+            return null;
+        }
+
+        String newToken = token.substring(7);
+
+        var email = this.extractUserName(newToken);
+
+        User user = iAuthService.findUserByEmail(email);
+
+        return user;
     }
 }

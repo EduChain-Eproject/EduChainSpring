@@ -16,8 +16,6 @@ public class BlogCommentDTO {
     private Timestamp createdAt;
     private String text;
     private int voteUp;
-    private int voteDown;
-    private String photo;
     private UserDTO user;
     private Integer blogId;
     private Integer parentCommentId;

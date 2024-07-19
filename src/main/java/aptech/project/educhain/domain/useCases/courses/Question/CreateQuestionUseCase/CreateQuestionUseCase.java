@@ -1,17 +1,22 @@
 package aptech.project.educhain.domain.useCases.courses.Question.CreateQuestionUseCase;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
 import aptech.project.educhain.common.result.AppResult;
 import aptech.project.educhain.common.result.Failure;
 import aptech.project.educhain.common.usecase.Usecase;
+import aptech.project.educhain.data.entities.courses.Answer;
 import aptech.project.educhain.data.entities.courses.Homework;
 import aptech.project.educhain.data.entities.courses.Question;
 import aptech.project.educhain.data.repositories.accounts.AuthUserRepository;
 import aptech.project.educhain.data.repositories.courses.HomeworkRepository;
 import aptech.project.educhain.data.repositories.courses.QuestionRepository;
 import aptech.project.educhain.domain.dtos.courses.QuestionDTO;
-import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 @Component
 public class CreateQuestionUseCase implements Usecase<QuestionDTO, CreateQuestionParam> {
@@ -27,7 +32,6 @@ public class CreateQuestionUseCase implements Usecase<QuestionDTO, CreateQuestio
     @Autowired
     HomeworkRepository homeworkRepository;
 
-
     @Override
     public AppResult<QuestionDTO> execute(CreateQuestionParam params) {
         try {
@@ -36,6 +40,24 @@ public class CreateQuestionUseCase implements Usecase<QuestionDTO, CreateQuestio
 
             question.setHomework(homework);
             question.setQuestionText(params.getQuestionText());
+
+            if (params.getAnswerTexts().size() > 4) {
+                return AppResult
+                        .failureResult(new Failure("Failed to create question: maximum number of answers is 4"));
+            } else if (params.getAnswerTexts().size() > 0) {
+                List<Answer> answers = new ArrayList<>();
+                for (int i = 0; i < params.getAnswerTexts().size(); i++) {
+                    var answer = new Answer();
+                    answer.setQuestion(question);
+                    answer.setAnswerText(params.getAnswerTexts().get(i));
+                    answers.add(answer);
+                }
+                question.setAnswers(answers);
+
+                if (params.getCorrectAnswerIndex() != -1) {
+                    question.setCorrectAnswer(question.getAnswers().get(params.getCorrectAnswerIndex()));
+                }
+            }
 
             Question savedQuestion = questionRepository.save(question);
 

@@ -1,21 +1,22 @@
 package aptech.project.educhain.domain.useCases.courses.Question.GetQuestionsByHomeworkUseCase;
 
+import java.util.List;
+import java.util.Optional;
+
+import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
 import aptech.project.educhain.common.result.AppResult;
 import aptech.project.educhain.common.result.Failure;
 import aptech.project.educhain.common.usecase.Usecase;
-import aptech.project.educhain.data.entities.courses.Answers;
+import aptech.project.educhain.data.entities.courses.Answer;
 import aptech.project.educhain.data.entities.courses.Homework;
 import aptech.project.educhain.data.entities.courses.Question;
 import aptech.project.educhain.data.repositories.courses.HomeworkRepository;
 import aptech.project.educhain.data.repositories.courses.QuestionRepository;
 import aptech.project.educhain.domain.dtos.courses.AnswerDTO;
 import aptech.project.educhain.domain.dtos.courses.QuestionDTO;
-import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
-import java.util.List;
-import java.util.Optional;
 
 @Component
 public class GetQuestionsByHomeworkUseCase implements Usecase<List<QuestionDTO>, Integer> {
@@ -40,19 +41,19 @@ public class GetQuestionsByHomeworkUseCase implements Usecase<List<QuestionDTO>,
 
             List<QuestionDTO> questionDTOList = questionList.stream().map(question -> {
                 QuestionDTO dto = modelMapper.map(question, QuestionDTO.class);
-                    if (question.getCorrectAnswer() != null) {
-                        dto.setCorrectAnswerId(question.getCorrectAnswer().getId());
-                    }
+                if (question.getCorrectAnswer() != null) {
+                    dto.setCorrectAnswerId(question.getCorrectAnswer().getId());
+                }
 
-                    List<Answers> answersList = question.getAnswers().stream().toList();
-                    List<AnswerDTO> answerDTOList = answersList.stream().map(answers -> {
-                        AnswerDTO answerDTO = modelMapper.map(answers, AnswerDTO.class);
-                        answerDTO.setQuestionId(answers.getQuestion().getId());
-                        answerDTO.setAnswerId(answers.getId());
-                        return answerDTO;
-                    }).toList();
-                    dto.setAnswers(answerDTOList);
-                    return dto;
+                List<Answer> answersList = question.getAnswers().stream().toList();
+                List<AnswerDTO> answerDTOList = answersList.stream().map(answers -> {
+                    AnswerDTO answerDTO = modelMapper.map(answers, AnswerDTO.class);
+                    answerDTO.setQuestionId(answers.getQuestion().getId());
+                    answerDTO.setId(answers.getId());
+                    return answerDTO;
+                }).toList();
+                dto.setAnswerDtos(answerDTOList);
+                return dto;
             }).toList();
 
             return AppResult.successResult(questionDTOList);

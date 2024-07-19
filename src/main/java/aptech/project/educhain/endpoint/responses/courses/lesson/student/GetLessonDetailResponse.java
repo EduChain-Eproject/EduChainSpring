@@ -1,5 +1,9 @@
 package aptech.project.educhain.endpoint.responses.courses.lesson.student;
 
+import java.util.List;
+
+import aptech.project.educhain.domain.dtos.courses.ChapterDTO;
+import aptech.project.educhain.domain.dtos.courses.HomeworkDTO;
 import lombok.Data;
 
 @Data
@@ -9,4 +13,7 @@ public class GetLessonDetailResponse {
     private String description;
     private String videoTitle;
     private String videoURL;
+
+    private ChapterDTO chapterDto;
+    private List<HomeworkDTO> homeworkDtos;
 }

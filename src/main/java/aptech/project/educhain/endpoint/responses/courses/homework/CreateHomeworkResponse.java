@@ -1,6 +1,5 @@
 package aptech.project.educhain.endpoint.responses.courses.homework;
 
-import aptech.project.educhain.domain.dtos.courses.CourseDTO;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

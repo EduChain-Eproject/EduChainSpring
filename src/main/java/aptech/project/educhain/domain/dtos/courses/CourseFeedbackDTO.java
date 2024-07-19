@@ -7,11 +7,9 @@ import lombok.Data;
 
 @Data
 public class CourseFeedbackDTO {
-    private UserDTO userDto;
-
-    private CourseDTO courseDto;
-
     private String message;
-
     private BigDecimal rating;
+
+    private UserDTO userDto;
+    private CourseDTO courseDto;
 }

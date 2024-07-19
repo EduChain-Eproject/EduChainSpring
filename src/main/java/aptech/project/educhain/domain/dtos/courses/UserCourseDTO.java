@@ -1,15 +1,14 @@
 package aptech.project.educhain.domain.dtos.courses;
 
+import java.sql.Timestamp;
+import java.util.List;
+
 import aptech.project.educhain.data.entities.courses.Category;
 import aptech.project.educhain.data.entities.courses.UserCourse;
-import aptech.project.educhain.domain.dtos.accounts.UserDTO;
-import lombok.*;
-
-import java.sql.Timestamp;
-import java.util.Date;
-import java.util.List;
-import java.util.Date;
-import java.util.List;
+import lombok.Data;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Data
 @NoArgsConstructor
