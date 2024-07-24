@@ -19,8 +19,10 @@ public class FindOneBlogUseCase {
 
     public Blog execute(Integer id){
         Blog blog = blogRepository.findById(id).get();
+        Integer voteUp = blogRepository.countVoteUpByBlogId(id);
         List<BlogComment> comments = blogCommentRepository.findBlogCommentByBlogAndParentCommentIsNull(blog);
         blog.setBlogComments(comments);
+        blog.setVoteUp(voteUp);
         return blog;
     }
 }

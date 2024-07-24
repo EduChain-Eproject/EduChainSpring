@@ -13,4 +13,5 @@ public interface UserBlogVoteRepository extends JpaRepository<UserBlogVote, Inte
     public int countByBlogAndVote(Blog blog, int vote);
 
     public List<UserBlogVote> findUserBlogVoteByBlog(Blog blog);
+
 }
