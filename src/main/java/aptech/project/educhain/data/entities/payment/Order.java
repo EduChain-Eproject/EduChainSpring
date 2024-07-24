@@ -33,10 +33,6 @@ public class Order extends BaseModel {
     @JoinColumn(name = "course_id", referencedColumnName = "id")
     private Course course;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "coupon_id", referencedColumnName = "id")
-    private Coupon coupon;
-
     @Column(name = "amount", precision = 10, scale = 2)
     private BigDecimal amount;
 }

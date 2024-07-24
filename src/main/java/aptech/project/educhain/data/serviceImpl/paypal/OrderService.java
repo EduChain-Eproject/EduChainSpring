@@ -6,6 +6,7 @@ import aptech.project.educhain.domain.dtos.payment.OrderDTO;
 import aptech.project.educhain.domain.services.payment.IOrder;
 import aptech.project.educhain.domain.useCases.payment.order.addOrderUseCase.AddOrderParams;
 //import aptech.project.educhain.domain.useCases.payment.order.addOrderUseCase.AddOrderUseCase;
+import aptech.project.educhain.domain.useCases.payment.order.addOrderUseCase.AddOrderUseCase;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -13,21 +14,12 @@ import java.util.List;
 
 @Service
 public class OrderService implements IOrder {
-//    @Autowired
-//    private final AddOrderUseCase addOrderUseCase;
-//
-//    public OrderService(AddOrderUseCase addOrderUseCase) {
-//        this.addOrderUseCase = addOrderUseCase;
-//    }
-//
-//    @Override
-//    public AppResult<OrderDTO> addOrder(AddOrderParams params) {
-//        return addOrderUseCase.execute(params);
-//    }
+    @Autowired
+    private AddOrderUseCase addOrderUseCase;
 
     @Override
     public AppResult<OrderDTO> addOrder(AddOrderParams params) {
-        return null;
+        return addOrderUseCase.execute(params);
     }
 
     @Override

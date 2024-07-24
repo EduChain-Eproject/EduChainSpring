@@ -60,6 +60,10 @@ public class PaymentController {
                 params.setCourseId(courseId);
                 orderService.addOrder(params);
 
+                System.out.println(sum);
+                System.out.println(courseId);
+                System.out.println(userId);
+
                 return "success";
             }
         } catch (PayPalRESTException e) {
