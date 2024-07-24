@@ -11,5 +11,5 @@ import java.math.BigDecimal;
 public class AddOrderParams {
     private int userId;
     private int courseId;
-    private Float amount;
+    private BigDecimal amount;
 }

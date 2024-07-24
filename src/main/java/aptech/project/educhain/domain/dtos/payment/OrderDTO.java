@@ -13,5 +13,5 @@ import java.math.BigDecimal;
 public class OrderDTO {
     private User user;
     private Course course;
-    private Float amount;
+    private BigDecimal amount;
 }

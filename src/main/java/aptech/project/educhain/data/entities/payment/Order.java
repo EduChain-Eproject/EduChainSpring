@@ -38,5 +38,5 @@ public class Order extends BaseModel {
     private Coupon coupon;
 
     @Column(name = "amount", precision = 10, scale = 2)
-    private Float amount;
+    private BigDecimal amount;
 }
