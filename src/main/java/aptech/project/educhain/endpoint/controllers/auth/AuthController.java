@@ -115,26 +115,15 @@ public class AuthController {
         return ResponseEntity.ok(new ResponseWithMessage<>(userDtoResponse, "success"));
     }
 
-//    @PostMapping("/logout")
-//    public ResponseEntity<String> logOut(HttpServletRequest request) {
-//        String token = request.getHeader("Authorization");
-//        if (token == null) {
-//            return null;
-//        }
-//        String newToken = token.substring(7);
-//        var email = iJwtService.extractUserName(newToken);
-//        User user = iAuthService.findUserByEmail(email);
-//
-//        boolean checkLogout = iAuthService.deleteUserSession(user.getId());
-//        if (!checkLogout) {
-//            return ResponseEntity.badRequest().body("Got error when logout your account");
-//        }
-//        return ResponseEntity.ok("success logout");
-//    }
-
     @PostMapping("/logout")
-    public ResponseEntity<String> logOut(@RequestBody LogOutRequest request) {
-        User user = iAuthService.findUserByEmail(request.getEmail());
+    public ResponseEntity<String> logOut(HttpServletRequest request) {
+        String token = request.getHeader("Authorization");
+        if (token == null) {
+            return ResponseEntity.badRequest().body("Got error when logout your account");
+        }
+        String newToken = token.substring(7);
+        var email = iJwtService.extractUserNameWhenTokenExpire(newToken);
+        User user = iAuthService.findUserByEmail(email);
 
         boolean checkLogout = iAuthService.deleteUserSession(user.getId());
         if (!checkLogout) {
@@ -142,6 +131,17 @@ public class AuthController {
         }
         return ResponseEntity.ok("success logout");
     }
+
+//    @PostMapping("/logout")
+//    public ResponseEntity<String> logOut(@RequestBody LogOutRequest request) {
+//        User user = iAuthService.findUserByEmail(request.getEmail());
+//
+//        boolean checkLogout = iAuthService.deleteUserSession(user.getId());
+//        if (!checkLogout) {
+//            return ResponseEntity.badRequest().body("Got error when logout your account");
+//        }
+//        return ResponseEntity.ok("success logout");
+//    }
 
     @PostMapping("/register")
     public ResponseEntity<?> postRegister(@Valid @RequestBody RegisterRequest regis, BindingResult rs) {
