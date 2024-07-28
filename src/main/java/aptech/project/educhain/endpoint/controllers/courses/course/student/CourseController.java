@@ -22,10 +22,10 @@ import aptech.project.educhain.common.result.AppResult;
 import aptech.project.educhain.data.entities.accounts.User;
 import aptech.project.educhain.data.entities.courses.CourseStatus;
 import aptech.project.educhain.data.serviceImpl.courses.CourseService;
+import aptech.project.educhain.data.serviceImpl.personalization.UserCourseServiceImpl;
 import aptech.project.educhain.domain.dtos.courses.CourseDTO;
 import aptech.project.educhain.domain.dtos.courses.UserCourseDTO;
 import aptech.project.educhain.domain.services.accounts.IJwtService;
-import aptech.project.educhain.domain.services.personalization.UserCourseService;
 import aptech.project.educhain.domain.useCases.courses.course.SearchCoursesUseCase.CourseSearchParams;
 import aptech.project.educhain.domain.useCases.personalization.user_course.add_user_course.AddUserCourseParams;
 import aptech.project.educhain.domain.useCases.personalization.user_course.get_user_course.GetUserCourseParams;
@@ -44,7 +44,7 @@ public class CourseController {
     private ModelMapper modelMapper;
 
     @Autowired
-    UserCourseService userCourseService;
+    UserCourseServiceImpl userCourseService;
 
     @Autowired
     IJwtService iJwtService;
@@ -85,13 +85,15 @@ public class CourseController {
         if (result.isSuccess()) {
             var successValue = result.getSuccess();
 
-            AppResult<UserCourseDTO> result2 = userCourseService
-                    .getUserCourse(new GetUserCourseParams(user.getId(), courseId));
+            if (user != null) {
+                AppResult<UserCourseDTO> result2 = userCourseService
+                        .getUserCourse(new GetUserCourseParams(user.getId(), courseId));
 
-            successValue.setNumberOfEnrolledStudents(successValue.getParticipatedUserDtos().size());
+                successValue.setNumberOfEnrolledStudents(successValue.getParticipatedUserDtos().size());
 
-            if (result2.isSuccess()) {
-                successValue.setCurrentUserCourse(result2.getSuccess());
+                if (result2.isSuccess()) {
+                    successValue.setCurrentUserCourse(result2.getSuccess());
+                }
             }
             AppResult<List<CourseDTO>> relatedCoursesResult = courseService.getRelatedCourses(courseId);
             if (relatedCoursesResult.isSuccess()) {

@@ -1,27 +1,26 @@
 package aptech.project.educhain.endpoint.controllers;
 
-import aptech.project.educhain.common.result.AppResult;
-import aptech.project.educhain.domain.dtos.courses.CourseDTO;
-import aptech.project.educhain.domain.dtos.home.CountStudentDTO;
-import aptech.project.educhain.domain.dtos.home.PopularTeacherDTO;
-import aptech.project.educhain.domain.services.home.HomeService;
-import aptech.project.educhain.domain.useCases.home.get_most_category.GetMostCategoryParams;
-import aptech.project.educhain.endpoint.responses.home.CountStudentResponse;
-import aptech.project.educhain.endpoint.responses.home.MostPopularCourseResponse;
-import aptech.project.educhain.endpoint.responses.home.MostPopularTeacherResponse;
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
-import java.util.stream.Collectors;
+import aptech.project.educhain.common.result.AppResult;
+import aptech.project.educhain.domain.dtos.courses.CourseDTO;
+import aptech.project.educhain.domain.dtos.home.PopularTeacherDTO;
+import aptech.project.educhain.domain.dtos.home.Statistics;
+import aptech.project.educhain.domain.services.home.HomeService;
+import aptech.project.educhain.domain.useCases.home.get_most_category.GetMostCategoryParams;
+import aptech.project.educhain.endpoint.responses.home.MostPopularCourseResponse;
+import aptech.project.educhain.endpoint.responses.home.MostPopularTeacherResponse;
 
 @RestController
-@RequestMapping("/home")
+@RequestMapping("/HOME/api")
 public class HomeController {
 
     @Autowired
@@ -30,8 +29,8 @@ public class HomeController {
     @Autowired
     private ModelMapper modelMapper;
 
-    //get most popular course base on student
-    @GetMapping("/most-popular")
+    // get most popular course base on student
+    @GetMapping("/signature-courses")
     public ResponseEntity<?> getMostPopularCourse() {
         AppResult<List<CourseDTO>> result = homeService.getMostPopularCourse();
         if (result.isSuccess()) {
@@ -44,11 +43,11 @@ public class HomeController {
         return ResponseEntity.badRequest().body(result.getFailure().getMessage());
     }
 
-    //get 4 categories base on course
-    @GetMapping("/most-category/{limit}")
-    public ResponseEntity<?> getCategoriesWithMostCourses(@PathVariable("limit") int limit) {
+    // get 4 categories base on course
+    @GetMapping("/best-categories")
+    public ResponseEntity<?> getCategoriesWithMostCourses() {
         GetMostCategoryParams getMostCategoryParams = new GetMostCategoryParams();
-        getMostCategoryParams.setLimit(limit);
+        getMostCategoryParams.setLimit(4);
         var result = homeService.getMostPopularCategories(getMostCategoryParams);
         if (result.isSuccess()) {
             return ResponseEntity.ok(result.getSuccess());
@@ -57,32 +56,31 @@ public class HomeController {
     }
 
     @GetMapping("/most-popular-teacher")
-    public ResponseEntity<?> getMostPopularTeacher(){
-        AppResult<PopularTeacherDTO>  result = homeService.getMostPopularTeacher();
-        if(result.isSuccess()){
-          MostPopularTeacherResponse teacher =  modelMapper.map(result.getSuccess(),MostPopularTeacherResponse.class);
+    public ResponseEntity<?> getMostPopularTeacher() {
+        AppResult<PopularTeacherDTO> result = homeService.getMostPopularTeacher();
+        if (result.isSuccess()) {
+            MostPopularTeacherResponse teacher = modelMapper.map(result.getSuccess(), MostPopularTeacherResponse.class);
             return ResponseEntity.ok(teacher);
         }
-        return  ResponseEntity.badRequest().body(result.getFailure().getMessage());
+        return ResponseEntity.badRequest().body(result.getFailure().getMessage());
     }
 
-    @GetMapping("/count-student")
-    public ResponseEntity<?> countStudent(){
-        AppResult<CountStudentDTO> countStudent = homeService.countAllStudent();
-        if(countStudent.isSuccess()){
-            CountStudentResponse countStudentResponse = modelMapper.map(countStudent.getSuccess(),CountStudentResponse.class);
-            return ResponseEntity.ok(countStudentResponse);
+    @GetMapping("/statistics")
+    public ResponseEntity<?> statistics() {
+        AppResult<Statistics> statistics = homeService.getStatistics();
+        
+        if (statistics.isSuccess()) {
+            return ResponseEntity.ok(statistics.getSuccess());
         }
-        return ResponseEntity.badRequest().body(countStudent.getFailure().getMessage());
+        return ResponseEntity.badRequest().body(statistics.getFailure().getMessage());
     }
 }
 
-
 /*
-1. get 1 course có ng student tham gia nhất
-2. get 4 categories có nh course nhất
-3. get giáo viên có nh học sinh tham gia khoá hoc nhat
-4. statistics: get tổng số enrollments
-5. signature course:
-6. get 3 blogs: 2 cái 5,6 ch nghĩ ra logic
-*/
+ * 1. get 1 course có ng student tham gia nhất
+ * 2. get 4 categories có nh course nhất
+ * 3. get giáo viên có nh học sinh tham gia khoá hoc nhat
+ * 4. statistics: get tổng số enrollments
+ * 5. signature course:
+ * 6. get 3 blogs: 2 cái 5,6 ch nghĩ ra logic
+ */

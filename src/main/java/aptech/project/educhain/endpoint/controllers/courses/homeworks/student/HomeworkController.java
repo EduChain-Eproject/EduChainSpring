@@ -71,7 +71,7 @@ public class HomeworkController {
 
                 var userHomework = result2.getSuccess();
 
-                if (userHomework.getUserAnswerDtos().size() > 0) {
+                if (userHomework.getUserAnswerDtos() != null && userHomework.getUserAnswerDtos().size() > 0) {
                     homework.mergeUserAnswersToQuestions(userHomework.getUserAnswerDtos());
                 }
 

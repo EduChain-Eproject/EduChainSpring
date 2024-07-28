@@ -31,9 +31,9 @@ public interface CourseRepository extends JpaRepository<Course, Integer> {
                         Pageable pageable);
 
         @Query("SELECT c FROM Course c WHERE "
-                        + "(:search IS NULL OR LOWER(c.title) LIKE %:search%) OR "
-                        + "(:search IS NULL OR LOWER(c.description) LIKE %:search%) AND "
-                        + "(:status IS NULL OR c.status = :#{#status?.name()})")
+                        + "((:search IS NULL OR LOWER(c.title) LIKE %:search%) OR "
+                        + "(:search IS NULL OR LOWER(c.description) LIKE %:search%)) AND "
+                        + "(:status IS NULL OR c.status = :status)")
         Page<Course> findBySearch(@Param("search") String search, Pageable pageable,
                         @Param("status") CourseStatus status);
 
@@ -45,8 +45,8 @@ public interface CourseRepository extends JpaRepository<Course, Integer> {
         Course findCourseWithId(@Param("courseId") int courseId);
 
         @Query("SELECT uc.course " +
-                "FROM UserCourse uc " +
-                "GROUP BY uc.course.id " +
-                "ORDER BY COUNT(uc.user.id) DESC")
+                        "FROM UserCourse uc " +
+                        "GROUP BY uc.course.id " +
+                        "ORDER BY COUNT(uc.user.id) DESC")
         Optional<Course> findMostPopularCourse();
 }

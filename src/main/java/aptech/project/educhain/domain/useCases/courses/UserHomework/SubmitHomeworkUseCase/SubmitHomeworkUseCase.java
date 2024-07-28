@@ -67,7 +67,7 @@ public class SubmitHomeworkUseCase implements Usecase<SubmitHomeworkResponse, Su
             List<Question> questions = userHomework.getHomework().getQuestions();
             List<UserAnswer> userAnswers = userHomework.getUserAnswers();
 
-            if (questions.size() != userAnswers.size()) {
+            if (questions.size() == 0 || questions.size() != userAnswers.size()) {
                 return AppResult.failureResult(new Failure("Not all questions are answered"));
             }
 
