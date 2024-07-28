@@ -27,7 +27,8 @@ import jakarta.transaction.Transactional;
 @Service
 public class AuthService implements IAuthService {
 
-    private static final long EXPIRATION_TIME = 900000;
+    private static final long EXPIRATION_TIME = 20000;
+
     @Autowired
     public EmailVerifyRepository emailVerifyRepository;
     @Autowired
