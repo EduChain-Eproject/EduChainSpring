@@ -76,7 +76,6 @@ public class BlogController {
     public List<BlogDTO> findAll() {
         List<Blog> blogs = service.findAll();
 
-        // Sắp xếp blog theo thứ tự mới nhất trước
         List<Blog> sortedBlogs = blogs.stream()
                 .sorted(Comparator.comparing(Blog::getCreatedAt).reversed())
                 .collect(Collectors.toList());

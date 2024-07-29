@@ -1,5 +1,8 @@
 package aptech.project.educhain.endpoint.controllers.payment;
 
+import aptech.project.educhain.data.entities.courses.Course;
+import aptech.project.educhain.data.repositories.courses.CourseRepository;
+import aptech.project.educhain.data.serviceImpl.courses.CourseService;
 import aptech.project.educhain.data.serviceImpl.paypal.OrderService;
 import aptech.project.educhain.data.serviceImpl.paypal.PaypalService;
 import aptech.project.educhain.domain.useCases.payment.order.addOrderUseCase.AddOrderParams;
@@ -20,14 +23,18 @@ import java.nio.charset.StandardCharsets;
 public class PaymentController {
     private final PaypalService paypalService;
     private final OrderService orderService;
+    private final CourseRepository courseRepository;
 
     @PostMapping("")
-    public String pay(@RequestParam("sum") double sum, @RequestParam Integer userId, @RequestParam Integer courseId) {
+    public String pay(@RequestParam Integer userId, @RequestParam Integer courseId) {
         try {
-            String successUrl = "http://localhost:8080/api/paypal/success?sum=" + URLEncoder.encode(String.valueOf(sum), StandardCharsets.UTF_8.toString()) + "&userId=" + URLEncoder.encode(String.valueOf(userId), StandardCharsets.UTF_8.toString()) + "&courseId=" + URLEncoder.encode(String.valueOf(courseId), StandardCharsets.UTF_8.toString());
+            Course course = courseRepository.findById(courseId).get();
+            var price = course.getPrice();
+
+            String successUrl = "http://localhost:8080/api/paypal/success?sum=" + URLEncoder.encode(String.valueOf(price), StandardCharsets.UTF_8.toString()) + "&userId=" + URLEncoder.encode(String.valueOf(userId), StandardCharsets.UTF_8.toString()) + "&courseId=" + URLEncoder.encode(String.valueOf(courseId), StandardCharsets.UTF_8.toString());
 
             Payment payment = paypalService.createPayment(
-                    sum,
+                    price,
                     "USD",
                     "paypal",
                     "sale",
@@ -53,16 +60,11 @@ public class PaymentController {
         try {
             Payment payment = paypalService.executePayment(paymentId, payerId);
             if (payment.getState().equals("approved")) {
-                // Add order only after payment is approved
                 AddOrderParams params = new AddOrderParams();
                 params.setAmount(BigDecimal.valueOf(sum));
                 params.setUserId(userId);
                 params.setCourseId(courseId);
                 orderService.addOrder(params);
-
-                System.out.println(sum);
-                System.out.println(courseId);
-                System.out.println(userId);
 
                 return "success";
             }

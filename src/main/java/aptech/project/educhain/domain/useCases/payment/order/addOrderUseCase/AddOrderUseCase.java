@@ -19,6 +19,7 @@ import org.springframework.stereotype.Component;
 import aptech.project.educhain.common.result.AppResult;
 import aptech.project.educhain.common.usecase.Usecase;
 
+import java.math.BigDecimal;
 import java.util.Optional;
 
 
@@ -49,8 +50,9 @@ public class AddOrderUseCase implements Usecase<OrderDTO, AddOrderParams> {
                 return AppResult.failureResult(new Failure("Course not found with ID: " + params.getCourseId()));
             }
 
-            Order order = modelMapper.map(params, Order.class);
-            order.setUser(user);
+            Order order = new Order();
+            order.setAmount(BigDecimal.valueOf(course.getPrice()));
+            order .setUser(user);
             order.setCourse(course);
 
             orderRepository.save(order);
