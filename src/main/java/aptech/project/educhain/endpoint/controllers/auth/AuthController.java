@@ -149,7 +149,7 @@ public class AuthController {
     }
 
     @PostMapping("/reset-access-token")
-    public ResponseEntity<ApiError> resetAccessToken(@RequestBody ReNewToken token) {
+    public ResponseEntity<?> resetAccessToken(@RequestBody ReNewToken token) {
         var email = iJwtService.extractUserNameWhenTokenExpire(token.getAccessToken());
         if (email == null) {
             return new ResponseEntity<>(new ApiError("Can't recognize email"), HttpStatus.BAD_REQUEST);
@@ -166,7 +166,7 @@ public class AuthController {
         JwtResponse jwtResponse = new JwtResponse();
         jwtResponse.setAccessToken(newToken);
         jwtResponse.setRefreshToken(token.getRefreshToken());
-        return new ResponseEntity<>(new ApiError("Ok"), HttpStatus.OK);
+        return ResponseEntity.ok(new ResponseWithMessage<>(jwtResponse, "Ok"));
     }
 
     @GetMapping("/verify")

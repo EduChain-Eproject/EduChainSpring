@@ -1,21 +1,34 @@
 package aptech.project.educhain.endpoint.controllers.payment;
 
-import aptech.project.educhain.data.entities.courses.Course;
-import aptech.project.educhain.data.repositories.courses.CourseRepository;
-import aptech.project.educhain.data.serviceImpl.courses.CourseService;
-import aptech.project.educhain.data.serviceImpl.paypal.OrderService;
-import aptech.project.educhain.data.serviceImpl.paypal.PaypalService;
-import aptech.project.educhain.domain.useCases.payment.order.addOrderUseCase.AddOrderParams;
-import com.paypal.api.payments.Links;
-import com.paypal.api.payments.Payment;
-import com.paypal.base.rest.PayPalRESTException;
-import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.*;
-
 import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.paypal.api.payments.Links;
+import com.paypal.api.payments.Payment;
+import com.paypal.base.rest.PayPalRESTException;
+
+import aptech.project.educhain.data.entities.accounts.User;
+import aptech.project.educhain.data.entities.courses.Course;
+import aptech.project.educhain.data.repositories.courses.CourseRepository;
+import aptech.project.educhain.data.serviceImpl.paypal.OrderService;
+import aptech.project.educhain.data.serviceImpl.paypal.PaypalService;
+import aptech.project.educhain.domain.services.accounts.IJwtService;
+import aptech.project.educhain.domain.services.personalization.UserCourseService;
+import aptech.project.educhain.domain.useCases.payment.order.addOrderUseCase.AddOrderParams;
+import aptech.project.educhain.domain.useCases.personalization.user_course.add_user_course.AddUserCourseParams;
+import jakarta.servlet.http.HttpServletRequest;
+import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequiredArgsConstructor
@@ -25,13 +38,24 @@ public class PaymentController {
     private final OrderService orderService;
     private final CourseRepository courseRepository;
 
-    @PostMapping("")
-    public String pay(@RequestParam Integer userId, @RequestParam Integer courseId) {
+    @Autowired
+    private UserCourseService userCourseService;
+
+    @Autowired
+    private IJwtService iJwtService;
+
+    @PostMapping("pay/{courseId}")
+    public String pay(@PathVariable Integer courseId, HttpServletRequest request) {
+        User user = iJwtService.getUserByHeaderToken(request.getHeader("Authorization"));
+
         try {
             Course course = courseRepository.findById(courseId).get();
             var price = course.getPrice();
 
-            String successUrl = "http://localhost:8080/api/paypal/success?sum=" + URLEncoder.encode(String.valueOf(price), StandardCharsets.UTF_8.toString()) + "&userId=" + URLEncoder.encode(String.valueOf(userId), StandardCharsets.UTF_8.toString()) + "&courseId=" + URLEncoder.encode(String.valueOf(courseId), StandardCharsets.UTF_8.toString());
+            String successUrl = "http://localhost:8080/api/paypal/success?sum="
+                    + URLEncoder.encode(String.valueOf(price), StandardCharsets.UTF_8.toString()) + "&userId="
+                    + URLEncoder.encode(String.valueOf(user.getId()), StandardCharsets.UTF_8.toString()) + "&courseId="
+                    + URLEncoder.encode(String.valueOf(courseId), StandardCharsets.UTF_8.toString());
 
             Payment payment = paypalService.createPayment(
                     price,
@@ -40,11 +64,10 @@ public class PaymentController {
                     "sale",
                     "course payment",
                     "http://localhost:8080/api/paypal/cancel",
-                    successUrl
-            );
+                    successUrl);
             for (Links link : payment.getLinks()) {
                 if (link.getRel().equals("approval_url")) {
-                    return "redirect:" + link.getHref();
+                    return link.getHref();
                 }
             }
         } catch (PayPalRESTException e) {
@@ -56,7 +79,10 @@ public class PaymentController {
     }
 
     @GetMapping("/success")
-    public String success(@RequestParam("paymentId") String paymentId, @RequestParam("PayerID") String payerId, @RequestParam double sum, @RequestParam Integer userId, @RequestParam Integer courseId) {
+    @ResponseBody
+    public String success(@RequestParam("paymentId") String paymentId, @RequestParam("PayerID") String payerId,
+            @RequestParam double sum, @RequestParam Integer userId, @RequestParam Integer courseId) {
+
         try {
             Payment payment = paypalService.executePayment(paymentId, payerId);
             if (payment.getState().equals("approved")) {
@@ -64,9 +90,16 @@ public class PaymentController {
                 params.setAmount(BigDecimal.valueOf(sum));
                 params.setUserId(userId);
                 params.setCourseId(courseId);
+
+                AddUserCourseParams addUserCourseParams = new AddUserCourseParams();
+                addUserCourseParams.setCourse_id(courseId);
+                addUserCourseParams.setStudent_id(userId);
+
+                userCourseService.addUserCourseWithParams(addUserCourseParams);
                 orderService.addOrder(params);
 
-                return "success";
+                String url = String.format("http://localhost:5173/courses/%d", courseId);
+                return String.format("<a href=\"%s\">get back</a>", url);
             }
         } catch (PayPalRESTException e) {
             e.printStackTrace();
