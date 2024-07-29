@@ -26,4 +26,5 @@ public interface IBlogService {
     public Map<String, String> validateFields(String title, Integer userId, Integer blogCategoryId, String blogText);
 
     public Map<String, String> validateFieldsUpdate(String title, Integer blogCategoryId, String blogText);
+
 }

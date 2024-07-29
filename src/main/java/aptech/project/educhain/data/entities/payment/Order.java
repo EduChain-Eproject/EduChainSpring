@@ -1,4 +1,4 @@
-package aptech.project.educhain.data.entities.others;
+package aptech.project.educhain.data.entities.payment;
 
 import java.math.BigDecimal;
 import java.util.Date;
@@ -6,6 +6,7 @@ import java.util.Date;
 import aptech.project.educhain.data.entities.BaseModel;
 import aptech.project.educhain.data.entities.accounts.User;
 import aptech.project.educhain.data.entities.courses.Course;
+import aptech.project.educhain.data.entities.others.Coupon;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -32,21 +33,6 @@ public class Order extends BaseModel {
     @JoinColumn(name = "course_id", referencedColumnName = "id")
     private Course course;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "coupon_id", referencedColumnName = "id")
-    private Coupon coupon;
-
-    @Column(name = "orderDate")
-    private Date orderDate;
-
     @Column(name = "amount", precision = 10, scale = 2)
     private BigDecimal amount;
-
-    @Enumerated(EnumType.STRING)
-    @Column(name = "status")
-    private OrderStatus status;
-}
-
-enum OrderStatus {
-    Pending, Paid, Cancelled
 }
