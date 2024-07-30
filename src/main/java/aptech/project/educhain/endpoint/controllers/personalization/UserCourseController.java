@@ -22,7 +22,7 @@ public class UserCourseController {
     //get user course list
     @PostMapping("/all-user-course")
     public ResponseEntity<?> takeAllUserCourse(@RequestBody UserCourseRequest req){
-        UserCourseParams params = modelMapper.map(req,UserCourseParams.class);
+            UserCourseParams params = modelMapper.map(req,UserCourseParams.class);
         var userCourseDTO = userCourseService.getAllUserCourseWithParams(params);
         if(userCourseDTO.isSuccess()){
             return new  ResponseEntity<>(userCourseDTO.getSuccess(), HttpStatus.OK);
@@ -40,5 +40,6 @@ public class UserCourseController {
         return new ResponseEntity<>(userCourse.getFailure().getMessage(), HttpStatus.BAD_REQUEST);
     }
 
+    //filter by status
 
 }

@@ -3,6 +3,7 @@ package aptech.project.educhain.domain.useCases.personalization.user_homework.li
 import aptech.project.educhain.common.result.AppResult;
 import aptech.project.educhain.common.result.Failure;
 import aptech.project.educhain.common.usecase.Usecase;
+import aptech.project.educhain.data.entities.courses.Homework;
 import aptech.project.educhain.data.entities.courses.UserHomework;
 import aptech.project.educhain.data.repositories.courses.UserHomeworkRepository;
 import aptech.project.educhain.domain.dtos.accounts.UserDTO;
@@ -28,14 +29,14 @@ public class ListUserHomeworkUseCase implements Usecase<Page<UserHomeworkDTO>, L
     public AppResult<Page<UserHomeworkDTO>> execute(ListUserHomeworkParams params) {
         try {
             Pageable pageable = PageRequest.of(params.getPage(), params.getSize());
-            Page<UserHomework> userHomeworkPage = userHomeworkRepository.findByUserId(params.getUserId(), pageable);
+            Page<UserHomework> userHomeworkPage = userHomeworkRepository.findByUserIdAndIsSubmitted(params.getUserId(), params.getIsSubmitted(), pageable);
             Page<UserHomeworkDTO> userHomeworkDtoPage = userHomeworkPage.map(userHomework -> {
                 UserHomeworkDTO userHomeworkDTO = modelMapper.map(userHomework, UserHomeworkDTO.class);
                 userHomeworkDTO.setUserDto(modelMapper.map(userHomework.getUser(), UserDTO.class));
                 userHomeworkDTO.setHomeworkDto(modelMapper.map(userHomework.getHomework(), HomeworkDTO.class));
+                userHomeworkDTO.setHomeworkDtoId(userHomework.getHomework().getId());
                 return userHomeworkDTO;
             });
-
 
             return AppResult.successResult(userHomeworkDtoPage);
         } catch (Exception e) {

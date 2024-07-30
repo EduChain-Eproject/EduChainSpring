@@ -39,4 +39,7 @@ public interface UserCourseRepository extends JpaRepository<UserCourse, Integer>
         @Query("SELECT uc FROM UserCourse uc WHERE uc.user.id = :userId AND uc.course.id = :courseId")
         Optional<UserCourse> findByUserIdAndCourseId(@Param("userId") Integer userId,
                         @Param("courseId") Integer courseId);
+
+        @Query("SELECT uc FROM UserCourse uc WHERE uc.user.id = :userId AND (:titleSearch IS NULL OR uc.course.title LIKE %:titleSearch%) AND (:completionStatus IS NULL OR uc.completionStatus = :completionStatus)")
+        Page<UserCourse> findAllWithParams(@Param("userId") Integer userId, @Param("titleSearch") String titleSearch, @Param("completionStatus") UserCourse.CompletionStatus completionStatus, Pageable pageable);
 }

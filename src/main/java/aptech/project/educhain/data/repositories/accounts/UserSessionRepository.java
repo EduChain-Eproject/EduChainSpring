@@ -1,7 +1,5 @@
 package aptech.project.educhain.data.repositories.accounts;
 
-import aptech.project.educhain.data.entities.accounts.UserSession;
-import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;

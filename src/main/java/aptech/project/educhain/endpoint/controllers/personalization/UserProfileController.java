@@ -131,20 +131,6 @@ public class UserProfileController {
         return ResponseEntity.badRequest().body(result.getFailure().getMessage());
     }
 
-
-    //list homeword by user id
-    @PostMapping("/list-homework")
-    public ResponseEntity<?> getAwardByUserIdAndAwardId(@RequestBody UserHomeworkRequest req) {
-        ListUserHomeworkParams params = modelMapper.map(req,ListUserHomeworkParams.class);
-        AppResult<Page<UserHomeworkDTO>> result = userProfileService.awardByUserId(params);
-        if (result.isSuccess()) {
-            var res = result.getSuccess().map(userHomeworkDTO -> modelMapper.map(userHomeworkDTO, UserHomeworkResponse.class));
-            return ResponseEntity.ok().body(res);
-        }
-        return ResponseEntity.badRequest().body(result.getFailure().getMessage());
-    }
-
-
     //get 1 homeword by user id
     @PostMapping("/getOneUserHomework")
     public ResponseEntity<?> oneUserHomework(@RequestBody TakeOneUserHomeworkRequest req) {
@@ -156,4 +142,6 @@ public class UserProfileController {
         }
         return ResponseEntity.badRequest().body(result.getFailure().getMessage());
     }
+
 }
+

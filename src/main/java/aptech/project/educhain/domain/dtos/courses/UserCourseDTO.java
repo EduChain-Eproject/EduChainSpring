@@ -21,16 +21,6 @@ public class UserCourseDTO {
     private Timestamp enrollmentDate;
     private Double price;
     private UserCourse.CompletionStatus completionStatus;
-    private List<Category> categoryList;
+    private List<CategoryDTO> categoryList;
 
-    public UserCourseDTO(String teacherName, String teacherEmail, String title, Timestamp enrollmentDate,
-            Double price, UserCourse.CompletionStatus completionStatus, List<Category> categoryList) {
-        this.teacherName = teacherName;
-        this.teacherEmail = teacherEmail;
-        this.title = title;
-        this.enrollmentDate = enrollmentDate;
-        this.price = price;
-        this.completionStatus = completionStatus;
-        this.categoryList = categoryList;
-    }
 }

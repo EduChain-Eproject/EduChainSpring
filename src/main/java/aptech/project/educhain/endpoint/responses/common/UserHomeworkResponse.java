@@ -16,11 +16,11 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class UserHomeworkResponse {
-    private Integer id;
-    private Date submissionDate;
-    private Double progress;
-    private BigDecimal grade;
-    private Boolean isSubmitted;
+        private Integer id;
+        private Date submissionDate;
+        private Double progress;
+        private BigDecimal grade;
+        private Boolean isSubmitted;
 
     private Integer homeworkDtoId;
 

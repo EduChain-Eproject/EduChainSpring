@@ -15,7 +15,6 @@ import aptech.project.educhain.data.entities.accounts.EmailToken;
 import aptech.project.educhain.data.entities.accounts.ResetPasswordToken;
 import aptech.project.educhain.data.entities.accounts.Role;
 import aptech.project.educhain.data.entities.accounts.User;
-import aptech.project.educhain.data.entities.accounts.UserSession;
 import aptech.project.educhain.data.repositories.accounts.AuthUserRepository;
 import aptech.project.educhain.data.repositories.accounts.EmailVerifyRepository;
 import aptech.project.educhain.data.repositories.accounts.ResetPasswordRepository;
@@ -207,52 +206,52 @@ public class AuthService implements IAuthService {
     }
 
     // check login device
-    public boolean checkLoginDevice(int userId) {
-        UserSession oldUserSession = userSessionRepository.findUserSessionWithId(userId);
-        UserSession userSession = createUserSession(userId);
-        if (oldUserSession == null) {
-            userSessionRepository.save(userSession);
-            return true;
-        }
-        return false;
-    }
+//    public boolean checkLoginDevice(int userId) {
+//        UserSession oldUserSession = userSessionRepository.findUserSessionWithId(userId);
+//        UserSession userSession = createUserSession(userId);
+//        if (oldUserSession == null) {
+//            userSessionRepository.save(userSession);
+//            return true;
+//        }
+//        return false;
+//    }
 
-    @Transactional
-    public UserSession createUserSession(int userId) {
-        try {
-            User user = authUserRepository.findUserWithId(userId);
-            UserSession userSession = new UserSession();
-            userSession.setUser(user);
-            long timeEnd = System.currentTimeMillis();
-            userSession.setLastLogin(new Timestamp(timeEnd));
-            // find userSession by userid
-            UserSession oldUserSession = userSessionRepository.findUserSessionWithId(userId);
-            if (oldUserSession != null) {
-                return null;
-            }
-            userSessionRepository.save(userSession);
-            String token = generateRandomString();
-            userSession.setToken(token);
-            return userSession;
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
-    // logout
-    @Override
-    @Transactional
-    public boolean deleteUserSession(int userId) {
-        try {
-            User user = authUserRepository.findUserWithId(userId);
-            UserSession userSession = userSessionRepository.findUserSessionWithId(userId);
-            // userSessionRepository.delete(userSession);
-            userSessionRepository.deleteSessionByUserId(userSession.getUser().getId());
-            return true;
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return false;
-    }
+//    @Transactional
+//    public UserSession createUserSession(int userId) {
+//        try {
+//            User user = authUserRepository.findUserWithId(userId);
+//            UserSession userSession = new UserSession();
+//            userSession.setUser(user);
+//            long timeEnd = System.currentTimeMillis();
+//            userSession.setLastLogin(new Timestamp(timeEnd));
+//            // find userSession by userid
+//            UserSession oldUserSession = userSessionRepository.findUserSessionWithId(userId);
+//            if (oldUserSession != null) {
+//                return null;
+//            }
+//            userSessionRepository.save(userSession);
+//            String token = generateRandomString();
+//            userSession.setToken(token);
+//            return userSession;
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//        return null;
+//    }
+//
+//    // logout
+//    @Override
+//    @Transactional
+//    public boolean deleteUserSession(int userId) {
+//        try {
+//            User user = authUserRepository.findUserWithId(userId);
+//            UserSession userSession = userSessionRepository.findUserSessionWithId(userId);
+//            // userSessionRepository.delete(userSession);
+//            userSessionRepository.deleteSessionByUserId(userSession.getUser().getId());
+//            return true;
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//        return false;
+//    }
 }

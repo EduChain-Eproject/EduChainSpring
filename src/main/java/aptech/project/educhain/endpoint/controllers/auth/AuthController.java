@@ -23,7 +23,6 @@ import aptech.project.educhain.common.result.ApiError;
 import aptech.project.educhain.data.entities.accounts.EmailToken;
 import aptech.project.educhain.data.entities.accounts.ResetPasswordToken;
 import aptech.project.educhain.data.entities.accounts.User;
-import aptech.project.educhain.data.entities.accounts.UserSession;
 import aptech.project.educhain.data.repositories.accounts.UserSessionRepository;
 import aptech.project.educhain.domain.dtos.accounts.UserDTO;
 import aptech.project.educhain.domain.services.accounts.IAuthService;
@@ -86,11 +85,6 @@ public class AuthController {
             return new ResponseEntity<>(apiError, HttpStatus.BAD_REQUEST);
         }
 
-        if (!iAuthService.checkLoginDevice(user.getId())) {
-            ApiError apiError = new ApiError("Your account is already logged in from another device");
-            return new ResponseEntity<>(apiError, HttpStatus.BAD_REQUEST);
-        }
-
         if (!user.getIsActive()) {
             ApiError apiError = new ApiError("You have been blocked. Please contact our admin for more details");
             return new ResponseEntity<>(apiError, HttpStatus.BAD_REQUEST);
@@ -113,13 +107,6 @@ public class AuthController {
     @PostMapping("/logout")
     public ResponseEntity<ApiError> logOut(HttpServletRequest request) {
         User user = iJwtService.getUserByHeaderToken(request.getHeader("Authorization"));
-
-        boolean checkLogout = iAuthService.deleteUserSession(user.getId());
-
-        if (!checkLogout) {
-            return new ResponseEntity<>(new ApiError("Got error when logging out your account"),
-                    HttpStatus.BAD_REQUEST);
-        }
         return new ResponseEntity<>(new ApiError("Success logout"), HttpStatus.OK);
     }
 
@@ -157,8 +144,6 @@ public class AuthController {
         var isRefreshTokenValid = iJwtService.isRefreshTokenExpired(token.getRefreshToken());
         User user = iAuthService.findUserByEmail(email);
         if (isRefreshTokenValid) {
-            UserSession userSession = userSessionRepository.findUserSessionWithId(user.getId());
-            userSessionRepository.delete(userSession);
             return new ResponseEntity<>(new ApiError("Your token expired or invalid. Please re-login."),
                     HttpStatus.BAD_REQUEST);
         }
