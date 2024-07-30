@@ -12,7 +12,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -25,7 +24,6 @@ import aptech.project.educhain.data.entities.accounts.ResetPasswordToken;
 import aptech.project.educhain.data.entities.accounts.User;
 import aptech.project.educhain.data.entities.accounts.UserSession;
 import aptech.project.educhain.data.repositories.accounts.UserSessionRepository;
-import aptech.project.educhain.domain.dtos.accounts.UserDTO;
 import aptech.project.educhain.domain.services.accounts.IAuthService;
 import aptech.project.educhain.domain.services.accounts.IEmailService;
 import aptech.project.educhain.domain.services.accounts.IJwtService;
@@ -35,7 +33,6 @@ import aptech.project.educhain.endpoint.requests.accounts.RegisterRequest;
 import aptech.project.educhain.endpoint.requests.accounts.ResetEmailRequest;
 import aptech.project.educhain.endpoint.requests.accounts.ResetPasswordRequest;
 import aptech.project.educhain.endpoint.responses.JwtResponse;
-import aptech.project.educhain.endpoint.responses.ResponseWithMessage;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 
@@ -99,15 +96,7 @@ public class AuthController {
         JwtResponse jwtResponse = new JwtResponse();
         jwtResponse.setAccessToken(iJwtService.generateToken(user));
         jwtResponse.setRefreshToken(iJwtService.generateRefreshToken(user.getId()));
-        return ResponseEntity.ok(new ResponseWithMessage<>(jwtResponse, "Ok"));
-    }
-
-    // get user by email
-    @GetMapping("/user-by-email/{email}")
-    public ResponseEntity<ResponseWithMessage> getUserWithEmail(@PathVariable("email") String email) {
-        User user = iAuthService.findUserByEmail(email);
-        UserDTO userDtoResponse = modelMapper.map(user, UserDTO.class);
-        return ResponseEntity.ok(new ResponseWithMessage<>(userDtoResponse, "success"));
+        return ResponseEntity.ok(jwtResponse);
     }
 
     @PostMapping("/logout")
@@ -166,7 +155,7 @@ public class AuthController {
         JwtResponse jwtResponse = new JwtResponse();
         jwtResponse.setAccessToken(newToken);
         jwtResponse.setRefreshToken(token.getRefreshToken());
-        return ResponseEntity.ok(new ResponseWithMessage<>(jwtResponse, "Ok"));
+        return ResponseEntity.ok(jwtResponse);
     }
 
     @GetMapping("/verify")
