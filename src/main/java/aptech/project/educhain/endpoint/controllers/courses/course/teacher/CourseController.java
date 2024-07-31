@@ -5,6 +5,11 @@ import java.util.List;
 import java.util.Map;
 
 import aptech.project.educhain.common.result.ApiError;
+import aptech.project.educhain.data.entities.accounts.User;
+import aptech.project.educhain.data.serviceImpl.accounts.JwtService;
+import aptech.project.educhain.domain.services.accounts.IAuthService;
+import aptech.project.educhain.domain.services.accounts.IJwtService;
+import jakarta.servlet.http.HttpServletRequest;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -43,34 +48,49 @@ public class CourseController {
     private CourseService courseService;
     @Autowired
     private ModelMapper modelMapper;
+    @Autowired
+    private IJwtService iJwtService;
+    @Autowired
+    private IAuthService iAuthService;
+
 
     @PostMapping("create")
-    public ResponseEntity<?> createCourse(@Valid @RequestBody CreateCourseRequest request, BindingResult rs) {
+    public ResponseEntity<?> createCourse(@Valid @RequestBody CreateCourseRequest request, BindingResult rs, HttpServletRequest httprequest) {
         if (rs.hasErrors()) {
             Map<String, String> errors = new HashMap<>();
             rs.getFieldErrors().forEach(error -> errors.put(error.getField(), error.getDefaultMessage()));
             return new ResponseEntity<>(new ApiError(errors), HttpStatus.BAD_REQUEST);
         }
-        int teacherId = 1;
+        String token = httprequest.getHeader("Authorization");
+        if (token == null) {
+            return new ResponseEntity<>(new ApiError("cant find token in your header"),
+                    HttpStatus.BAD_REQUEST);
+        }
+        String newToken = token.substring(7);
+        var email = iJwtService.extractUserName(newToken);
+        if(email == null){
+            return new ResponseEntity<>(new ApiError("invalid token from header"),
+                    HttpStatus.BAD_REQUEST);
+        }
+        User teacher = iAuthService.findUserByEmail(email);
         CreateCourseParams params = modelMapper.map(request, CreateCourseParams.class);
-        params.setTeacherId(teacherId);
+        params.setTeacherId(teacher.getId());
         params.setStatus(CourseStatus.UNDER_REVIEW);
         var course = courseService.createCourse(params);
         if (course.isSuccess()) {
             var res = modelMapper.map(course.getSuccess(), CreateCourseResponse.class);
             return new ResponseEntity<>(res, HttpStatus.CREATED);
         }
-        return new ResponseEntity<>(course.getFailure().getMessage(), HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(new ApiError(course.getFailure().getMessage()), HttpStatus.BAD_REQUEST);
     }
 
     @PostMapping("/list")
-    public ResponseEntity<?> getCoursesByTeacher(@Valid @RequestBody CourseListRequest request, BindingResult result) {
-        if (result.hasErrors()) {
-            StringBuilder errors = new StringBuilder();
-            result.getAllErrors().forEach(error -> errors.append(error.getDefaultMessage()).append("\n"));
-            return ResponseEntity.badRequest().body(errors.toString()); // TODO
+    public ResponseEntity<?> getCoursesByTeacher(@Valid @RequestBody CourseListRequest request, BindingResult rs) {
+        if (rs.hasErrors()) {
+            Map<String, String> errors = new HashMap<>();
+            rs.getFieldErrors().forEach(error -> errors.put(error.getField(), error.getDefaultMessage()));
+            return new ResponseEntity<>(new ApiError(errors), HttpStatus.BAD_REQUEST);
         }
-
         GetCoursesByTeacherParams params = modelMapper.map(request, GetCoursesByTeacherParams.class);
         AppResult<Page<CourseDTO>> appResult = courseService.getCoursesByTeacher(params);
 
@@ -78,7 +98,7 @@ public class CourseController {
             Page<CourseDTO> coursesPage = appResult.getSuccess();
             return ResponseEntity.ok(coursesPage);
         }
-        return ResponseEntity.badRequest().body(appResult.getFailure().getMessage());
+        return new ResponseEntity<>(new ApiError(appResult.getFailure().getMessage()), HttpStatus.BAD_REQUEST);
     }
 
     @GetMapping("/{courseId}")
