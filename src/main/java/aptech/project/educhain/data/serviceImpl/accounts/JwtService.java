@@ -11,7 +11,6 @@ import java.util.function.Function;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 
-import io.jsonwebtoken.ExpiredJwtException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
@@ -21,8 +20,8 @@ import aptech.project.educhain.data.entities.accounts.User;
 import aptech.project.educhain.data.repositories.accounts.JwtRepository;
 import aptech.project.educhain.domain.services.accounts.IAuthService;
 import aptech.project.educhain.domain.services.accounts.IJwtService;
-import aptech.project.educhain.endpoint.responses.JwtResponse;
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 
 @Component
@@ -127,9 +126,9 @@ public class JwtService implements IJwtService {
                     .build()
                     .parseSignedClaims(token)
                     .getPayload());
-        }catch (ExpiredJwtException e) {
-           e.printStackTrace();
-           return null;
+        } catch (ExpiredJwtException e) {
+            e.printStackTrace();
+            return null;
         } catch (Exception e) {
             e.printStackTrace();
             return null;
@@ -139,7 +138,7 @@ public class JwtService implements IJwtService {
     // reset accessToken when it expire
     public <T> T extractClaimsWithTokenExpire(String token, Function<Claims, T> claimsTFunction) {
         try {
-            return  claimsTFunction.apply(Jwts
+            return claimsTFunction.apply(Jwts
                     .parser()
                     .verifyWith(Key)
                     .build()
@@ -173,6 +172,7 @@ public class JwtService implements IJwtService {
             return null;
         }
     }
+
     public String generateTokenAfterExpire(User user) {
         return Jwts.builder()
                 .subject(user.getEmail())
@@ -182,7 +182,7 @@ public class JwtService implements IJwtService {
                 .compact();
     }
 
-    ///--------------------------------
+    /// --------------------------------
     public boolean isTokenExpired(String token) {
         return extractClaims(token, Claims::getExpiration).before(new Date());
     }

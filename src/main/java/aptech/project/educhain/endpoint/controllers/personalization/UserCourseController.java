@@ -1,5 +1,6 @@
 package aptech.project.educhain.endpoint.controllers.personalization;
 
+import aptech.project.educhain.common.result.ApiError;
 import aptech.project.educhain.domain.services.personalization.UserCourseService;
 import aptech.project.educhain.domain.useCases.personalization.user_course.add_user_course.AddUserCourseParams;
 import aptech.project.educhain.domain.useCases.personalization.user_course.get_all_user_course.UserCourseParams;
@@ -20,6 +21,7 @@ public class UserCourseController {
     @Autowired
     UserCourseService userCourseService;
     //get user course list
+
     @PostMapping("/all-user-course")
     public ResponseEntity<?> takeAllUserCourse(@RequestBody UserCourseRequest req){
             UserCourseParams params = modelMapper.map(req,UserCourseParams.class);
@@ -27,7 +29,7 @@ public class UserCourseController {
         if(userCourseDTO.isSuccess()){
             return new  ResponseEntity<>(userCourseDTO.getSuccess(), HttpStatus.OK);
         }
-        return new ResponseEntity<>(userCourseDTO.getFailure().getMessage(), HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(new ApiError(userCourseDTO.getFailure().getMessage()), HttpStatus.OK);
     }
     //add course to course list after payment
         @PostMapping("/add-user-course")
@@ -37,9 +39,10 @@ public class UserCourseController {
         if(userCourse.isSuccess()){
             return new  ResponseEntity<>(userCourse.getSuccess(), HttpStatus.OK);
         }
-        return new ResponseEntity<>(userCourse.getFailure().getMessage(), HttpStatus.BAD_REQUEST);
+            //todo
+            return new ResponseEntity<>(new ApiError(userCourse.getFailure().getMessage()), HttpStatus.OK);
     }
 
-    //filter by status
+
 
 }

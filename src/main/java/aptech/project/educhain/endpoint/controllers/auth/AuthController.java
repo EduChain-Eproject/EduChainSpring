@@ -12,7 +12,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -23,8 +22,6 @@ import aptech.project.educhain.common.result.ApiError;
 import aptech.project.educhain.data.entities.accounts.EmailToken;
 import aptech.project.educhain.data.entities.accounts.ResetPasswordToken;
 import aptech.project.educhain.data.entities.accounts.User;
-import aptech.project.educhain.data.repositories.accounts.UserSessionRepository;
-import aptech.project.educhain.domain.dtos.accounts.UserDTO;
 import aptech.project.educhain.domain.services.accounts.IAuthService;
 import aptech.project.educhain.domain.services.accounts.IEmailService;
 import aptech.project.educhain.domain.services.accounts.IJwtService;
@@ -34,7 +31,6 @@ import aptech.project.educhain.endpoint.requests.accounts.RegisterRequest;
 import aptech.project.educhain.endpoint.requests.accounts.ResetEmailRequest;
 import aptech.project.educhain.endpoint.requests.accounts.ResetPasswordRequest;
 import aptech.project.educhain.endpoint.responses.JwtResponse;
-import aptech.project.educhain.endpoint.responses.ResponseWithMessage;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 
@@ -54,8 +50,6 @@ public class AuthController {
     private IAuthService iAuthService;
     @Autowired
     private ModelMapper modelMapper;
-    @Autowired
-    private UserSessionRepository userSessionRepository;
     @Autowired
     private PasswordEncoder passwordEncoder;
 
@@ -93,15 +87,7 @@ public class AuthController {
         JwtResponse jwtResponse = new JwtResponse();
         jwtResponse.setAccessToken(iJwtService.generateToken(user));
         jwtResponse.setRefreshToken(iJwtService.generateRefreshToken(user.getId()));
-        return ResponseEntity.ok(new ResponseWithMessage<>(jwtResponse, "Ok"));
-    }
-
-    // get user by email
-    @GetMapping("/user-by-email/{email}")
-    public ResponseEntity<ResponseWithMessage> getUserWithEmail(@PathVariable("email") String email) {
-        User user = iAuthService.findUserByEmail(email);
-        UserDTO userDtoResponse = modelMapper.map(user, UserDTO.class);
-        return ResponseEntity.ok(new ResponseWithMessage<>(userDtoResponse, "success"));
+        return ResponseEntity.ok(jwtResponse);
     }
 
     @PostMapping("/logout")
@@ -136,7 +122,7 @@ public class AuthController {
     }
 
     @PostMapping("/reset-access-token")
-    public ResponseEntity<ApiError> resetAccessToken(@RequestBody ReNewToken token) {
+    public ResponseEntity<?> resetAccessToken(@RequestBody ReNewToken token) {
         var email = iJwtService.extractUserNameWhenTokenExpire(token.getAccessToken());
         if (email == null) {
             return new ResponseEntity<>(new ApiError("Can't recognize email"), HttpStatus.BAD_REQUEST);
@@ -151,7 +137,7 @@ public class AuthController {
         JwtResponse jwtResponse = new JwtResponse();
         jwtResponse.setAccessToken(newToken);
         jwtResponse.setRefreshToken(token.getRefreshToken());
-        return new ResponseEntity<>(new ApiError("Ok"), HttpStatus.OK);
+        return ResponseEntity.ok(jwtResponse);
     }
 
     @GetMapping("/verify")

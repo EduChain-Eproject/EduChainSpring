@@ -1,7 +1,10 @@
 package aptech.project.educhain.endpoint.controllers.personalization;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import aptech.project.educhain.common.result.ApiError;
 import aptech.project.educhain.common.result.AppResult;
 import aptech.project.educhain.domain.dtos.courses.AwardDTO;
 import aptech.project.educhain.domain.dtos.courses.UserHomeworkDTO;
@@ -58,12 +61,16 @@ public class UserProfileController {
     public ResponseEntity<?> getUser(HttpServletRequest request) {
         String token = request.getHeader("Authorization");
         if (token == null) {
-            return  ResponseEntity.badRequest().body("error when take token form header");
+            //todo
+            return new ResponseEntity<>(new ApiError("cant find token in your header"),
+                    HttpStatus.BAD_REQUEST);
         }
         String newToken = token.substring(7);
         var email = iJwtService.extractUserName(newToken);
         if(email == null){
-            return  ResponseEntity.badRequest().body("invalid token from header");
+            //todo
+            return new ResponseEntity<>(new ApiError("invalid token from header"),
+                    HttpStatus.BAD_REQUEST);
         }
         User user = iAuthService.findUserByEmail(email);
         UserDTO userDtoResponse = modelMapper.map(user, UserDTO.class);
@@ -79,20 +86,19 @@ public class UserProfileController {
             var res = modelMapper.map(result.getSuccess(), UserProfileDTO.class);
             return new ResponseEntity<>(res, HttpStatus.OK);
         }
-        return new ResponseEntity<>(result.getFailure().getMessage(), HttpStatus.BAD_REQUEST);
+        ApiError apiError = new ApiError(result.getFailure().getMessage());
+        return new ResponseEntity<>(apiError, HttpStatus.BAD_REQUEST);
     }
 
     @PostMapping(value = "/updateProfile", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> updateProfile(@Valid @ModelAttribute UpdateUserRequest updateUserRequest,
             BindingResult rs) {
         if (rs.hasErrors()) {
-            StringBuilder errors = new StringBuilder();
-            // ObjectError
-            List<ObjectError> errorList = rs.getAllErrors();
-            for (var err : errorList) {
-                errors.append(err.getDefaultMessage()).append("\n");
-            }
-            return ResponseEntity.badRequest().body(errors.toString());
+            Map<String, String> errors = new HashMap<>();
+            rs.getFieldErrors().forEach(error -> errors.put(error.getField(), error.getDefaultMessage()));
+
+            ApiError apiError = new ApiError(errors);
+            return new ResponseEntity<>(apiError, HttpStatus.BAD_REQUEST);
         }
         UpdateUserProfileParam updateUserProfileParam = modelMapper.map(updateUserRequest,
                 UpdateUserProfileParam.class);
@@ -101,47 +107,40 @@ public class UserProfileController {
             var res = modelMapper.map(result.getSuccess(), UserProfileResponse.class);
             return new ResponseEntity<>(res, HttpStatus.OK);
         }
-        return new ResponseEntity<>(result.getFailure().getMessage(), HttpStatus.BAD_REQUEST);
+        //todo
+        return new ResponseEntity<>(new ApiError(result.getFailure().getMessage()),
+                HttpStatus.BAD_REQUEST);
     }
 
     //list award by user id
 
-    @PostMapping("/list-award")
-    public ResponseEntity<?> getAwardsByUserId(@RequestBody UserAwardRequest request) {
-        UserAwardParams userAwardParams = modelMapper.map(request,UserAwardParams.class);
+//    @PostMapping("/list-award")
+//    public ResponseEntity<?> getAwardsByUserId(@RequestBody UserAwardRequest request) {
+//        UserAwardParams userAwardParams = modelMapper.map(request,UserAwardParams.class);
+//
+//        AppResult<Page<AwardDTO>> result = userProfileService.listAwardByUserId(userAwardParams);
+//        if (result.isSuccess()) {
+//            var res = result.getSuccess().map(awardDto -> modelMapper.map(awardDto, UserAwardResponse.class));
+//            return ResponseEntity.ok().body(res);
+//        }
+//        return ResponseEntity.badRequest().body(result.getFailure().getMessage());
+//    }
 
-        AppResult<Page<AwardDTO>> result = userProfileService.listAwardByUserId(userAwardParams);
-        if (result.isSuccess()) {
-            var res = result.getSuccess().map(awardDto -> modelMapper.map(awardDto, UserAwardResponse.class));
-            return ResponseEntity.ok().body(res);
-        }
-        return ResponseEntity.badRequest().body(result.getFailure().getMessage());
-    }
+
+//    //get 1 award by user id
+//    @PostMapping("/award")
+//    public ResponseEntity<?> getAwardByUserIdAndAwardId(@RequestBody TakeOneAwardRequest req) {
+//            TakeOneAwardParams params = modelMapper.map(req,TakeOneAwardParams.class);
+//        AppResult<AwardDTO> result = userProfileService.awardByUserId(params);
+//        if (result.isSuccess()) {
+//            AwardDTO awardDto = result.getSuccess();
+//            return ResponseEntity.ok().body(awardDto);
+//        }
+//        return ResponseEntity.badRequest().body(result.getFailure().getMessage());
+//    }
 
 
-    //get 1 award by user id
-    @PostMapping("/award")
-    public ResponseEntity<?> getAwardByUserIdAndAwardId(@RequestBody TakeOneAwardRequest req) {
-            TakeOneAwardParams params = modelMapper.map(req,TakeOneAwardParams.class);
-        AppResult<AwardDTO> result = userProfileService.awardByUserId(params);
-        if (result.isSuccess()) {
-            AwardDTO awardDto = result.getSuccess();
-            return ResponseEntity.ok().body(awardDto);
-        }
-        return ResponseEntity.badRequest().body(result.getFailure().getMessage());
-    }
 
-    //get 1 homeword by user id
-    @PostMapping("/getOneUserHomework")
-    public ResponseEntity<?> oneUserHomework(@RequestBody TakeOneUserHomeworkRequest req) {
-        TakeOneUserHomeworkParams params = modelMapper.map(req,TakeOneUserHomeworkParams.class);
-        var result = userProfileService.takeOneUserHomework(params);
-        if (result.isSuccess()) {
-            var res = modelMapper.map(result.getSuccess(), UserHomeworkResponse.class);
-            return ResponseEntity.ok().body(res);
-        }
-        return ResponseEntity.badRequest().body(result.getFailure().getMessage());
-    }
 
 }
 

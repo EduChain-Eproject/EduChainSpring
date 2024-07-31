@@ -76,7 +76,6 @@ public class BlogController {
     public List<BlogDTO> findAll() {
         List<Blog> blogs = service.findAll();
 
-        // Sắp xếp blog theo thứ tự mới nhất trước
         List<Blog> sortedBlogs = blogs.stream()
                 .sorted(Comparator.comparing(Blog::getCreatedAt).reversed())
                 .collect(Collectors.toList());
@@ -106,25 +105,36 @@ public class BlogController {
     public BlogDTO findOne(@PathVariable Integer id) {
         Blog blog = service.findOneBlog(id);
 
-        BlogDTO blogDTO =  modelMapper.map(blog, BlogDTO.class);
-        List<BlogComment> comments = blog.getBlogComments();
-        List<BlogCommentDTO> commentDTOs = comments.stream().map(comment -> {
-            BlogCommentDTO dto = modelMapper.map(comment, BlogCommentDTO.class);
-            if (comment.getBlog() != null) {
-                dto.setBlogId(comment.getBlog().getId());
-            }
-            if (comment.getParentComment() != null) {
-                dto.setParentCommentId(comment.getParentComment().getId());
-            }
-            // Map child comments
-            List<BlogCommentDTO> childComments = comment.getReplies().stream()
-                    .map(child -> mapChildComment(child, dto.getBlogId()))
-                    .collect(Collectors.toList());
-            dto.setReplies(childComments);
-            return dto;
-        }).toList();
+        BlogDTO blogDTO = modelMapper.map(blog, BlogDTO.class);
+        List<BlogCommentDTO> commentDTOs = blog.getBlogComments().stream()
+                .map(comment -> mapCommentToDTO(comment, blog.getId()))
+                .collect(Collectors.toList());
+
+        List<UserBlogVoteDTO> userBlogVoteDTOs = blog.getUserBlogVotes().stream()
+                .map(userBlogVote -> {
+                    UserBlogVoteDTO userBlogVoteDTO = modelMapper.map(userBlogVote, UserBlogVoteDTO.class);
+                    userBlogVoteDTO.setBlogId(userBlogVote.getBlog().getId());
+                    userBlogVoteDTO.setUserId(userBlogVote.getUser().getId());
+                    return userBlogVoteDTO;
+                })
+                .collect(Collectors.toList());
+
         blogDTO.setBlogComments(commentDTOs);
+        blogDTO.setUserBlogVotes(userBlogVoteDTOs);
         return blogDTO;
+    }
+
+    private BlogCommentDTO mapCommentToDTO(BlogComment comment, Integer blogId) {
+        BlogCommentDTO dto = modelMapper.map(comment, BlogCommentDTO.class);
+        dto.setBlogId(blogId);
+        if (comment.getParentComment() != null) {
+            dto.setParentCommentId(comment.getParentComment().getId());
+        }
+        List<BlogCommentDTO> childComments = comment.getReplies().stream()
+                .map(child -> mapCommentToDTO(child, blogId))
+                .collect(Collectors.toList());
+        dto.setReplies(childComments);
+        return dto;
     }
 
     @Operation(summary = "Add new blog")
@@ -164,7 +174,17 @@ public class BlogController {
     public BlogDTO vote(
             @RequestBody VoteRequest rq) {
         Blog updatedBlog = userBlogVoteService.vote(rq.getUserId(), rq.getBlogId(), rq.getVote());
-        return modelMapper.map(updatedBlog, BlogDTO.class);
+        BlogDTO blogDTO = modelMapper.map(updatedBlog, BlogDTO.class);
+        List<UserBlogVoteDTO> userBlogVoteDTOs = updatedBlog.getUserBlogVotes().stream()
+                .map(userBlogVote -> {
+                    UserBlogVoteDTO userBlogVoteDTO = modelMapper.map(userBlogVote, UserBlogVoteDTO.class);
+                    userBlogVoteDTO.setBlogId(userBlogVote.getBlog().getId());
+                    userBlogVoteDTO.setUserId(userBlogVote.getUser().getId());
+                    return userBlogVoteDTO;
+                })
+                .collect(Collectors.toList());
+        blogDTO.setUserBlogVotes(userBlogVoteDTOs);
+        return blogDTO;
     }
 
     @Operation(summary = "Find user blog vote")

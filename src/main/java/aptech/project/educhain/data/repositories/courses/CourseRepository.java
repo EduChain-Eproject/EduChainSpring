@@ -24,10 +24,11 @@ public interface CourseRepository extends JpaRepository<Course, Integer> {
         @Query("SELECT c FROM Course c JOIN c.categories cat WHERE "
                         + "(LOWER(c.title) LIKE LOWER(CONCAT('%', :search, '%')) OR "
                         + "LOWER(c.description) LIKE LOWER(CONCAT('%', :search, '%'))) "
-                        + "AND cat.id IN :categoryIds")
+                        + "AND cat.id IN :categoryIds AND c.status = :status")
         Page<Course> findByCategoryIdsAndSearch(
                         @Param("categoryIds") List<Integer> categoryIds,
                         @Param("search") String search,
+                        @Param("status") CourseStatus status,
                         Pageable pageable);
 
         @Query("SELECT c FROM Course c WHERE "

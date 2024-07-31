@@ -3,8 +3,10 @@ package aptech.project.educhain.endpoint.controllers;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import aptech.project.educhain.common.result.ApiError;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -30,6 +32,7 @@ public class HomeController {
     private ModelMapper modelMapper;
 
     // get most popular course base on student
+    //todo
     @GetMapping("/signature-courses")
     public ResponseEntity<?> getMostPopularCourse() {
         AppResult<List<CourseDTO>> result = homeService.getMostPopularCourse();
@@ -40,10 +43,11 @@ public class HomeController {
                     .collect(Collectors.toList());
             return ResponseEntity.ok().body(responses);
         }
-        return ResponseEntity.badRequest().body(result.getFailure().getMessage());
+        return new ResponseEntity<>(new ApiError(result.getFailure().getMessage()), HttpStatus.BAD_REQUEST);
     }
 
     // get 4 categories base on course
+    //todo
     @GetMapping("/best-categories")
     public ResponseEntity<?> getCategoriesWithMostCourses() {
         GetMostCategoryParams getMostCategoryParams = new GetMostCategoryParams();
@@ -52,9 +56,10 @@ public class HomeController {
         if (result.isSuccess()) {
             return ResponseEntity.ok(result.getSuccess());
         }
-        return ResponseEntity.badRequest().body(result.getFailure().getMessage());
+        return new ResponseEntity<>(new ApiError(result.getFailure().getMessage()), HttpStatus.BAD_REQUEST);
     }
 
+    //todo
     @GetMapping("/most-popular-teacher")
     public ResponseEntity<?> getMostPopularTeacher() {
         AppResult<PopularTeacherDTO> result = homeService.getMostPopularTeacher();
@@ -62,9 +67,10 @@ public class HomeController {
             MostPopularTeacherResponse teacher = modelMapper.map(result.getSuccess(), MostPopularTeacherResponse.class);
             return ResponseEntity.ok(teacher);
         }
-        return ResponseEntity.badRequest().body(result.getFailure().getMessage());
+        return new ResponseEntity<>(new ApiError(result.getFailure().getMessage()), HttpStatus.BAD_REQUEST);
     }
 
+    //todo
     @GetMapping("/statistics")
     public ResponseEntity<?> statistics() {
         AppResult<Statistics> statistics = homeService.getStatistics();
@@ -72,7 +78,7 @@ public class HomeController {
         if (statistics.isSuccess()) {
             return ResponseEntity.ok(statistics.getSuccess());
         }
-        return ResponseEntity.badRequest().body(statistics.getFailure().getMessage());
+        return new ResponseEntity<>(new ApiError(statistics.getFailure().getMessage()), HttpStatus.BAD_REQUEST);
     }
 }
 

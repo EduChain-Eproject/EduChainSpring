@@ -1,5 +1,6 @@
 package aptech.project.educhain.endpoint.controllers.personalization;
 
+import aptech.project.educhain.common.result.ApiError;
 import aptech.project.educhain.data.entities.accounts.User;
 import aptech.project.educhain.domain.services.accounts.IAuthService;
 import aptech.project.educhain.domain.services.accounts.IJwtService;
@@ -20,7 +21,9 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("STUDENT")
@@ -36,13 +39,9 @@ public class UserInterestsController {
     @PostMapping("/add-to-wishlist")
     public ResponseEntity<?> addToWishList(@Valid @RequestBody AddOrDeleteUserInterestRequest req, BindingResult rs){
         if (rs.hasErrors()) {
-            StringBuilder errors = new StringBuilder();
-            // ObjectError
-            List<ObjectError> errorList = rs.getAllErrors();
-            for (var err : errorList) {
-                errors.append(err.getDefaultMessage()).append("\n");
-            }
-            return ResponseEntity.badRequest().body(errors.toString());
+            Map<String, String> errors = new HashMap<>();
+            rs.getFieldErrors().forEach(error -> errors.put(error.getField(), error.getDefaultMessage()));
+            return new ResponseEntity<>(new ApiError(errors), HttpStatus.BAD_REQUEST);
         }
         //add
        AddToUserInterestsParams params =  modelMapper.map(req, AddToUserInterestsParams.class);
@@ -51,19 +50,16 @@ public class UserInterestsController {
             var res = modelMapper.map(wishList.getSuccess(), UserInterestResponse.class);
             return new  ResponseEntity<>(res, HttpStatus.OK);
         }
-        return new ResponseEntity<>(wishList.getFailure().getMessage(), HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(new ApiError(wishList.getFailure().getMessage()),
+                HttpStatus.BAD_REQUEST);
     }
 
     @DeleteMapping("/delete-wishlist")
     public ResponseEntity<?> deleteWishList(@Valid  @RequestBody AddOrDeleteUserInterestRequest req, BindingResult rs){
         if (rs.hasErrors()) {
-            StringBuilder errors = new StringBuilder();
-            // ObjectError
-            List<ObjectError> errorList = rs.getAllErrors();
-            for (var err : errorList) {
-                errors.append(err.getDefaultMessage()).append("\n");
-            }
-            return ResponseEntity.badRequest().body(errors.toString());
+            Map<String, String> errors = new HashMap<>();
+            rs.getFieldErrors().forEach(error -> errors.put(error.getField(), error.getDefaultMessage()));
+            return new ResponseEntity<>(new ApiError(errors), HttpStatus.BAD_REQUEST);
         }
         //delete
         DeleteUserInterestsParams deleteUserInterestsParams = modelMapper.map(req,DeleteUserInterestsParams.class);
@@ -71,7 +67,7 @@ public class UserInterestsController {
         if(isDeleted.isSuccess()){
             return new  ResponseEntity<>(isDeleted, HttpStatus.OK);
         }
-        return new ResponseEntity<>(isDeleted.getFailure().getMessage(), HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(new ApiError(isDeleted.getFailure().getMessage()), HttpStatus.BAD_REQUEST);
     }
 
     @PostMapping("/get-user-interest")

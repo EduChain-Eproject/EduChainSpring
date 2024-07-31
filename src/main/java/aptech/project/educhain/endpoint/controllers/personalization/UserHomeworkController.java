@@ -1,16 +1,20 @@
 package aptech.project.educhain.endpoint.controllers.personalization;
 
+import aptech.project.educhain.common.result.ApiError;
 import aptech.project.educhain.common.result.AppResult;
 import aptech.project.educhain.domain.dtos.courses.UserHomeworkDTO;
 import aptech.project.educhain.domain.services.accounts.IAuthService;
 import aptech.project.educhain.domain.services.accounts.IJwtService;
 import aptech.project.educhain.domain.services.personalization.UserProfileService;
 import aptech.project.educhain.domain.useCases.personalization.user_homework.list_userhomework.ListUserHomeworkParams;
+import aptech.project.educhain.domain.useCases.personalization.user_homework.take_one_userhomework.TakeOneUserHomeworkParams;
+import aptech.project.educhain.endpoint.requests.personaliztion.user_homework.TakeOneUserHomeworkRequest;
 import aptech.project.educhain.endpoint.requests.personaliztion.user_homework.UserHomeworkRequest;
 import aptech.project.educhain.endpoint.responses.common.UserHomeworkResponse;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -34,7 +38,19 @@ public class UserHomeworkController {
             var res = result.getSuccess().map(userHomeworkDTO -> modelMapper.map(userHomeworkDTO, UserHomeworkResponse.class));
             return ResponseEntity.ok().body(res);
         }
-        return ResponseEntity.badRequest().body(result.getFailure().getMessage());
-    }
 
+        return new ResponseEntity<>(new ApiError(result.getFailure().getMessage()),
+                HttpStatus.BAD_REQUEST);
+    }
+    @PostMapping("/getOneUserHomework")
+    public ResponseEntity<?> oneUserHomework(@RequestBody TakeOneUserHomeworkRequest req) {
+        TakeOneUserHomeworkParams params = modelMapper.map(req, TakeOneUserHomeworkParams.class);
+        var result = userProfileService.takeOneUserHomework(params);
+        if (result.isSuccess()) {
+            var res = modelMapper.map(result.getSuccess(), UserHomeworkResponse.class);
+            return ResponseEntity.ok().body(res);
+        }
+        return new ResponseEntity<>(new ApiError(result.getFailure().getMessage()),
+                HttpStatus.BAD_REQUEST);
+    }
 }

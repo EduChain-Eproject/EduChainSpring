@@ -18,7 +18,6 @@ import aptech.project.educhain.data.entities.accounts.User;
 import aptech.project.educhain.data.repositories.accounts.AuthUserRepository;
 import aptech.project.educhain.data.repositories.accounts.EmailVerifyRepository;
 import aptech.project.educhain.data.repositories.accounts.ResetPasswordRepository;
-import aptech.project.educhain.data.repositories.accounts.UserSessionRepository;
 import aptech.project.educhain.domain.services.accounts.IAuthService;
 import aptech.project.educhain.endpoint.requests.accounts.RegisterRequest;
 import jakarta.transaction.Transactional;
@@ -34,8 +33,6 @@ public class AuthService implements IAuthService {
     public ResetPasswordRepository resetPasswordRepository;
     @Autowired
     public AuthUserRepository authUserRepository;
-    @Autowired
-    public UserSessionRepository userSessionRepository;
     @Autowired
     @Lazy
     private PasswordEncoder passwordEncoder;
