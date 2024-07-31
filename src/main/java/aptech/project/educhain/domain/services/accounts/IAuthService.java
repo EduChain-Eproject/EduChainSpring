@@ -19,8 +19,8 @@ public interface IAuthService {
     ResetPasswordToken createResetPasswordToken(int id);
     int resetPasswordAction(String token,String password);
 
-    boolean checkLoginDevice(int userId);
-    boolean deleteUserSession(int userId);
+//    boolean checkLoginDevice(int userId);
+//    boolean deleteUserSession(int userId);
 
 
 }

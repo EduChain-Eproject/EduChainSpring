@@ -32,7 +32,7 @@ public class JwtService implements IJwtService {
     private IAuthService iAuthService;
 
     private final SecretKey Key;
-    private static final long ACCESS_EXPIRATION_TIME = 10000;
+    private static final long ACCESS_EXPIRATION_TIME = 86400000;
 
     private static final long ACCESS_NEXT_EXPIRATION_TIME = 86400000;
     private static final long REFRESH_EXPIRATION_TIME = 86400000; // 24 hours in milliseconds

@@ -60,7 +60,7 @@ public class UserProfileServiceImpl implements UserProfileService {
     }
 
     @Override
-    public AppResult<Page<UserHomeworkDTO>> awardByUserId(ListUserHomeworkParams params) {
+    public AppResult<Page<UserHomeworkDTO>> listHomeworkdByUserId(ListUserHomeworkParams params) {
         return listUserHomeworkUseCase.execute(params);
     }
 

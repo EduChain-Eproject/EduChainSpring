@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class ListUserHomeworkParams {
     private Integer userId;
+    private Boolean isSubmitted;
     private int page;
     private int size;
 }

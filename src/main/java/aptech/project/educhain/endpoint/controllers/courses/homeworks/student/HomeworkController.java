@@ -108,7 +108,7 @@ public class HomeworkController {
             return ResponseEntity.ok().body(result.getSuccess()); // TODO: map to res here
         }
 
-        return ResponseEntity.badRequest().body(result.getFailure().getMessage());
+        return ResponseEntity.badRequest().body(result.getFailure().getMessage()); // TODO
     }
 
     @Operation(summary = "submit a homework")

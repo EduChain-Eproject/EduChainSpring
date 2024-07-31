@@ -10,6 +10,7 @@ import aptech.project.educhain.data.entities.courses.UserCourse;
 import aptech.project.educhain.data.repositories.accounts.AuthUserRepository;
 import aptech.project.educhain.data.repositories.courses.CourseRepository;
 import aptech.project.educhain.data.repositories.courses.UserCourseRepository;
+import aptech.project.educhain.domain.dtos.courses.CategoryDTO;
 import aptech.project.educhain.domain.dtos.courses.UserCourseDTO;
 import aptech.project.educhain.domain.useCases.personalization.user_course.get_all_user_course.UserCourseParams;
 import jakarta.transaction.Transactional;
@@ -22,6 +23,7 @@ import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Component
 public class AddUserCourseUseCase implements Usecase<UserCourseDTO, AddUserCourseParams> {
@@ -33,8 +35,6 @@ public class AddUserCourseUseCase implements Usecase<UserCourseDTO, AddUserCours
     AuthUserRepository authUserRepository;
     @Autowired
     CourseRepository courseRepository;
-
-
     @Override
     @Transactional
     public AppResult<UserCourseDTO> execute(AddUserCourseParams params) {
@@ -60,9 +60,15 @@ public class AddUserCourseUseCase implements Usecase<UserCourseDTO, AddUserCours
 
     }
 
-    private static UserCourseDTO createUserCourseDTO(UserCourse newUserCourse, User teacher) {
+    private UserCourseDTO createUserCourseDTO(UserCourse newUserCourse, User teacher) {
         List<Category> categoryList = newUserCourse.getCourse().getCategories();
-        //map model
+
+        // Map Category entities to CategoryDTOs
+        List<CategoryDTO> categoryDTOList = categoryList.stream()
+                .map(category -> modelMapper.map(category, CategoryDTO.class))
+                .collect(Collectors.toList());
+
+        // Map other properties
         UserCourseDTO userCourseDTO = new UserCourseDTO();
         userCourseDTO.setTeacherName(teacher.getFirstName() + " " + teacher.getLastName());
         userCourseDTO.setTeacherEmail(teacher.getEmail());
@@ -70,7 +76,9 @@ public class AddUserCourseUseCase implements Usecase<UserCourseDTO, AddUserCours
         userCourseDTO.setEnrollmentDate(newUserCourse.getEnrollmentDate());
         userCourseDTO.setPrice(newUserCourse.getCourse().getPrice());
         userCourseDTO.setCompletionStatus(newUserCourse.getCompletionStatus());
-        userCourseDTO.setCategoryList(categoryList);
+        userCourseDTO.setCategoryList(categoryDTOList);
+
         return userCourseDTO;
     }
+
 }

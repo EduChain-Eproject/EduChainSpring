@@ -77,10 +77,6 @@ public class User extends BaseModel implements UserDetails {
     @Column(name = "avatarPath")
     private String avatarPath;
 
-    @JsonIgnoreProperties("user")
-    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @ToString.Exclude
-    private UserSession userSession;
 
     @JsonIgnoreProperties("user")
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)

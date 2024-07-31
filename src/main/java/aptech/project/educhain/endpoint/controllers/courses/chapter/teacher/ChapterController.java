@@ -57,7 +57,7 @@ public class ChapterController {
             for (var err : errorList) {
                 errors.append(err.getDefaultMessage()).append("\n");
             }
-            return ResponseEntity.badRequest().body(errors.toString());
+            return ResponseEntity.badRequest().body(errors.toString()); // TODO
         }
 
         var chapter = chapterService.createChapter(modelMapper.map(request, CreateChapterParams.class));
@@ -78,7 +78,7 @@ public class ChapterController {
             for (var err : errorList) {
                 errors.append(err.getDefaultMessage()).append("\n");
             }
-            return ResponseEntity.badRequest().body(errors.toString());
+            return ResponseEntity.badRequest().body(errors.toString());// TODO
         }
 
         UpdateChapterParams params = modelMapper.map(request, UpdateChapterParams.class);

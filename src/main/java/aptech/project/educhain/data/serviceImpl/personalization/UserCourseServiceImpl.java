@@ -14,6 +14,8 @@ import aptech.project.educhain.domain.useCases.personalization.user_course.get_a
 import aptech.project.educhain.domain.useCases.personalization.user_course.get_user_course.GetUserCourseParams;
 import aptech.project.educhain.domain.useCases.personalization.user_course.get_user_course.GetUserCourseUseCase;
 
+import java.util.List;
+
 @Service
 public class UserCourseServiceImpl implements UserCourseService {
     @Autowired
@@ -29,7 +31,6 @@ public class UserCourseServiceImpl implements UserCourseService {
     public AppResult<Page<UserCourseDTO>> getAllUserCourseWithParams(UserCourseParams params) {
         return getAllUserCourseUseCase.execute(params);
     }
-
     @Override
     public AppResult<UserCourseDTO> addUserCourseWithParams(AddUserCourseParams params) {
         return addUserCourseUseCase.execute(params);

@@ -20,7 +20,7 @@ public interface UserProfileService {
     public AppResult<Page<AwardDTO>> listAwardByUserId(UserAwardParams params);
     AppResult<AwardDTO> awardByUserId(TakeOneAwardParams params);
 
-    AppResult<Page<UserHomeworkDTO>> awardByUserId(ListUserHomeworkParams params);
+    AppResult<Page<UserHomeworkDTO>> listHomeworkdByUserId(ListUserHomeworkParams params);
     AppResult<UserHomeworkDTO> takeOneUserHomework(TakeOneUserHomeworkParams params);
 
 }

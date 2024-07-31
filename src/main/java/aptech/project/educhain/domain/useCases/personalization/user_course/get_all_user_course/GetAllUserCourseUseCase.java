@@ -3,6 +3,8 @@ package aptech.project.educhain.domain.useCases.personalization.user_course.get_
 import java.util.List;
 import java.util.stream.Collectors;
 
+import aptech.project.educhain.domain.dtos.courses.CategoryDTO;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -25,38 +27,33 @@ public class GetAllUserCourseUseCase implements Usecase<Page<UserCourseDTO>, Use
     @Autowired
     private UserCourseRepository userCourseRepository;
 
+    @Autowired
+    private ModelMapper modelMapper;
+
     @Override
     public AppResult<Page<UserCourseDTO>> execute(UserCourseParams params) {
         try {
             Pageable pageable = PageRequest.of(params.getPage(), params.getSize());
-            Page<UserCourse> userCoursesPage = userCourseRepository
-                    .findAllByStudentIdAndTitleSearch(params.getStudent_id(), params.getTitleSearch(), pageable);
+            Page<UserCourse> results = userCourseRepository.findAllWithParams(params.getStudentId(), params.getTitleSearch(), params.getCompletionStatus(), pageable);
 
-            List<UserCourseDTO> userCourseDTOs = userCoursesPage.stream()
-                    .map(userCourse -> {
-                        User user = userCourse.getUser();
-                        Course course = userCourse.getCourse();
-                        if (course != null) {
-                            return new UserCourseDTO(
-                                    user.getFirstName(),
-                                    user.getEmail(),
-                                    course.getTitle(),
-                                    userCourse.getEnrollmentDate(),
-                                    course.getPrice(),
-                                    userCourse.getCompletionStatus(),
-                                    course.getCategories());
-                        } else {
-                            return null; // Or handle the case where course is null
-                        }
-                    })
-                    .collect(Collectors.toList());
+            // Convert Page<UserCourse> to Page<UserCourseDTO>
+            Page<UserCourseDTO> userCourseDTOs = results.map(uc -> {
+                UserCourseDTO dto = new UserCourseDTO();
+                dto.setTeacherName(uc.getCourse().getTeacher().getFirstName() + " " + uc.getCourse().getTeacher().getLastName());
+                dto.setTeacherEmail(uc.getCourse().getTeacher().getEmail());
+                dto.setTitle(uc.getCourse().getTitle());
+                dto.setEnrollmentDate(uc.getEnrollmentDate());
+                dto.setPrice(uc.getCourse().getPrice());
+                dto.setCompletionStatus(uc.getCompletionStatus());
+                dto.setCategoryList(uc.getCourse().getCategories().stream()
+                        .map(category -> modelMapper.map(category, CategoryDTO.class))
+                        .collect(Collectors.toList()));
+                return dto;
+            });
 
-            Page<UserCourseDTO> userCourseDTOPage = new PageImpl<>(userCourseDTOs, pageable,
-                    userCoursesPage.getTotalElements());
-            return AppResult.successResult(userCourseDTOPage);
+            return AppResult.successResult(userCourseDTOs);
         } catch (Exception e) {
-            return AppResult.failureResult(new Failure("Fail to get user course"));
+            return AppResult.failureResult(new Failure("Failed to get user courses: " + e.getMessage()));
         }
     }
-
 }

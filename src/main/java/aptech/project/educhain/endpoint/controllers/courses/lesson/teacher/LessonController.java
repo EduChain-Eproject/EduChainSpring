@@ -1,7 +1,10 @@
 package aptech.project.educhain.endpoint.controllers.courses.lesson.teacher;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import aptech.project.educhain.common.result.ApiError;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -56,14 +59,10 @@ public class LessonController {
             @ModelAttribute CreateLessonRequest request,
             BindingResult rs) {
         if (rs.hasErrors()) {
-            StringBuilder errors = new StringBuilder();
-            List<ObjectError> errorList = rs.getAllErrors();
-            for (var err : errorList) {
-                errors.append(err.getDefaultMessage()).append("\n");
-            }
-            return ResponseEntity.badRequest().body(errors.toString());
+            Map<String, String> errors = new HashMap<>();
+            rs.getFieldErrors().forEach(error -> errors.put(error.getField(), error.getDefaultMessage()));
+            return new ResponseEntity<>(new ApiError(errors), HttpStatus.BAD_REQUEST);
         }
-
         try {
             // String videoURL = fileUploadService.uploadFile(file);
             // request.setVideoURL(videoURL);
@@ -71,17 +70,13 @@ public class LessonController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("File upload failed: " + e.getMessage());
         }
-
         CreateLessonParams params = modelMapper.map(request, CreateLessonParams.class);
-
         AppResult<LessonDTO> lesson = lessonService.createLesson(params);
-
         if (lesson.isSuccess()) {
             var res = modelMapper.map(lesson.getSuccess(), CreateLessonResponse.class);
             return new ResponseEntity<>(res, HttpStatus.CREATED);
         }
-
-        return new ResponseEntity<>(lesson.getFailure().getMessage(), HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(new ApiError(lesson.getFailure().getMessage()), HttpStatus.BAD_REQUEST);
     }
 
     @PutMapping("/update/{lessonId}")
@@ -95,7 +90,7 @@ public class LessonController {
             for (var err : errorList) {
                 errors.append(err.getDefaultMessage()).append("\n");
             }
-            return ResponseEntity.badRequest().body(errors.toString());
+            return ResponseEntity.badRequest().body(errors.toString());// TODO
         }
 
         try {

@@ -16,4 +16,9 @@ public interface UserHomeworkRepository extends JpaRepository<UserHomework, Inte
             @Param("homeworkId") Integer homeworkId);
 
     Page<UserHomework> findByUserId(Integer userId, Pageable pageable);
+    @Query("SELECT uh FROM UserHomework uh WHERE uh.user.id = :userId AND " +
+            "(:isSubmitted IS NULL OR uh.isSubmitted = :isSubmitted)")
+    Page<UserHomework> findByUserIdAndIsSubmitted(@Param("userId") Integer userId,
+                                                  @Param("isSubmitted") Boolean isSubmitted,
+                                                  Pageable pageable);
 }
