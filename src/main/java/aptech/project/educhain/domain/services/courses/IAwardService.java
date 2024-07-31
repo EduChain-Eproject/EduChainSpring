@@ -7,6 +7,8 @@ import aptech.project.educhain.domain.useCases.courses.UserAward.GetUserAwardUse
 import aptech.project.educhain.domain.useCases.courses.UserAward.ReceiveAwardUseCase.ReceiveAwardParams;
 
 public interface IAwardService {
+    AppResult<AwardDTO> getAward(Integer awardId);
+
     AppResult<AwardDTO> getUserAward(GetUserAwardParams params);
 
     AppResult<AwardDTO> receiveAward(ReceiveAwardParams params);
