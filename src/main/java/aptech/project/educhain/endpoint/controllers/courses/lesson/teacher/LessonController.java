@@ -61,7 +61,7 @@ public class LessonController {
             for (var err : errorList) {
                 errors.append(err.getDefaultMessage()).append("\n");
             }
-            return ResponseEntity.badRequest().body(errors.toString());
+            return ResponseEntity.badRequest().body(errors.toString());// TODO
         }
 
         try {
@@ -95,7 +95,7 @@ public class LessonController {
             for (var err : errorList) {
                 errors.append(err.getDefaultMessage()).append("\n");
             }
-            return ResponseEntity.badRequest().body(errors.toString());
+            return ResponseEntity.badRequest().body(errors.toString());// TODO
         }
 
         try {

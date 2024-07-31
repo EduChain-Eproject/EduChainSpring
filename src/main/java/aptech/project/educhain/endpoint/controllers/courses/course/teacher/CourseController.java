@@ -1,7 +1,10 @@
 package aptech.project.educhain.endpoint.controllers.courses.course.teacher;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import aptech.project.educhain.common.result.ApiError;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -42,25 +45,17 @@ public class CourseController {
     private ModelMapper modelMapper;
 
     @PostMapping("create")
-    public ResponseEntity<?> createCourse(@RequestBody CreateCourseRequest request, BindingResult rs) {
+    public ResponseEntity<?> createCourse(@Valid @RequestBody CreateCourseRequest request, BindingResult rs) {
         if (rs.hasErrors()) {
-            StringBuilder errors = new StringBuilder();
-            // ObjectError
-            List<ObjectError> errorList = rs.getAllErrors();
-            for (var err : errorList) {
-                errors.append(err.getDefaultMessage()).append("\n");
-            }
-            return ResponseEntity.badRequest().body(errors.toString());
+            Map<String, String> errors = new HashMap<>();
+            rs.getFieldErrors().forEach(error -> errors.put(error.getField(), error.getDefaultMessage()));
+            return new ResponseEntity<>(new ApiError(errors), HttpStatus.BAD_REQUEST);
         }
-
         int teacherId = 1;
-
         CreateCourseParams params = modelMapper.map(request, CreateCourseParams.class);
         params.setTeacherId(teacherId);
         params.setStatus(CourseStatus.UNDER_REVIEW);
-
         var course = courseService.createCourse(params);
-
         if (course.isSuccess()) {
             var res = modelMapper.map(course.getSuccess(), CreateCourseResponse.class);
             return new ResponseEntity<>(res, HttpStatus.CREATED);
@@ -73,7 +68,7 @@ public class CourseController {
         if (result.hasErrors()) {
             StringBuilder errors = new StringBuilder();
             result.getAllErrors().forEach(error -> errors.append(error.getDefaultMessage()).append("\n"));
-            return ResponseEntity.badRequest().body(errors.toString());
+            return ResponseEntity.badRequest().body(errors.toString()); // TODO
         }
 
         GetCoursesByTeacherParams params = modelMapper.map(request, GetCoursesByTeacherParams.class);

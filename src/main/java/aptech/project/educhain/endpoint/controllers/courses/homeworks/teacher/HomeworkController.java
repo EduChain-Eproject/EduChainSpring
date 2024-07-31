@@ -71,7 +71,7 @@ public class HomeworkController {
             for (var err : errorList) {
                 errors.append(err.getDefaultMessage()).append("\n");
             }
-            return ResponseEntity.badRequest().body(errors.toString());
+            return ResponseEntity.badRequest().body(errors.toString());// TODO
         }
 
         var createtorId = iJwtService.getUserByHeaderToken(httpServletRequest.getHeader("Authorization")).getId();
@@ -98,7 +98,7 @@ public class HomeworkController {
             for (ObjectError err : errorList) {
                 errors.append(err.getDefaultMessage()).append("\n");
             }
-            return ResponseEntity.badRequest().body(errors.toString());
+            return ResponseEntity.badRequest().body(errors.toString());// TODO
         }
         UpdateHomeworkParam params = modelMapper.map(request, UpdateHomeworkParam.class);
         params.setId(id);

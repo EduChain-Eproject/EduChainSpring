@@ -63,7 +63,7 @@ public class QuestionController {
             for (var err : errorList) {
                 errors.append(err.getDefaultMessage()).append("\n");
             }
-            return ResponseEntity.badRequest().body(errors.toString());
+            return ResponseEntity.badRequest().body(errors.toString());// TODO
         }
 
         CreateQuestionParam params = modelMapper.map(request, CreateQuestionParam.class);
@@ -89,7 +89,7 @@ public class QuestionController {
             for (ObjectError err : errorList) {
                 errors.append(err.getDefaultMessage()).append("\n");
             }
-            return ResponseEntity.badRequest().body(errors.toString());
+            return ResponseEntity.badRequest().body(errors.toString());// TODO
         }
         UpdateQuestionParam params = modelMapper.map(request, UpdateQuestionParam.class);
         params.setId(id);
