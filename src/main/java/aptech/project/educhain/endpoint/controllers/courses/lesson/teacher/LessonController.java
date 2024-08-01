@@ -5,12 +5,14 @@ import java.util.List;
 import java.util.Map;
 
 import aptech.project.educhain.common.result.ApiError;
+import jakarta.validation.Valid;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.ObjectError;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -56,7 +58,7 @@ public class LessonController {
     @PostMapping("/create")
     public ResponseEntity<?> createLesson(
             @RequestParam("file") MultipartFile file,
-            @ModelAttribute CreateLessonRequest request,
+             @Validated @ModelAttribute CreateLessonRequest request,
             BindingResult rs) {
         if (rs.hasErrors()) {
             Map<String, String> errors = new HashMap<>();
