@@ -83,18 +83,13 @@ public class LessonController {
 
     @PutMapping("/update/{lessonId}")
     public ResponseEntity<?> updateLesson(@PathVariable("lessonId") Integer lessonId,
-            @RequestParam("file") MultipartFile file,
-            @ModelAttribute UpdateLessonRequest request,
+            @RequestParam("file") MultipartFile file, @Validated @ModelAttribute UpdateLessonRequest request,
             BindingResult rs) {
         if (rs.hasErrors()) {
-            StringBuilder errors = new StringBuilder();
-            List<ObjectError> errorList = rs.getAllErrors();
-            for (var err : errorList) {
-                errors.append(err.getDefaultMessage()).append("\n");
-            }
-            return ResponseEntity.badRequest().body(errors.toString());// TODO
+            Map<String, String> errors = new HashMap<>();
+            rs.getFieldErrors().forEach(error -> errors.put(error.getField(), error.getDefaultMessage()));
+            return new ResponseEntity<>(new ApiError(errors), HttpStatus.BAD_REQUEST);
         }
-
         try {
             // String videoURL = fileUploadService.uploadFile(file);
             // request.setVideoURL(videoURL);
@@ -112,7 +107,7 @@ public class LessonController {
             var res = modelMapper.map(lesson.getSuccess(), UpdateLessonResponse.class);
             return ResponseEntity.ok().body(res);
         }
-        return ResponseEntity.badRequest().body(lesson.getFailure().getMessage());
+        return new ResponseEntity<>(new ApiError(lesson.getFailure().getMessage()), HttpStatus.BAD_REQUEST);
     }
 
     @DeleteMapping("/delete/{lessonId}")
