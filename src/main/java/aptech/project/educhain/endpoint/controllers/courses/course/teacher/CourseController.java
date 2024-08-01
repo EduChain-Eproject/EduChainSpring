@@ -112,7 +112,13 @@ public class CourseController {
     }
 
     @PutMapping("/update/{courseId}")
-    public ResponseEntity<?> updateCourse(@PathVariable int courseId, @RequestBody UpdateCourseRequest request) {
+    public ResponseEntity<?> updateCourse(@PathVariable int courseId,@Valid @RequestBody UpdateCourseRequest request, BindingResult rs) {
+        if (rs.hasErrors()) {
+            Map<String, String> errors = new HashMap<>();
+            rs.getFieldErrors().forEach(error -> errors.put(error.getField(), error.getDefaultMessage()));
+            return new ResponseEntity<>(new ApiError(errors), HttpStatus.BAD_REQUEST);
+        }
+
         UpdateCourseParams params = modelMapper.map(request, UpdateCourseParams.class);
         params.setCourseId(courseId);
 
@@ -121,7 +127,7 @@ public class CourseController {
             var res = modelMapper.map(result.getSuccess(), UpdateCourseResponse.class);
             return ResponseEntity.ok(res);
         }
-        return ResponseEntity.badRequest().body(result.getFailure().getMessage());
+        return new ResponseEntity<>(new ApiError(result.getFailure().getMessage()), HttpStatus.BAD_REQUEST);
     }
 
     @DeleteMapping("/deactivate/{courseId}")

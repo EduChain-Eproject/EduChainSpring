@@ -15,11 +15,12 @@ import aptech.project.educhain.data.entities.courses.CourseStatus;
 
 public interface CourseRepository extends JpaRepository<Course, Integer> {
         @Query("SELECT c FROM Course c WHERE c.teacher.id = :teacherId AND " +
-                        "(:search IS NULL OR c.title LIKE %:search%)")
+                "(:search IS NULL OR c.title LIKE %:search%)")
         Page<Course> findByTeacherIdAndTitleContaining(
-                        @org.springframework.data.repository.query.Param("teacherId") int teacherId,
-                        @org.springframework.data.repository.query.Param("search") String search,
-                        Pageable pageable);
+                @org.springframework.data.repository.query.Param("teacherId") int teacherId,
+                @org.springframework.data.repository.query.Param("search") String search,
+                Pageable pageable);
+
 
         @Query("SELECT c FROM Course c JOIN c.categories cat WHERE "
                         + "(LOWER(c.title) LIKE LOWER(CONCAT('%', :search, '%')) OR "
