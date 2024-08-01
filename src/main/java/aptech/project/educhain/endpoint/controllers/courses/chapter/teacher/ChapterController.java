@@ -72,14 +72,11 @@ public class ChapterController {
 
     @PutMapping("/update/{chapterId}")
     public ResponseEntity<?> updateChapter(@PathVariable("chapterId") Integer chapterId,
-            @RequestBody UpdateChapterRequest request, BindingResult rs) {
+          @Valid  @RequestBody UpdateChapterRequest request, BindingResult rs) {
         if (rs.hasErrors()) {
-            StringBuilder errors = new StringBuilder();
-            List<ObjectError> errorList = rs.getAllErrors();
-            for (var err : errorList) {
-                errors.append(err.getDefaultMessage()).append("\n");
-            }
-            return ResponseEntity.badRequest().body(errors.toString());// TODO
+            Map<String, String> errors = new HashMap<>();
+            rs.getFieldErrors().forEach(error -> errors.put(error.getField(), error.getDefaultMessage()));
+            return new ResponseEntity<>(new ApiError(errors), HttpStatus.BAD_REQUEST);
         }
 
         UpdateChapterParams params = modelMapper.map(request, UpdateChapterParams.class);
@@ -91,7 +88,7 @@ public class ChapterController {
             var res = modelMapper.map(chapter.getSuccess(), UpdateChapterResponse.class);
             return ResponseEntity.ok().body(res);
         }
-        return ResponseEntity.badRequest().body(chapter.getFailure().getMessage());
+        return new ResponseEntity<>(new ApiError(chapter.getFailure().getMessage()), HttpStatus.BAD_REQUEST);
     }
 
     @DeleteMapping("/delete/{chapterId}")
