@@ -5,12 +5,14 @@ import java.util.List;
 import java.util.Map;
 
 import aptech.project.educhain.common.result.ApiError;
+import jakarta.validation.Valid;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.ObjectError;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -56,7 +58,7 @@ public class LessonController {
     @PostMapping("/create")
     public ResponseEntity<?> createLesson(
             @RequestParam("file") MultipartFile file,
-            @ModelAttribute CreateLessonRequest request,
+             @Validated @ModelAttribute CreateLessonRequest request,
             BindingResult rs) {
         if (rs.hasErrors()) {
             Map<String, String> errors = new HashMap<>();
@@ -81,18 +83,13 @@ public class LessonController {
 
     @PutMapping("/update/{lessonId}")
     public ResponseEntity<?> updateLesson(@PathVariable("lessonId") Integer lessonId,
-            @RequestParam("file") MultipartFile file,
-            @ModelAttribute UpdateLessonRequest request,
+            @RequestParam("file") MultipartFile file, @Validated @ModelAttribute UpdateLessonRequest request,
             BindingResult rs) {
         if (rs.hasErrors()) {
-            StringBuilder errors = new StringBuilder();
-            List<ObjectError> errorList = rs.getAllErrors();
-            for (var err : errorList) {
-                errors.append(err.getDefaultMessage()).append("\n");
-            }
-            return ResponseEntity.badRequest().body(errors.toString());// TODO
+            Map<String, String> errors = new HashMap<>();
+            rs.getFieldErrors().forEach(error -> errors.put(error.getField(), error.getDefaultMessage()));
+            return new ResponseEntity<>(new ApiError(errors), HttpStatus.BAD_REQUEST);
         }
-
         try {
             // String videoURL = fileUploadService.uploadFile(file);
             // request.setVideoURL(videoURL);
@@ -110,7 +107,7 @@ public class LessonController {
             var res = modelMapper.map(lesson.getSuccess(), UpdateLessonResponse.class);
             return ResponseEntity.ok().body(res);
         }
-        return ResponseEntity.badRequest().body(lesson.getFailure().getMessage());
+        return new ResponseEntity<>(new ApiError(lesson.getFailure().getMessage()), HttpStatus.BAD_REQUEST);
     }
 
     @DeleteMapping("/delete/{lessonId}")

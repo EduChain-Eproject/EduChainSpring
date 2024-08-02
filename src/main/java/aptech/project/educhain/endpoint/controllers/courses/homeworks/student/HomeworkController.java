@@ -1,7 +1,9 @@
 package aptech.project.educhain.endpoint.controllers.courses.homeworks.student;
 
+import aptech.project.educhain.common.result.ApiError;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -33,6 +35,9 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @Tag(name = "StudentHomework")
 @RestController("StudentHomework")
@@ -100,7 +105,11 @@ public class HomeworkController {
             BindingResult rs,
             HttpServletRequest request) {
         var user = iJwtService.getUserByHeaderToken(request.getHeader("Authorization"));
-
+        if (rs.hasErrors()) {
+            Map<String, String> errors = new HashMap<>();
+            rs.getFieldErrors().forEach(error -> errors.put(error.getField(), error.getDefaultMessage()));
+            return new ResponseEntity<>(new ApiError(errors), HttpStatus.BAD_REQUEST);
+        }
         AppResult<UserAnswerDTO> result = userHomeworkService.answerQuestion(
                 new AnswerQuestionParams(user.getId(), homework_id, bodyReq.getQuestionId(), bodyReq.getAnswerId()));
 
@@ -108,7 +117,7 @@ public class HomeworkController {
             return ResponseEntity.ok().body(result.getSuccess()); // TODO: map to res here
         }
 
-        return ResponseEntity.badRequest().body(result.getFailure().getMessage()); // TODO
+        return new ResponseEntity<>(new ApiError(result.getFailure().getMessage()), HttpStatus.BAD_REQUEST);
     }
 
     @Operation(summary = "submit a homework")
