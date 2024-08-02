@@ -36,7 +36,7 @@ public class UserHomework extends BaseModel {
     private Date submissionDate;
 
     @Column(name = "progress")
-    private Double progress; // This can be a percentage or any metric that makes sense
+    private Double progress;
 
     @Column(name = "grade")
     private BigDecimal grade;

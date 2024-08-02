@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class UpdateLessonRequest {
+    private Integer chapterId;
     private String lessonTitle;
     private String description;
     private String videoTitle;

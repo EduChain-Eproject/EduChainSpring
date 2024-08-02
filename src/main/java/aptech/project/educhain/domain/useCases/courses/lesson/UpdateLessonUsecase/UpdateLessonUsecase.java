@@ -10,6 +10,7 @@ import aptech.project.educhain.common.result.AppResult;
 import aptech.project.educhain.common.result.Failure;
 import aptech.project.educhain.common.usecase.Usecase;
 import aptech.project.educhain.data.entities.courses.Lesson;
+import aptech.project.educhain.data.repositories.courses.ChapterRepository;
 import aptech.project.educhain.data.repositories.courses.LessonRepository;
 import aptech.project.educhain.domain.dtos.courses.ChapterDTO;
 import aptech.project.educhain.domain.dtos.courses.LessonDTO;
@@ -19,6 +20,9 @@ public class UpdateLessonUsecase implements Usecase<LessonDTO, UpdateLessonParam
 
     @Autowired
     LessonRepository lessonRepository;
+
+    @Autowired
+    ChapterRepository chapterRepository;
 
     @Autowired
     ModelMapper modelMapper;
@@ -32,10 +36,18 @@ public class UpdateLessonUsecase implements Usecase<LessonDTO, UpdateLessonParam
             }
 
             Lesson lesson = lessonOptional.get();
+
             lesson.setLessonTitle(params.getLessonTitle());
             lesson.setDescription(params.getDescription());
             lesson.setVideoTitle(params.getVideoTitle());
             lesson.setVideoURL(params.getVideoURL());
+
+            var newChapter = chapterRepository.findById(params.getChapterId());
+            if (newChapter.isEmpty()) {
+                return AppResult
+                        .failureResult(new Failure("Error updating lesson: chapter not found" ));
+            }
+            lesson.setChapter(newChapter.get());
 
             Lesson updatedLesson = lessonRepository.saveAndFlush(lesson);
             LessonDTO lessonDTO = modelMapper.map(updatedLesson, LessonDTO.class);
