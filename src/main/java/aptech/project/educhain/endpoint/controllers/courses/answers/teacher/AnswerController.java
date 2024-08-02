@@ -1,7 +1,10 @@
 package aptech.project.educhain.endpoint.controllers.courses.answers.teacher;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import aptech.project.educhain.common.result.ApiError;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -41,12 +44,9 @@ public class AnswerController {
             @Valid @RequestBody UpdateAnswerRequest request,
             BindingResult rs) {
         if (rs.hasErrors()) {
-            StringBuilder errors = new StringBuilder();
-            List<ObjectError> errorList = rs.getAllErrors();
-            for (ObjectError err : errorList) {
-                errors.append(err.getDefaultMessage()).append("\n");
-            }
-            return ResponseEntity.badRequest().body(errors.toString());// TODO
+            Map<String, String> errors = new HashMap<>();
+            rs.getFieldErrors().forEach(error -> errors.put(error.getField(), error.getDefaultMessage()));
+            return new ResponseEntity<>(new ApiError(errors), HttpStatus.BAD_REQUEST);
         }
         UpdateAnswerParam params = modelMapper.map(request, UpdateAnswerParam.class);
         params.setId(id);
@@ -57,6 +57,6 @@ public class AnswerController {
             var res = modelMapper.map(ans.getSuccess(), UpdateAnswerResponse.class);
             return new ResponseEntity<>(res, HttpStatus.CREATED);
         }
-        return new ResponseEntity<>(ans.getFailure().getMessage(), HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(new ApiError(ans.getFailure().getMessage()), HttpStatus.BAD_REQUEST);
     }
 }

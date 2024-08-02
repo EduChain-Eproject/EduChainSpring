@@ -84,12 +84,9 @@ public class QuestionController {
             @Valid @RequestBody UpdateQuestionRequest request,
             BindingResult rs) {
         if (rs.hasErrors()) {
-            StringBuilder errors = new StringBuilder();
-            List<ObjectError> errorList = rs.getAllErrors();
-            for (ObjectError err : errorList) {
-                errors.append(err.getDefaultMessage()).append("\n");
-            }
-            return ResponseEntity.badRequest().body(errors.toString());// TODO
+            Map<String, String> errors = new HashMap<>();
+            rs.getFieldErrors().forEach(error -> errors.put(error.getField(), error.getDefaultMessage()));
+            return new ResponseEntity<>(new ApiError(errors), HttpStatus.BAD_REQUEST);
         }
         UpdateQuestionParam params = modelMapper.map(request, UpdateQuestionParam.class);
         params.setId(id);
@@ -100,9 +97,8 @@ public class QuestionController {
             var res = modelMapper.map(questionDTO.getSuccess(), UpdateQuestionResponse.class);
             return new ResponseEntity<>(res, HttpStatus.CREATED);
         }
-        return new ResponseEntity<>(questionDTO.getFailure().getMessage(), HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(new ApiError(questionDTO.getFailure().getMessage()), HttpStatus.BAD_REQUEST);
     }
-
     @Operation(summary = "Delete question")
     @DeleteMapping("delete/{id}")
     public ResponseEntity<?> deleteQuestion(@PathVariable Integer id) {
