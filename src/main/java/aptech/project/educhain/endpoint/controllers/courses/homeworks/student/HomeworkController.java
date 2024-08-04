@@ -1,6 +1,7 @@
 package aptech.project.educhain.endpoint.controllers.courses.homeworks.student;
 
 import aptech.project.educhain.common.result.ApiError;
+import aptech.project.educhain.endpoint.responses.courses.answer.UserAnswerResponse;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -114,10 +115,11 @@ public class HomeworkController {
                 new AnswerQuestionParams(user.getId(), homework_id, bodyReq.getQuestionId(), bodyReq.getAnswerId()));
 
         if (result.isSuccess()) {
-            return ResponseEntity.ok().body(result.getSuccess()); // TODO: map to res here
+            UserAnswerResponse userAnswerResponse = modelMapper.map(result.getSuccess(),UserAnswerResponse.class);
+            return ResponseEntity.ok().body(result.getSuccess()); // TODO: map to res done
         }
 
-        return new ResponseEntity<>(new ApiError(result.getFailure().getMessage()), HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(new ApiError(result.getFailure().getMessage()), HttpStatus.OK);
     }
 
     @Operation(summary = "submit a homework")
@@ -129,7 +131,7 @@ public class HomeworkController {
                 new SubmitHomeworkParams(user.getId(), homework_id));
 
         if (result.isSuccess()) {
-            return ResponseEntity.ok().body(result.getSuccess()); // TODO: map to res here
+            return ResponseEntity.ok().body(result.getSuccess()); // TODO: map to res done
         }
 
         return ResponseEntity.badRequest().body(result.getFailure().getMessage());
