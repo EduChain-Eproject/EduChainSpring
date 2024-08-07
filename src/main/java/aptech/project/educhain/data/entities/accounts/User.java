@@ -16,6 +16,7 @@ import aptech.project.educhain.data.entities.chats.Message;
 import aptech.project.educhain.data.entities.chats.UserChat;
 import aptech.project.educhain.data.entities.courses.Award;
 import aptech.project.educhain.data.entities.courses.Comment;
+import aptech.project.educhain.data.entities.courses.Course;
 import aptech.project.educhain.data.entities.courses.Homework;
 import aptech.project.educhain.data.entities.courses.UserAnswer;
 import aptech.project.educhain.data.entities.courses.UserCourse;

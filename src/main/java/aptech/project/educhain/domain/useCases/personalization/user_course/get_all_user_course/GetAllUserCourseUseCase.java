@@ -1,11 +1,13 @@
 package aptech.project.educhain.domain.useCases.personalization.user_course.get_all_user_course;
 
+import java.util.List;
 import java.util.stream.Collectors;
 
 import aptech.project.educhain.domain.dtos.courses.CategoryDTO;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
@@ -13,6 +15,8 @@ import org.springframework.stereotype.Component;
 import aptech.project.educhain.common.result.AppResult;
 import aptech.project.educhain.common.result.Failure;
 import aptech.project.educhain.common.usecase.Usecase;
+import aptech.project.educhain.data.entities.accounts.User;
+import aptech.project.educhain.data.entities.courses.Course;
 import aptech.project.educhain.data.entities.courses.UserCourse;
 import aptech.project.educhain.data.repositories.courses.UserCourseRepository;
 import aptech.project.educhain.domain.dtos.courses.UserCourseDTO;

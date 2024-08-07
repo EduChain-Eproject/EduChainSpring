@@ -12,6 +12,7 @@ import aptech.project.educhain.common.result.Failure;
 import aptech.project.educhain.common.usecase.Usecase;
 import aptech.project.educhain.data.entities.accounts.User;
 import aptech.project.educhain.data.entities.courses.Category;
+import aptech.project.educhain.data.entities.courses.Course;
 import aptech.project.educhain.data.repositories.accounts.AuthUserRepository;
 import aptech.project.educhain.data.repositories.courses.UserCourseRepository;
 import aptech.project.educhain.domain.dtos.courses.CategoryDTO;

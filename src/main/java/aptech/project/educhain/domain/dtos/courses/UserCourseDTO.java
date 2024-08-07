@@ -22,5 +22,5 @@ public class UserCourseDTO {
     private Double price;
     private UserCourse.CompletionStatus completionStatus;
     private List<CategoryDTO> categoryList;
-
+    private String avatarPath;
 }

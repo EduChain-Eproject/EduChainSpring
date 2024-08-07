@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import aptech.project.educhain.data.entities.courses.Course;
 import aptech.project.educhain.data.entities.courses.UserCourse;
 
 public interface UserCourseRepository extends JpaRepository<UserCourse, Integer> {

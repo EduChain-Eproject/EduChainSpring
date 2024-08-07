@@ -37,7 +37,6 @@ public class SercurityConfig {
                 .requestMatchers("/ADMIN/**").hasAnyAuthority("ADMIN")
                 .requestMatchers("/STUDENT/**").hasAnyAuthority("STUDENT")
                 .requestMatchers("/CENSOR/**").hasAnyAuthority("CENSOR")
-
                         .requestMatchers("/VideoUrl/**").authenticated()
 
                 .anyRequest().permitAll())

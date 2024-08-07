@@ -3,7 +3,10 @@ package aptech.project.educhain.domain.useCases.payment.order.getOrdersByCourseU
 import aptech.project.educhain.common.result.AppResult;
 import aptech.project.educhain.common.result.Failure;
 import aptech.project.educhain.common.usecase.Usecase;
+import aptech.project.educhain.data.entities.accounts.User;
+import aptech.project.educhain.data.entities.courses.Course;
 import aptech.project.educhain.data.entities.payment.Order;
+import aptech.project.educhain.data.repositories.accounts.AuthUserRepository;
 import aptech.project.educhain.data.repositories.courses.CourseRepository;
 import aptech.project.educhain.data.repositories.payment.OrderRepository;
 import aptech.project.educhain.domain.dtos.payment.OrderDTO;

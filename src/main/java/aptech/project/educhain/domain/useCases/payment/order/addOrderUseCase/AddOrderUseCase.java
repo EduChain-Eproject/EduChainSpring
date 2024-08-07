@@ -2,11 +2,16 @@ package aptech.project.educhain.domain.useCases.payment.order.addOrderUseCase;
 
 import aptech.project.educhain.common.result.Failure;
 import aptech.project.educhain.data.entities.accounts.User;
+import aptech.project.educhain.data.entities.courses.Course;
+import aptech.project.educhain.data.entities.courses.Homework;
+import aptech.project.educhain.data.entities.courses.Lesson;
 import aptech.project.educhain.data.entities.payment.Order;
 import aptech.project.educhain.data.repositories.accounts.AuthUserRepository;
 import aptech.project.educhain.data.repositories.courses.CourseRepository;
 import aptech.project.educhain.data.repositories.payment.OrderRepository;
+import aptech.project.educhain.domain.dtos.courses.HomeworkDTO;
 import aptech.project.educhain.domain.dtos.payment.OrderDTO;
+import org.aspectj.weaver.ast.Or;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -15,6 +20,7 @@ import aptech.project.educhain.common.result.AppResult;
 import aptech.project.educhain.common.usecase.Usecase;
 
 import java.math.BigDecimal;
+import java.util.Optional;
 
 
 @Component

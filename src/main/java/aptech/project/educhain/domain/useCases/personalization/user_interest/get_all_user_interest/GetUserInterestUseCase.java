@@ -4,6 +4,7 @@ import aptech.project.educhain.common.result.AppResult;
 import aptech.project.educhain.common.result.Failure;
 import aptech.project.educhain.common.usecase.Usecase;
 import aptech.project.educhain.data.entities.accounts.UserInterest;
+import aptech.project.educhain.data.entities.courses.Course;
 import aptech.project.educhain.data.repositories.accounts.AuthUserRepository;
 import aptech.project.educhain.data.repositories.accounts.UserInterestRepository;
 
@@ -15,6 +16,7 @@ import org.springframework.data.domain.*;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
 public class GetUserInterestUseCase implements Usecase<Page<UserInterestsDTO>, GetUserInterestByUserIdParams> {

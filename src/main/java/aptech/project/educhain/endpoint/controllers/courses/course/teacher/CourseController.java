@@ -17,14 +17,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.ObjectError;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import aptech.project.educhain.common.result.AppResult;
 import aptech.project.educhain.data.entities.courses.CourseStatus;
@@ -55,7 +48,7 @@ public class CourseController {
 
 
     @PostMapping("create")
-    public ResponseEntity<?> createCourse(@Valid @RequestBody CreateCourseRequest request, BindingResult rs, HttpServletRequest httprequest) {
+    public ResponseEntity<?> createCourse(@Valid @ModelAttribute CreateCourseRequest request, BindingResult rs, HttpServletRequest httprequest) {
         if (rs.hasErrors()) {
             Map<String, String> errors = new HashMap<>();
             rs.getFieldErrors().forEach(error -> errors.put(error.getField(), error.getDefaultMessage()));
@@ -112,8 +105,8 @@ public class CourseController {
     }
 
     @PutMapping("/update/{courseId}")
-    public ResponseEntity<?> updateCourse(@PathVariable int courseId,@Valid @RequestBody UpdateCourseRequest request, BindingResult rs) {
-        if (rs.hasErrors()) {
+    public ResponseEntity<?> updateCourse(@PathVariable int courseId,@Valid @ModelAttribute UpdateCourseRequest request, BindingResult rs) {
+            if (rs.hasErrors()) {
             Map<String, String> errors = new HashMap<>();
             rs.getFieldErrors().forEach(error -> errors.put(error.getField(), error.getDefaultMessage()));
             return new ResponseEntity<>(new ApiError(errors), HttpStatus.BAD_REQUEST);

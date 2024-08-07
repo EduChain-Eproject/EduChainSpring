@@ -9,11 +9,13 @@ import jakarta.validation.constraints.Positive;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.web.multipart.MultipartFile;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 public class UpdateCourseRequest {
+    @NotEmpty(message = "category is required")
     private List<Integer> categoryIds;
     @NotEmpty(message = "title is required")
     private String title;
@@ -23,4 +25,5 @@ public class UpdateCourseRequest {
     @Positive(message = "Price must be greater than zero")
     private Double price;
     private CourseStatus status;
+    private MultipartFile avatarCourse;
 }

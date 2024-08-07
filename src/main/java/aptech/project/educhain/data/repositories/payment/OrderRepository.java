@@ -1,6 +1,7 @@
 package aptech.project.educhain.data.repositories.payment;
 
 import aptech.project.educhain.data.entities.accounts.User;
+import aptech.project.educhain.data.entities.courses.Course;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import aptech.project.educhain.data.entities.payment.Order;
