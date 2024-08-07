@@ -10,7 +10,6 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import aptech.project.educhain.data.entities.courses.Category;
-import aptech.project.educhain.data.entities.courses.Course;
 import aptech.project.educhain.data.entities.courses.CourseStatus;
 
 public interface CourseRepository extends JpaRepository<Course, Integer> {

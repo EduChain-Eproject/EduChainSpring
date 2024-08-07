@@ -4,7 +4,6 @@ import java.math.BigDecimal;
 
 import aptech.project.educhain.data.entities.BaseModel;
 import aptech.project.educhain.data.entities.accounts.User;
-import aptech.project.educhain.data.entities.courses.Course;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;

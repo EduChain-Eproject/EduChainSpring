@@ -12,7 +12,6 @@ import aptech.project.educhain.common.result.AppResult;
 import aptech.project.educhain.common.result.Failure;
 import aptech.project.educhain.common.usecase.Usecase;
 import aptech.project.educhain.data.entities.courses.Chapter;
-import aptech.project.educhain.data.entities.courses.Course;
 import aptech.project.educhain.data.repositories.courses.ChapterRepository;
 import aptech.project.educhain.data.repositories.courses.CourseRepository;
 import aptech.project.educhain.domain.dtos.courses.ChapterDTO;

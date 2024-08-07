@@ -2,8 +2,10 @@ package aptech.project.educhain.domain.useCases.courses.lesson.CreateLessonUseca
 
 import java.util.Optional;
 
+import aptech.project.educhain.data.serviceImpl.common.UploadVideoServiceImpl;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import aptech.project.educhain.common.result.AppResult;
@@ -18,7 +20,10 @@ import aptech.project.educhain.domain.dtos.courses.LessonDTO;
 
 @Component
 public class CreateLessonUsecase implements Usecase<LessonDTO, CreateLessonParams> {
-
+    @Value("${file.video.upload-dir}")
+    private String uploadDir;
+    @Autowired
+    private UploadVideoServiceImpl uploadVideoService;
     @Autowired
     LessonRepository lessonRepository;
 
@@ -38,7 +43,8 @@ public class CreateLessonUsecase implements Usecase<LessonDTO, CreateLessonParam
 
             Lesson lesson = modelMapper.map(params, Lesson.class);
             lesson.setChapter(chapterOptional.get());
-
+            String fileName = uploadVideoService.uploadVideo(params.getVideoFile());
+            lesson.setVideoURL(fileName);
             Lesson savedLesson = lessonRepository.saveAndFlush(lesson);
             LessonDTO lessonDTO = modelMapper.map(savedLesson, LessonDTO.class);
 

@@ -6,7 +6,6 @@ import aptech.project.educhain.common.usecase.Usecase;
 import aptech.project.educhain.data.entities.accounts.User;
 import aptech.project.educhain.data.entities.accounts.UserInterest;
 import aptech.project.educhain.data.entities.courses.Category;
-import aptech.project.educhain.data.entities.courses.Course;
 import aptech.project.educhain.data.repositories.accounts.AuthUserRepository;
 import aptech.project.educhain.data.repositories.accounts.UserInterestRepository;
 import aptech.project.educhain.data.repositories.courses.CourseCategoryRepository;

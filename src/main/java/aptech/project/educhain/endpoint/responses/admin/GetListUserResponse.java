@@ -1,10 +1,6 @@
-package aptech.project.educhain.domain.dtos.accounts;
-
-import java.util.List;
+package aptech.project.educhain.endpoint.responses.admin;
 
 import aptech.project.educhain.data.entities.accounts.Role;
-import aptech.project.educhain.domain.dtos.courses.AwardDTO;
-import aptech.project.educhain.domain.dtos.courses.UserHomeworkDTO;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -12,7 +8,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class UserDTO {
+public class GetListUserResponse {
     private int id;
     private String firstName;
     private String lastName;
@@ -22,8 +18,4 @@ public class UserDTO {
     private Role role;
     private String email;
     private Boolean isActive;
-
-    private List<AwardDTO> userAwardDtos;
-    private List<UserHomeworkDTO> userHomeworkDtos;
-
 }

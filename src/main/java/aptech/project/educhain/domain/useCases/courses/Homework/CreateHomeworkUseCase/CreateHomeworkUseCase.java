@@ -4,14 +4,11 @@ import aptech.project.educhain.common.result.AppResult;
 import aptech.project.educhain.common.result.Failure;
 import aptech.project.educhain.common.usecase.Usecase;
 import aptech.project.educhain.data.entities.accounts.User;
-import aptech.project.educhain.data.entities.courses.Course;
 import aptech.project.educhain.data.entities.courses.Homework;
 import aptech.project.educhain.data.entities.courses.Lesson;
 import aptech.project.educhain.data.repositories.accounts.AuthUserRepository;
 import aptech.project.educhain.data.repositories.courses.HomeworkRepository;
 import aptech.project.educhain.data.repositories.courses.LessonRepository;
-import aptech.project.educhain.domain.dtos.courses.CategoryDTO;
-import aptech.project.educhain.domain.dtos.courses.CourseDTO;
 import aptech.project.educhain.domain.dtos.courses.HomeworkDTO;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
@@ -19,7 +16,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Component
 public class CreateHomeworkUseCase implements Usecase<HomeworkDTO, CreateHomeworkParam> {

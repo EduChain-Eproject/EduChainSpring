@@ -19,7 +19,6 @@ import com.paypal.api.payments.Payment;
 import com.paypal.base.rest.PayPalRESTException;
 
 import aptech.project.educhain.data.entities.accounts.User;
-import aptech.project.educhain.data.entities.courses.Course;
 import aptech.project.educhain.data.repositories.courses.CourseRepository;
 import aptech.project.educhain.data.serviceImpl.paypal.OrderService;
 import aptech.project.educhain.data.serviceImpl.paypal.PaypalService;
