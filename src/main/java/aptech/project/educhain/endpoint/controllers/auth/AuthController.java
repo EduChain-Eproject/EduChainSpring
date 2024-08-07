@@ -75,11 +75,15 @@ public class AuthController {
             return new ResponseEntity<>(apiError, HttpStatus.BAD_REQUEST);
         }
 
+        if (user.getRole().name().equals("TEACHER") && !user.getIsActive()) {
+            ApiError apiError = new ApiError("You are teacher , your account need to be accepted by admin");
+            return new ResponseEntity<>(apiError, HttpStatus.BAD_REQUEST);
+        }
+
         if (!user.getIsActive()) {
             ApiError apiError = new ApiError("You have been blocked. Please contact our admin for more details");
             return new ResponseEntity<>(apiError, HttpStatus.BAD_REQUEST);
         }
-
         JwtResponse jwtResponse = new JwtResponse();
         jwtResponse.setAccessToken(iJwtService.generateToken(user));
         jwtResponse.setRefreshToken(iJwtService.generateRefreshToken(user.getId()));

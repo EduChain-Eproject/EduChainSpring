@@ -3,6 +3,7 @@ package aptech.project.educhain.data.serviceImpl.accounts;
 import java.security.SecureRandom;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Random;
 
@@ -78,16 +79,21 @@ public class AuthService implements IAuthService {
         try {
             User user = new User();
             user.setEmail(reg.getEmail());
-            var encode = passwordEncoder.encode(reg.getPassword());
             user.setPassword(passwordEncoder.encode(reg.getPassword()));
             user.setFirstName(reg.getFirstName());
             user.setLastName(reg.getLastName());
             user.setPhone(reg.getPhone());
             user.setAddress(reg.getAddress());
-            user.setRole(Role.STUDENT);
-            user.setIsActive(true);
             user.setIsVerify(false);
             user.setAvatarPath(defaultAvatar);
+            if(Objects.equals(reg.getAccountType(), "TEACHER")){
+                user.setIsActive(false);
+                user.setRole(Role.TEACHER);
+            }
+            else {
+                user.setIsActive(true);
+                user.setRole(Role.STUDENT);
+            }
             authUserRepository.save(user);
             User newUser = authUserRepository.findUserWithId(user.getId());
             return newUser;

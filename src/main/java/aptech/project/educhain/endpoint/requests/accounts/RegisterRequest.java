@@ -25,4 +25,6 @@ public class RegisterRequest {
     @NotEmpty(message = "Password is required")
     @Pattern(regexp = "^(?=.*[A-Z])(?=.*\\d)[A-Za-z\\d]{7,}$", message = "Password must have at least 7 characters, at least 1 uppercase letter, at least 1 digit, and no special characters")
     private String password;
+    @NotEmpty(message = "accountType is required")
+    private String accountType;
 }
