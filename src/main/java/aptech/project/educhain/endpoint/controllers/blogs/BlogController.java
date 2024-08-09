@@ -3,33 +3,25 @@ package aptech.project.educhain.endpoint.controllers.blogs;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
+import aptech.project.educhain.common.result.ApiError;
 import aptech.project.educhain.data.entities.blogs.BlogComment;
 import aptech.project.educhain.data.entities.blogs.UserBlogVote;
 import aptech.project.educhain.domain.dtos.blogs.BlogCommentDTO;
 import aptech.project.educhain.domain.dtos.blogs.UserBlogVoteDTO;
+import aptech.project.educhain.endpoint.requests.blogs.CreateBlogReq;
 import aptech.project.educhain.endpoint.requests.blogs.VoteRequest;
+import jakarta.validation.Valid;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import aptech.project.educhain.data.entities.accounts.User;
@@ -138,25 +130,26 @@ public class BlogController {
     }
 
     @Operation(summary = "Add new blog")
-    @PostMapping(value = "", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<?> create(@RequestParam("title") String title, @RequestParam("userId") Integer userId,
-            @RequestParam("blogCategoryId") Integer blogCategoryId, @RequestParam("blogText") String blogText,
-            @RequestParam("photo") MultipartFile photo) {
-        Map<String, String> errors = service.validateFields(title, userId, blogCategoryId, blogText);
-        if (!errors.isEmpty()) {
-            return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
+    @PostMapping(value = "/create", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<?> create(@Valid @ModelAttribute CreateBlogReq req,BindingResult rs) {
+        if (rs.hasErrors()) {
+            Map<String, String> errors = new HashMap<>();
+            rs.getFieldErrors().forEach(error -> errors.put(error.getField(), error.getDefaultMessage()));
+
+            ApiError apiError = new ApiError(errors);
+            return new ResponseEntity<>(apiError, HttpStatus.BAD_REQUEST);
         }
 
         try {
-            String fileName = uploadPhotoService.uploadPhoto(photo);
+            String fileName = uploadPhotoService.uploadPhoto(req.getPhoto());
             Blog blog = new Blog();
-            User user = userService.findUserById(userId);
-            BlogCategory category = blogCategoryService.findBlogCategory(blogCategoryId);
+            User user = userService.findUserById(req.getId());
+            BlogCategory category = blogCategoryService.findBlogCategory(req.getBlogCategoryId());
 
             blog.setUser(user);
-            blog.setTitle(title);
+            blog.setTitle(req.getTitle());
             blog.setBlogCategory(category);
-            blog.setBlogText(blogText);
+            blog.setBlogText(req.getBlogText());
             blog.setPhoto(fileName);
 
             Blog createdBlog = service.create(blog);
@@ -165,7 +158,9 @@ public class BlogController {
 
             return new ResponseEntity<>(createdBlogDTO, HttpStatus.CREATED);
         } catch (Exception e) {
-            return new ResponseEntity<>("An error occurred: " + e.getMessage(), HttpStatus.BAD_REQUEST);
+            ApiError apiError = new ApiError("Error when creating blog");
+            return new ResponseEntity<>(apiError, HttpStatus.BAD_REQUEST);
+
         }
     }
 
@@ -201,23 +196,24 @@ public class BlogController {
 
     @Operation(summary = "Edit blog")
     @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<?> update(@PathVariable Integer id, @RequestParam("title") String title,
-            @RequestParam("blogCategoryId") Integer blogCategoryId, @RequestParam("blogText") String blogText,
-            @RequestParam("photo") MultipartFile photo) {
-        Map<String, String> errors = service.validateFieldsUpdate(title, blogCategoryId, blogText);
-        if (!errors.isEmpty()) {
-            return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
+    public ResponseEntity<?> update(@Valid @ModelAttribute CreateBlogReq req, BindingResult rs) {
+        if (rs.hasErrors()) {
+            Map<String, String> errors = new HashMap<>();
+            rs.getFieldErrors().forEach(error -> errors.put(error.getField(), error.getDefaultMessage()));
+
+            ApiError apiError = new ApiError(errors);
+            return new ResponseEntity<>(apiError, HttpStatus.BAD_REQUEST);
         }
 
         try {
-            String fileName = uploadPhotoService.uploadPhoto(photo);
+            String fileName = uploadPhotoService.uploadPhoto(req.getPhoto());
 
-            Blog blog = service.findOneBlog(id);
-            BlogCategory category = blogCategoryService.findBlogCategory(blogCategoryId);
+            Blog blog = service.findOneBlog(req.getId());
+            BlogCategory category = blogCategoryService.findBlogCategory(req.getBlogCategoryId());
 
-            blog.setTitle(title);
+            blog.setTitle(req.getTitle());
             blog.setBlogCategory(category);
-            blog.setBlogText(blogText);
+            blog.setBlogText(req.getBlogText());
 
             String oldPhoto = blog.getPhoto();
             String photoFile = fileName != null ? fileName : oldPhoto;
@@ -229,13 +225,14 @@ public class BlogController {
                 Files.deleteIfExists(path.resolve(oldPhoto));
             }
 
-            Blog updatedBlog = service.update(id, blog);
+            Blog updatedBlog = service.update(req.getId(), blog);
 
             BlogDTO updatedBlogDTO = modelMapper.map(updatedBlog, BlogDTO.class);
 
             return new ResponseEntity<>(updatedBlogDTO, HttpStatus.OK);
         } catch (Exception e) {
-            return new ResponseEntity<>("An error occurred: " + e.getMessage(), HttpStatus.BAD_REQUEST);
+            ApiError apiError = new ApiError("Error when creating blog");
+            return new ResponseEntity<>(apiError, HttpStatus.BAD_REQUEST);
         }
     }
 

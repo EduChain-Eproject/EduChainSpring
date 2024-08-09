@@ -1,21 +1,22 @@
 package aptech.project.educhain.endpoint.controllers.blogs;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
+import aptech.project.educhain.common.result.ApiError;
 import aptech.project.educhain.domain.dtos.accounts.UserDTO;
+import aptech.project.educhain.endpoint.requests.blogs.BlogCommentReq;
+import jakarta.validation.Valid;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import aptech.project.educhain.data.entities.accounts.User;
@@ -86,20 +87,24 @@ public class BlogCommentController {
 
 
     @Operation(summary = "Add new comment")
-    @PostMapping(value = "", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<?> create(@RequestParam("text") String text,
-            @RequestParam("userId") Integer userId,
-            @RequestParam("parentComment") String commentId,
-            @RequestParam("blogId") Integer blogId) {
+    @PostMapping(value = "create", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<?> create(@Valid @ModelAttribute BlogCommentReq req, BindingResult rs) {
+        if (rs.hasErrors()) {
+            Map<String, String> errors = new HashMap<>();
+            rs.getFieldErrors().forEach(error -> errors.put(error.getField(), error.getDefaultMessage()));
+
+            ApiError apiError = new ApiError(errors);
+            return new ResponseEntity<>(apiError, HttpStatus.BAD_REQUEST);
+        }
         try {
             BlogComment comment = new BlogComment();
-            User user = userService.findUserById(userId);
-            Blog blog = blogService.findOneBlog(blogId);
+            User user = userService.findUserById(req.getUserId());
+            Blog blog = blogService.findOneBlog(req.getBlogId());
             BlogComment parent = null;
 
-            if (commentId != null && !commentId.equals("null") && !commentId.isEmpty()) {
+            if (req.getCommentId() != null) {
                 try {
-                    parent = blogCommentService.findComment(Integer.parseInt(commentId));
+                    parent = blogCommentService.findComment(req.getCommentId());
                 } catch (NumberFormatException e) {
                     return new ResponseEntity<>("Invalid comment ID", HttpStatus.BAD_REQUEST);
                 }
@@ -107,7 +112,7 @@ public class BlogCommentController {
 
             comment.setUser(user);
             comment.setBlog(blog);
-            comment.setText(text);
+            comment.setText(req.getText());
             comment.setParentComment(parent);
 
             BlogComment createdComment = blogCommentService.addComment(comment);
@@ -116,7 +121,53 @@ public class BlogCommentController {
 
             return new ResponseEntity<>(createdBlogCommentDTO, HttpStatus.CREATED);
         } catch (Exception e) {
-            return new ResponseEntity<>("An error occurred: " + e.getMessage(), HttpStatus.BAD_REQUEST);
+            ApiError apiError = new ApiError("Error when add comment");
+            return new ResponseEntity<>(apiError, HttpStatus.BAD_REQUEST);
+            }
+    }
+
+    @Operation(summary = "update comment")
+    @PostMapping(value = "update", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<?> update(@Valid @ModelAttribute BlogCommentReq req, BindingResult rs) {
+        if (rs.hasErrors()) {
+            Map<String, String> errors = new HashMap<>();
+            rs.getFieldErrors().forEach(error -> errors.put(error.getField(), error.getDefaultMessage()));
+
+            ApiError apiError = new ApiError(errors);
+            return new ResponseEntity<>(apiError, HttpStatus.BAD_REQUEST);
+        }
+        try {
+            BlogComment existingComment = blogCommentService.findComment(req.getCommentId());
+            if (existingComment == null) {
+                return new ResponseEntity<>("Comment not found", HttpStatus.NOT_FOUND);
+            }
+
+            User user = userService.findUserById(req.getUserId());
+            Blog blog = blogService.findOneBlog(req.getBlogId());
+            BlogComment parent = null;
+
+            if (req.getCommentId() != null) {
+                try {
+                    parent = blogCommentService.findComment(req.getCommentId());
+                } catch (NumberFormatException e) {
+                    return new ResponseEntity<>("Invalid comment ID", HttpStatus.BAD_REQUEST);
+                }
+            }
+
+
+            existingComment.setUser(user);
+            existingComment.setBlog(blog);
+            existingComment.setText(req.getText());
+            existingComment.setParentComment(parent);
+
+            BlogComment updatedComment = blogCommentService.editComment(req.getCommentId(),existingComment.getParentComment());
+
+            BlogCommentDTO updatedBlogCommentDTO = modelMapper.map(updatedComment, BlogCommentDTO.class);
+
+            return new ResponseEntity<>(updatedBlogCommentDTO, HttpStatus.OK);
+        } catch (Exception e) {
+            ApiError apiError = new ApiError("Error when edit comment");
+            return new ResponseEntity<>(apiError, HttpStatus.BAD_REQUEST);
         }
     }
 }

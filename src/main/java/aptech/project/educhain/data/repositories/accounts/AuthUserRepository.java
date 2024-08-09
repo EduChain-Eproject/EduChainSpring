@@ -18,9 +18,8 @@ public interface AuthUserRepository extends JpaRepository<User,Integer> {
    @Query("SELECT u FROM User u WHERE u.email = :email")
    User findUserByEmail(@Param("email") String email);
 
-   @Query("SELECT u FROM User u WHERE (LOWER(u.firstName) LIKE LOWER(CONCAT('%', :name, '%'))" +
-           " OR LOWER(u.lastName) LIKE LOWER(CONCAT('%', :name, '%'))) AND u.role <> 'ADMIN'")
-   Page<User> findByNameContainingIgnoreCase(@Param("name") String name, Pageable pageable);
+   @Query("SELECT u FROM User u WHERE u.email LIKE LOWER(CONCAT('%', :email, '%')) AND u.role <> 'ADMIN'")
+   Page<User> findByNameContainingIgnoreCase(@Param("email") String email, Pageable pageable);
 
 
 

@@ -27,7 +27,7 @@ public class GetListUserUseCase implements Usecase<Page<UserDTO>,GetListUserPara
     public AppResult<Page<UserDTO>> execute(GetListUserParams params) {
         try {
             Pageable pageable = PageRequest.of(params.getPage(), params.getSize());
-            Page<User> users = authUserRepository.findByNameContainingIgnoreCase(params.getNameSearch(), pageable);
+            Page<User> users = authUserRepository.findByNameContainingIgnoreCase(params.getEmailSearch(), pageable);
 
             List<UserDTO> userDTOList = users.getContent()
                     .stream()

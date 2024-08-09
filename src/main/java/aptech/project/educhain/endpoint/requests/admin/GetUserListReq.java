@@ -4,7 +4,7 @@ import lombok.Data;
 
 @Data
 public class GetUserListReq {
-    private String nameSearch;
+    private String emailSearch;
     private int page;
     private int size;
 }
