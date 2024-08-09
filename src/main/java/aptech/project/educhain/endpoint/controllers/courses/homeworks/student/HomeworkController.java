@@ -32,6 +32,7 @@ import aptech.project.educhain.domain.useCases.courses.UserHomework.AnswerQuesti
 import aptech.project.educhain.domain.useCases.courses.UserHomework.GetUserHomeworkUseCase.GetUserHomeworkParams;
 import aptech.project.educhain.domain.useCases.courses.UserHomework.SubmitHomeworkUseCase.SubmitHomeworkParams;
 import aptech.project.educhain.endpoint.requests.Homework.AnswerAQuestionReq;
+import aptech.project.educhain.endpoint.responses.courses.answer.UserAnswerResponse;
 import aptech.project.educhain.endpoint.responses.courses.homework.GetHomeworkAndUserHomeworkResponse;
 import aptech.project.educhain.endpoint.responses.courses.homework.SubmitHomeworkResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -115,10 +116,11 @@ public class HomeworkController {
                 new AnswerQuestionParams(user.getId(), homework_id, bodyReq.getQuestionId(), bodyReq.getAnswerId()));
 
         if (result.isSuccess()) {
-            return ResponseEntity.ok().body(result.getSuccess()); // TODO: map to res here
+            UserAnswerResponse userAnswerResponse = modelMapper.map(result.getSuccess(),UserAnswerResponse.class);
+            return ResponseEntity.ok().body(result.getSuccess()); // TODO: map to res done
         }
 
-        return new ResponseEntity<>(new ApiError(result.getFailure().getMessage()), HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(new ApiError(result.getFailure().getMessage()), HttpStatus.OK);
     }
 
     @Operation(summary = "submit a homework")
@@ -130,7 +132,7 @@ public class HomeworkController {
                 new SubmitHomeworkParams(user.getId(), homework_id));
 
         if (result.isSuccess()) {
-            return ResponseEntity.ok().body(result.getSuccess()); // TODO: map to res here
+            return ResponseEntity.ok().body(result.getSuccess()); // TODO: map to res done
         }
 
         return ResponseEntity.badRequest().body(result.getFailure().getMessage());

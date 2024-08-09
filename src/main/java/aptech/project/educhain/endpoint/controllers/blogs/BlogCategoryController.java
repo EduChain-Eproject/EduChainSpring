@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import aptech.project.educhain.common.result.ApiError;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -56,16 +57,11 @@ public class BlogCategoryController {
     @PostMapping("")
     public ResponseEntity<?> create(@Valid @RequestBody BlogCategoryRequest rq, BindingResult rs) {
         if (rs.hasErrors()) {
-            Map<String, String> errors = rs.getFieldErrors().stream()
-                    .collect(Collectors.toMap(FieldError::getField, FieldError::getDefaultMessage));
-            return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
-        }
+            Map<String, String> errors = new HashMap<>();
+            rs.getFieldErrors().forEach(error -> errors.put(error.getField(), error.getDefaultMessage()));
 
-        if (service.isExist(rq.getCategoryName())) {
-            // Nếu category đã tồn tại, trả về ResponseEntity với thông báo lỗi thích hợp
-            Map<String, String> errorResponse = new HashMap<>();
-            errorResponse.put("error", "Category already exists");
-            return ResponseEntity.status(HttpStatus.CONFLICT).body(errorResponse);
+            ApiError apiError = new ApiError(errors);
+            return new ResponseEntity<>(apiError, HttpStatus.BAD_REQUEST);
         }
 
         BlogCategory category = new BlogCategory();
@@ -73,18 +69,19 @@ public class BlogCategoryController {
 
         BlogCategory createdCategory = service.create(category);
         BlogCategoryDTO blogCategoryDTO = modelMapper.map(createdCategory, BlogCategoryDTO.class);
-        return ResponseEntity.status(HttpStatus.CREATED).body(blogCategoryDTO);
+        return new ResponseEntity<>(blogCategoryDTO, HttpStatus.OK);
     }
 
     @Operation(summary = "Edit category")
     @PutMapping("/{id}")
-    public ResponseEntity<?> update(@PathVariable Integer id, @RequestBody BlogCategory category) {
-        if (service.isExist(category.getCategoryName())) {
-            Map<String, String> errorResponse = new HashMap<>();
-            errorResponse.put("error", "Category already exists");
-            return ResponseEntity.status(HttpStatus.CONFLICT).body(errorResponse);
-        }
+    public ResponseEntity<?> update( @Valid @RequestBody BlogCategory category,@PathVariable Integer id,BindingResult rs) {
+        if (rs.hasErrors()) {
+            Map<String, String> errors = new HashMap<>();
+            rs.getFieldErrors().forEach(error -> errors.put(error.getField(), error.getDefaultMessage()));
 
+            ApiError apiError = new ApiError(errors);
+            return new ResponseEntity<>(apiError, HttpStatus.BAD_REQUEST);
+        }
         BlogCategory cate = service.update(id, category);
         return ResponseEntity.status(HttpStatus.OK).body(cate);
     }

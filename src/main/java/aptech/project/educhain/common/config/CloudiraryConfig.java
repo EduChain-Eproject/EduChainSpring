@@ -22,6 +22,4 @@ public class CloudiraryConfig {
         config.put("api_secret","1ALx_UFR70Sin9_zEsZYKrQPR14");
         return new Cloudinary(config);
     }
-
-
 }

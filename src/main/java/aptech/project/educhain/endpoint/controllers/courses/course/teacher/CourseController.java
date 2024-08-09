@@ -112,7 +112,8 @@ public class CourseController {
     }
 
     @PutMapping("/update/{courseId}")
-    public ResponseEntity<?> updateCourse(@PathVariable int courseId, @Valid @RequestBody UpdateCourseRequest request, BindingResult rs) {
+    public ResponseEntity<?> updateCourse(@PathVariable int courseId, @Valid @RequestBody UpdateCourseRequest request,
+            BindingResult rs) {
         if (rs.hasErrors()) {
             Map<String, String> errors = new HashMap<>();
             rs.getFieldErrors().forEach(error -> errors.put(error.getField(), error.getDefaultMessage()));
