@@ -1,6 +1,8 @@
 package aptech.project.educhain.endpoint.controllers.courses.homeworks.student;
 
-import aptech.project.educhain.common.result.ApiError;
+import java.util.HashMap;
+import java.util.Map;
+
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -14,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import aptech.project.educhain.common.result.ApiError;
 import aptech.project.educhain.common.result.AppResult;
 import aptech.project.educhain.data.serviceImpl.courses.AwardService;
 import aptech.project.educhain.data.serviceImpl.courses.HomeworkService;
@@ -36,14 +39,12 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 
-import java.util.HashMap;
-import java.util.Map;
-
 @Tag(name = "StudentHomework")
 @RestController("StudentHomework")
 @CrossOrigin
 @RequestMapping("/STUDENT/api/homework")
 public class HomeworkController {
+
     @Autowired
     HomeworkService homeworkService;
 
@@ -76,7 +77,7 @@ public class HomeworkController {
 
                 var userHomework = result2.getSuccess();
 
-                if (userHomework.getUserAnswerDtos() != null && userHomework.getUserAnswerDtos().size() > 0) {
+                if (userHomework.getUserAnswerDtos() != null && !userHomework.getUserAnswerDtos().isEmpty()) {
                     homework.mergeUserAnswersToQuestions(userHomework.getUserAnswerDtos());
                 }
 

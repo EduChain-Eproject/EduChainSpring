@@ -27,6 +27,7 @@ import aptech.project.educhain.domain.dtos.courses.CourseDTO;
 import aptech.project.educhain.domain.services.accounts.IAuthService;
 import aptech.project.educhain.domain.services.accounts.IJwtService;
 import aptech.project.educhain.domain.useCases.courses.course.CreateCourseUsecase.CreateCourseParams;
+import aptech.project.educhain.domain.useCases.courses.course.GetCourseDetailUsecase.GetCourseDetailParams;
 import aptech.project.educhain.domain.useCases.courses.course.GetCoursesByTeacherUsecase.GetCoursesByTeacherParams;
 import aptech.project.educhain.domain.useCases.courses.course.UpdateCourseUsecase.UpdateCourseParams;
 import aptech.project.educhain.endpoint.requests.courses.course.teacher.CourseListRequest;
@@ -41,6 +42,7 @@ import jakarta.validation.Valid;
 @RestController
 @RequestMapping("/TEACHER/api/course")
 public class CourseController {
+
     @Autowired
     private CourseService courseService;
     @Autowired
@@ -101,7 +103,7 @@ public class CourseController {
 
     @GetMapping("/detail/{courseId}")
     public ResponseEntity<?> getCourseDetail(@PathVariable("courseId") Integer courseId) {
-        AppResult<CourseDTO> result = courseService.getCourseDetail(courseId);
+        AppResult<CourseDTO> result = courseService.getCourseDetail(new GetCourseDetailParams(null, courseId));
         if (result.isSuccess()) {
             var res = modelMapper.map(result.getSuccess(), GetCourseDetailResponse.class);
             return ResponseEntity.ok().body(res);
@@ -110,7 +112,7 @@ public class CourseController {
     }
 
     @PutMapping("/update/{courseId}")
-    public ResponseEntity<?> updateCourse(@PathVariable int courseId,@Valid @RequestBody UpdateCourseRequest request, BindingResult rs) {
+    public ResponseEntity<?> updateCourse(@PathVariable int courseId, @Valid @RequestBody UpdateCourseRequest request, BindingResult rs) {
         if (rs.hasErrors()) {
             Map<String, String> errors = new HashMap<>();
             rs.getFieldErrors().forEach(error -> errors.put(error.getField(), error.getDefaultMessage()));

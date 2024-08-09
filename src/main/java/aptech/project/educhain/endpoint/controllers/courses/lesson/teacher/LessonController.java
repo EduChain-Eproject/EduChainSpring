@@ -1,17 +1,13 @@
 package aptech.project.educhain.endpoint.controllers.courses.lesson.teacher;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
-import aptech.project.educhain.common.result.ApiError;
-import jakarta.validation.Valid;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.ObjectError;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -24,10 +20,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import aptech.project.educhain.common.result.ApiError;
 import aptech.project.educhain.common.result.AppResult;
 import aptech.project.educhain.data.serviceImpl.courses.LessonService;
 import aptech.project.educhain.domain.dtos.courses.LessonDTO;
 import aptech.project.educhain.domain.useCases.courses.lesson.CreateLessonUsecase.CreateLessonParams;
+import aptech.project.educhain.domain.useCases.courses.lesson.GetLessonDetailUsecase.GetLessonDetailParams;
 import aptech.project.educhain.domain.useCases.courses.lesson.UpdateLessonUsecase.UpdateLessonParams;
 import aptech.project.educhain.endpoint.requests.courses.lesson.teacher.CreateLessonRequest;
 import aptech.project.educhain.endpoint.requests.courses.lesson.teacher.UpdateLessonRequest;
@@ -47,7 +45,7 @@ public class LessonController {
 
     @GetMapping("/detail/{lessonId}")
     public ResponseEntity<?> getLessonDetail(@PathVariable("lessonId") Integer lessonId) {
-        AppResult<LessonDTO> result = lessonService.getLessonDetail(lessonId);
+        AppResult<LessonDTO> result = lessonService.getLessonDetail(new GetLessonDetailParams(null, lessonId));
         if (result.isSuccess()) {
             var res = modelMapper.map(result.getSuccess(), GetLessonDetailResponse.class);
             return ResponseEntity.ok().body(res);
@@ -58,7 +56,7 @@ public class LessonController {
     @PostMapping("/create")
     public ResponseEntity<?> createLesson(
             @RequestParam("file") MultipartFile file,
-             @Validated @ModelAttribute CreateLessonRequest request,
+            @Validated @ModelAttribute CreateLessonRequest request,
             BindingResult rs) {
         if (rs.hasErrors()) {
             Map<String, String> errors = new HashMap<>();
