@@ -1,31 +1,28 @@
 package aptech.project.educhain.endpoint.controllers.courses.course.teacher;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
+import aptech.project.educhain.common.result.ApiError;
+import aptech.project.educhain.data.entities.accounts.User;
+import aptech.project.educhain.data.serviceImpl.accounts.JwtService;
+import aptech.project.educhain.domain.services.accounts.IAuthService;
+import aptech.project.educhain.domain.services.accounts.IJwtService;
+import jakarta.servlet.http.HttpServletRequest;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.validation.ObjectError;
+import org.springframework.web.bind.annotation.*;
 
-import aptech.project.educhain.common.result.ApiError;
 import aptech.project.educhain.common.result.AppResult;
-import aptech.project.educhain.data.entities.accounts.User;
 import aptech.project.educhain.data.entities.courses.CourseStatus;
 import aptech.project.educhain.data.serviceImpl.courses.CourseService;
 import aptech.project.educhain.domain.dtos.courses.CourseDTO;
-import aptech.project.educhain.domain.services.accounts.IAuthService;
-import aptech.project.educhain.domain.services.accounts.IJwtService;
 import aptech.project.educhain.domain.useCases.courses.course.CreateCourseUsecase.CreateCourseParams;
 import aptech.project.educhain.domain.useCases.courses.course.GetCoursesByTeacherUsecase.GetCoursesByTeacherParams;
 import aptech.project.educhain.domain.useCases.courses.course.UpdateCourseUsecase.UpdateCourseParams;
@@ -35,7 +32,6 @@ import aptech.project.educhain.endpoint.requests.courses.course.teacher.UpdateCo
 import aptech.project.educhain.endpoint.responses.courses.course.teacher.CreateCourseResponse;
 import aptech.project.educhain.endpoint.responses.courses.course.teacher.GetCourseDetailResponse;
 import aptech.project.educhain.endpoint.responses.courses.course.teacher.UpdateCourseResponse;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 
 @RestController
@@ -50,9 +46,9 @@ public class CourseController {
     @Autowired
     private IAuthService iAuthService;
 
+
     @PostMapping("create")
-    public ResponseEntity<?> createCourse(@Valid @RequestBody CreateCourseRequest request, BindingResult rs,
-            HttpServletRequest httprequest) {
+    public ResponseEntity<?> createCourse(@Valid @ModelAttribute CreateCourseRequest request, BindingResult rs, HttpServletRequest httprequest) {
         if (rs.hasErrors()) {
             Map<String, String> errors = new HashMap<>();
             rs.getFieldErrors().forEach(error -> errors.put(error.getField(), error.getDefaultMessage()));
@@ -65,7 +61,7 @@ public class CourseController {
         }
         String newToken = token.substring(7);
         var email = iJwtService.extractUserName(newToken);
-        if (email == null) {
+        if(email == null){
             return new ResponseEntity<>(new ApiError("invalid token from header"),
                     HttpStatus.BAD_REQUEST);
         }
@@ -88,7 +84,6 @@ public class CourseController {
             rs.getFieldErrors().forEach(error -> errors.put(error.getField(), error.getDefaultMessage()));
             return new ResponseEntity<>(new ApiError(errors), HttpStatus.BAD_REQUEST);
         }
-        // TODO: get user and set to the params here
         GetCoursesByTeacherParams params = modelMapper.map(request, GetCoursesByTeacherParams.class);
         AppResult<Page<CourseDTO>> appResult = courseService.getCoursesByTeacher(params);
 
@@ -99,7 +94,7 @@ public class CourseController {
         return new ResponseEntity<>(new ApiError(appResult.getFailure().getMessage()), HttpStatus.BAD_REQUEST);
     }
 
-    @GetMapping("/detail/{courseId}")
+    @GetMapping("/{courseId}")
     public ResponseEntity<?> getCourseDetail(@PathVariable("courseId") Integer courseId) {
         AppResult<CourseDTO> result = courseService.getCourseDetail(courseId);
         if (result.isSuccess()) {
@@ -110,8 +105,8 @@ public class CourseController {
     }
 
     @PutMapping("/update/{courseId}")
-    public ResponseEntity<?> updateCourse(@PathVariable int courseId,@Valid @RequestBody UpdateCourseRequest request, BindingResult rs) {
-        if (rs.hasErrors()) {
+    public ResponseEntity<?> updateCourse(@PathVariable int courseId,@Valid @ModelAttribute UpdateCourseRequest request, BindingResult rs) {
+            if (rs.hasErrors()) {
             Map<String, String> errors = new HashMap<>();
             rs.getFieldErrors().forEach(error -> errors.put(error.getField(), error.getDefaultMessage()));
             return new ResponseEntity<>(new ApiError(errors), HttpStatus.BAD_REQUEST);
@@ -132,7 +127,7 @@ public class CourseController {
     public ResponseEntity<?> deleteCourse(@PathVariable int courseId) {
         AppResult<CourseDTO> result = courseService.deleteCourse(courseId);
         if (result.isSuccess()) {
-            return ResponseEntity.ok().body(result.getSuccess());
+            return ResponseEntity.ok().build();
         }
         return ResponseEntity.badRequest().body(result.getFailure().getMessage());
     }
