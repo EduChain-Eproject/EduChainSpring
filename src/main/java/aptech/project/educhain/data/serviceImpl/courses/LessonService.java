@@ -9,6 +9,7 @@ import aptech.project.educhain.domain.services.courses.ILessonService;
 import aptech.project.educhain.domain.useCases.courses.lesson.CreateLessonUsecase.CreateLessonParams;
 import aptech.project.educhain.domain.useCases.courses.lesson.CreateLessonUsecase.CreateLessonUsecase;
 import aptech.project.educhain.domain.useCases.courses.lesson.DeleteLessonUsecase.DeleteLessonUsecase;
+import aptech.project.educhain.domain.useCases.courses.lesson.GetLessonDetailUsecase.GetLessonDetailParams;
 import aptech.project.educhain.domain.useCases.courses.lesson.GetLessonDetailUsecase.GetLessonDetailUsecase;
 import aptech.project.educhain.domain.useCases.courses.lesson.UpdateLessonUsecase.UpdateLessonParams;
 import aptech.project.educhain.domain.useCases.courses.lesson.UpdateLessonUsecase.UpdateLessonUsecase;
@@ -29,8 +30,8 @@ public class LessonService implements ILessonService {
     DeleteLessonUsecase deleteLessonUsecase;
 
     @Override
-    public AppResult<LessonDTO> getLessonDetail(Integer lessonId) {
-        return getLessonDetailUsecase.execute(lessonId);
+    public AppResult<LessonDTO> getLessonDetail(GetLessonDetailParams params) {
+        return getLessonDetailUsecase.execute(params);
     }
 
     @Override

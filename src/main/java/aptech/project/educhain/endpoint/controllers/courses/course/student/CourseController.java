@@ -26,6 +26,7 @@ import aptech.project.educhain.data.serviceImpl.personalization.UserCourseServic
 import aptech.project.educhain.domain.dtos.courses.CourseDTO;
 import aptech.project.educhain.domain.dtos.courses.UserCourseDTO;
 import aptech.project.educhain.domain.services.accounts.IJwtService;
+import aptech.project.educhain.domain.useCases.courses.course.GetCourseDetailUsecase.GetCourseDetailParams;
 import aptech.project.educhain.domain.useCases.courses.course.SearchCoursesUseCase.CourseSearchParams;
 import aptech.project.educhain.domain.useCases.personalization.user_course.add_user_course.AddUserCourseParams;
 import aptech.project.educhain.domain.useCases.personalization.user_course.get_user_course.GetUserCourseParams;
@@ -37,6 +38,7 @@ import jakarta.servlet.http.HttpServletRequest;
 @RestController("StudentCourseController")
 @RequestMapping("/STUDENT/api/course")
 public class CourseController {
+
     @Autowired
     private CourseService courseService;
 
@@ -50,9 +52,11 @@ public class CourseController {
     IJwtService iJwtService;
 
     @PostMapping("/list")
-    public ResponseEntity<?> getCourses(@RequestBody CourseSearchRequest request) {
+    public ResponseEntity<?> getCourses(@RequestBody CourseSearchRequest request, HttpServletRequest servletRequest) {
+        var user = iJwtService.getUserByHeaderToken(servletRequest.getHeader("Authorization"));
 
         var params = modelMapper.map(request, CourseSearchParams.class);
+        params.setUserId(user.getId());
         params.setStatus(CourseStatus.APPROVED);
 
         AppResult<Page<CourseDTO>> result = courseService.searchCourses(params);
@@ -80,21 +84,20 @@ public class CourseController {
     public ResponseEntity<?> getCourseDetail(@PathVariable Integer courseId, HttpServletRequest request) {
         var user = iJwtService.getUserByHeaderToken(request.getHeader("Authorization"));
 
-        AppResult<CourseDTO> result = courseService.getCourseDetail(courseId);
+        AppResult<CourseDTO> result = courseService.getCourseDetail(new GetCourseDetailParams(user.getId(), courseId));
 
         if (result.isSuccess()) {
             var successValue = result.getSuccess();
 
-            if (user != null) {
-                AppResult<UserCourseDTO> result2 = userCourseService
-                        .getUserCourse(new GetUserCourseParams(user.getId(), courseId));
+            AppResult<UserCourseDTO> result2 = userCourseService
+                    .getUserCourse(new GetUserCourseParams(user.getId(), courseId));
 
-                successValue.setNumberOfEnrolledStudents(successValue.getParticipatedUserDtos().size());
+            successValue.setNumberOfEnrolledStudents(successValue.getParticipatedUserDtos().size());
 
-                if (result2.isSuccess()) {
-                    successValue.setCurrentUserCourse(result2.getSuccess());
-                }
+            if (result2.isSuccess()) {
+                successValue.setCurrentUserCourse(result2.getSuccess());
             }
+
             AppResult<List<CourseDTO>> relatedCoursesResult = courseService.getRelatedCourses(courseId);
             if (relatedCoursesResult.isSuccess()) {
                 successValue.setRelatedCourseDtos(relatedCoursesResult.getSuccess());

@@ -21,38 +21,40 @@ import jakarta.transaction.Transactional;
 
 @Component
 public class AddToUserInterestsUseCase implements Usecase<UserInterestsDTO, AddToUserInterestsParams> {
-  @Autowired
-  UserInterestRepository userWishListRepository;
-  @Autowired
-  CourseRepository courseRepository;
-  @Autowired
-  AuthUserRepository authUserRepository;
-  @Autowired
-  CourseCategoryRepository courseCategoryRepository;
-  @Autowired
-  ModelMapper modelMapper;
 
-  @Override
-  @Transactional
-  public AppResult<UserInterestsDTO> execute(AddToUserInterestsParams params) {
-    try {
+    @Autowired
+    UserInterestRepository userWishListRepository;
+    @Autowired
+    CourseRepository courseRepository;
+    @Autowired
+    AuthUserRepository authUserRepository;
+    @Autowired
+    CourseCategoryRepository courseCategoryRepository;
+    @Autowired
+    ModelMapper modelMapper;
 
-      User findUser = authUserRepository.findUserWithId(params.getStudent_id());
-      Course findCourse = courseRepository.findById(params.getCourse_id()).get();
+    @Override
+    @Transactional
+    public AppResult<UserInterestsDTO> execute(AddToUserInterestsParams params) {
+        try {
 
-      UserInterest userInterest = new UserInterest();
-      userInterest.setCourse(findCourse);
-      userInterest.setUser(findUser);
+            User findUser = authUserRepository.findUserWithId(params.getStudent_id());
+            Course findCourse = courseRepository.findById(params.getCourse_id()).get();
 
-      userWishListRepository.save(userInterest);
+            UserInterest userInterest = new UserInterest();
+            userInterest.setCourse(findCourse);
+            userInterest.setUser(findUser);
 
-      UserInterestsDTO wishListDTO = new UserInterestsDTO();
-      wishListDTO.setUserDto(modelMapper.map(userInterest.getUser(), UserDTO.class));
-      wishListDTO.setCourseDto(modelMapper.map(userInterest.getCourse(), CourseDTO.class));
+            // TODO: 
+            userWishListRepository.save(userInterest);
 
-      return AppResult.successResult(wishListDTO);
-    } catch (Exception e) {
-      return AppResult.failureResult(new Failure("Failed to add: " + e.getMessage()));
+            UserInterestsDTO wishListDTO = new UserInterestsDTO();
+            wishListDTO.setUserDto(modelMapper.map(userInterest.getUser(), UserDTO.class));
+            wishListDTO.setCourseDto(modelMapper.map(userInterest.getCourse(), CourseDTO.class));
+
+            return AppResult.successResult(wishListDTO);
+        } catch (Exception e) {
+            return AppResult.failureResult(new Failure("Failed to add: " + e.getMessage()));
+        }
     }
-  }
 }

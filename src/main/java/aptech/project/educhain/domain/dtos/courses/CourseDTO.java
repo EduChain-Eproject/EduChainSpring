@@ -8,6 +8,7 @@ import lombok.Data;
 
 @Data
 public class CourseDTO {
+
     private Integer id;
     private String title;
     private String description;
@@ -25,4 +26,7 @@ public class CourseDTO {
     private int numberOfEnrolledStudents;
     private UserCourseDTO currentUserCourse;
     private List<CourseDTO> relatedCourseDtos;
+    private Integer numberOfLessons;
+    private boolean isCurrentUserInterested;
+    private Integer lessonIdTolearn;
 }
