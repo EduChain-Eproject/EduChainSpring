@@ -3,33 +3,24 @@ package aptech.project.educhain.endpoint.controllers.blogs;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import aptech.project.educhain.data.entities.blogs.BlogComment;
 import aptech.project.educhain.data.entities.blogs.UserBlogVote;
 import aptech.project.educhain.domain.dtos.blogs.BlogCommentDTO;
 import aptech.project.educhain.domain.dtos.blogs.UserBlogVoteDTO;
+import aptech.project.educhain.endpoint.requests.blogs.CreateBlogRequest;
 import aptech.project.educhain.endpoint.requests.blogs.VoteRequest;
+import jakarta.validation.Valid;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import aptech.project.educhain.data.entities.accounts.User;
@@ -139,24 +130,23 @@ public class BlogController {
 
     @Operation(summary = "Add new blog")
     @PostMapping(value = "", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<?> create(@RequestParam("title") String title, @RequestParam("userId") Integer userId,
-            @RequestParam("blogCategoryId") Integer blogCategoryId, @RequestParam("blogText") String blogText,
-            @RequestParam("photo") MultipartFile photo) {
-        Map<String, String> errors = service.validateFields(title, userId, blogCategoryId, blogText);
-        if (!errors.isEmpty()) {
+    public ResponseEntity<?> create(@Valid @ModelAttribute CreateBlogRequest createBlogRequest, BindingResult rs) {
+        if (rs.hasErrors()) {
+            Map<String, String> errors = new HashMap<>();
+            rs.getFieldErrors().forEach(error -> errors.put(error.getField(), error.getDefaultMessage()));
             return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
         }
 
         try {
-            String fileName = uploadPhotoService.uploadPhoto(photo);
+            String fileName = uploadPhotoService.uploadPhoto(createBlogRequest.getPhoto());
             Blog blog = new Blog();
-            User user = userService.findUserById(userId);
-            BlogCategory category = blogCategoryService.findBlogCategory(blogCategoryId);
+            User user = userService.findUserById(createBlogRequest.getUserId());
+            BlogCategory category = blogCategoryService.findBlogCategory(createBlogRequest.getBlogCategoryId());
 
             blog.setUser(user);
-            blog.setTitle(title);
+            blog.setTitle(createBlogRequest.getTitle());
             blog.setBlogCategory(category);
-            blog.setBlogText(blogText);
+            blog.setBlogText(createBlogRequest.getBlogText());
             blog.setPhoto(fileName);
 
             Blog createdBlog = service.create(blog);
@@ -165,9 +155,12 @@ public class BlogController {
 
             return new ResponseEntity<>(createdBlogDTO, HttpStatus.CREATED);
         } catch (Exception e) {
-            return new ResponseEntity<>("An error occurred: " + e.getMessage(), HttpStatus.BAD_REQUEST);
+            Map<String, String> errorResponse = new HashMap<>();
+            errorResponse.put("error", "An error occurred: " + e.getMessage());
+            return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
 
     @Operation(summary = "Vote")
     @PostMapping("/vote")
@@ -245,29 +238,35 @@ public class BlogController {
         return service.delete(id);
     }
 
-    @GetMapping("/filter")
-    public List<BlogDTO> filter(
-            @RequestParam(required = false) String sortStrategy,
-            @RequestParam(required = false) String keyword,
-            @RequestParam(required = false) Integer[] categoryIdArray) {
+    @Operation(summary = "Filter blogs")
+    @PostMapping("/filter")
+    public List<BlogDTO> filter(@RequestBody FilterBlogRequest request) {
+        System.out.println(request.getSortStrategy());
+        System.out.println(request.getKeyword());
 
-        System.out.println(sortStrategy);
-        System.out.println(keyword);
-        System.out.println(Arrays.stream(categoryIdArray).toList());
+        // Check if categoryIdArray is null before processing
+        if (request.getCategoryIdArray() != null) {
+            System.out.println(Arrays.stream(request.getCategoryIdArray()).toList());
+        } else {
+            System.out.println("categoryIdArray is null");
+        }
 
         List<Blog> blogs = service.findAll();
-        if (categoryIdArray != null && categoryIdArray.length > 0){
-            blogs = service.findByCategory(blogs, categoryIdArray);
 
-        }
-        if (keyword != null || !keyword.isEmpty() || keyword != ""){
-            blogs = service.search(blogs, keyword);
-
+        if (request.getCategoryIdArray() != null && request.getCategoryIdArray().length > 0) {
+            blogs = service.findByCategory(blogs, request.getCategoryIdArray());
         }
 
-        if (sortStrategy != null || !sortStrategy.isEmpty() || sortStrategy != "" ){
-            blogs = service.sorting(blogs, service.getSortStrategy(sortStrategy));
+        if (request.getKeyword() != null && !request.getKeyword().isEmpty()) {
+            blogs = service.search(blogs, request.getKeyword());
         }
+
+        if (request.getSortStrategy() != null && !request.getSortStrategy().isEmpty()) {
+            blogs = service.sorting(blogs, service.getSortStrategy(request.getSortStrategy()));
+        }
+
         return blogs.stream().map(blog -> modelMapper.map(blog, BlogDTO.class)).collect(Collectors.toList());
     }
+
+
 }

@@ -5,10 +5,10 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
 public class FilterBlogRequest {
-    private String sortStrategy = "ascTitle";
+    private String sortStrategy;
     private String keyword;
-    private Integer categoryId;
+    private Integer[] categoryIdArray;
 }
