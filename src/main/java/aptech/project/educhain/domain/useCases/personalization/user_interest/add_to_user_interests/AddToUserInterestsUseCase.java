@@ -34,6 +34,12 @@ public class AddToUserInterestsUseCase implements Usecase<UserInterestsDTO, AddT
           //add find user find course
           User findUser = authUserRepository.findUserWithId(params.getStudent_id());
           Course findCourse = courseRepository.findById(params.getCourse_id()).get();
+
+         UserInterest userInterestExits = userWishListRepository.findByCourseIdAndUserId(findCourse.getId(), findUser.getId());
+         if(userInterestExits != null){
+             return AppResult.failureResult(new Failure("cant add course already in list"));
+         }
+
           // map data
           UserInterest userInterest = new UserInterest();
           userInterest.setCourse(findCourse);

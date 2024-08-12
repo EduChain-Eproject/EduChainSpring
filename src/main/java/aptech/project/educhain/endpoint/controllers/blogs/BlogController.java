@@ -143,7 +143,7 @@ public class BlogController {
         try {
             String fileName = uploadPhotoService.uploadPhoto(req.getPhoto());
             Blog blog = new Blog();
-            User user = userService.findUserById(req.getId());
+            User user = userService.findUserById(req.getUserId());
             BlogCategory category = blogCategoryService.findBlogCategory(req.getBlogCategoryId());
 
             blog.setUser(user);
@@ -208,7 +208,7 @@ public class BlogController {
         try {
             String fileName = uploadPhotoService.uploadPhoto(req.getPhoto());
 
-            Blog blog = service.findOneBlog(req.getId());
+            Blog blog = service.findOneBlog(req.getUserId());
             BlogCategory category = blogCategoryService.findBlogCategory(req.getBlogCategoryId());
 
             blog.setTitle(req.getTitle());
@@ -225,7 +225,7 @@ public class BlogController {
                 Files.deleteIfExists(path.resolve(oldPhoto));
             }
 
-            Blog updatedBlog = service.update(req.getId(), blog);
+            Blog updatedBlog = service.update(req.getUserId(), blog);
 
             BlogDTO updatedBlogDTO = modelMapper.map(updatedBlog, BlogDTO.class);
 
