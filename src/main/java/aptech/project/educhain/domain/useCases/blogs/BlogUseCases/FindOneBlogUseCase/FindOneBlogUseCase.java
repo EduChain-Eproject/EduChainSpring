@@ -1,4 +1,4 @@
-package aptech.project.educhain.domain.useCases.blogs.BlogUseCases;
+package aptech.project.educhain.domain.useCases.blogs.BlogUseCases.FindOneBlogUseCase;
 
 import aptech.project.educhain.data.entities.blogs.Blog;
 import aptech.project.educhain.data.entities.blogs.BlogComment;

@@ -1,9 +1,10 @@
-package aptech.project.educhain.domain.useCases.blogs.BlogUseCases;
+package aptech.project.educhain.domain.useCases.blogs.BlogUseCases.DeleteBlogUseCase;
 
 import aptech.project.educhain.data.entities.blogs.Blog;
 import aptech.project.educhain.data.entities.blogs.UserBlogVote;
 import aptech.project.educhain.data.repositories.blogs.BlogRepository;
 import aptech.project.educhain.data.repositories.blogs.UserBlogVoteRepository;
+import aptech.project.educhain.domain.useCases.blogs.BlogUseCases.FindOneBlogUseCase.FindOneBlogUseCase;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
