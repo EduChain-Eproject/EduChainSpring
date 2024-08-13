@@ -11,7 +11,9 @@ import aptech.project.educhain.common.result.AppResult;
 import aptech.project.educhain.common.result.Failure;
 import aptech.project.educhain.common.usecase.Usecase;
 import aptech.project.educhain.data.entities.courses.Course;
+import aptech.project.educhain.data.repositories.accounts.UserInterestRepository;
 import aptech.project.educhain.data.repositories.courses.CourseRepository;
+import aptech.project.educhain.data.repositories.courses.UserHomeworkRepository;
 import aptech.project.educhain.domain.dtos.accounts.UserDTO;
 import aptech.project.educhain.domain.dtos.courses.CategoryDTO;
 import aptech.project.educhain.domain.dtos.courses.ChapterDTO;
@@ -21,7 +23,7 @@ import aptech.project.educhain.domain.dtos.courses.LessonDTO;
 import aptech.project.educhain.domain.dtos.courses.UserCourseDTO;
 
 @Component
-public class GetCourseDetailUsecase implements Usecase<CourseDTO, Integer> {
+public class GetCourseDetailUsecase implements Usecase<CourseDTO, GetCourseDetailParams> {
 
     @Autowired
     CourseRepository courseRepository;
@@ -29,10 +31,16 @@ public class GetCourseDetailUsecase implements Usecase<CourseDTO, Integer> {
     @Autowired
     ModelMapper modelMapper;
 
+    @Autowired
+    UserHomeworkRepository userHomeworkRepository;
+
+    @Autowired
+    UserInterestRepository userInterestRepo;
+
     @Override
-    public AppResult<CourseDTO> execute(Integer courseId) {
+    public AppResult<CourseDTO> execute(GetCourseDetailParams params) {
         try {
-            Optional<Course> courseOptional = courseRepository.findById(courseId);
+            Optional<Course> courseOptional = courseRepository.findById(params.getCourseId());
 
             if (courseOptional.isPresent()) {
 
@@ -51,16 +59,43 @@ public class GetCourseDetailUsecase implements Usecase<CourseDTO, Integer> {
                                     chapter
                                             .getLessons()
                                             .stream()
-                                            .map(ls -> modelMapper.map(ls, LessonDTO.class))
+                                            .map(ls -> {
+                                                var lsDto = modelMapper.map(ls, LessonDTO.class);
+
+                                                if (params.getUserId() != null) {
+                                                    ls.getHomeworks().stream().forEach((homework) -> {
+                                                        var uh = userHomeworkRepository.findByUserIdAndHomeworkId(params.getUserId(), homework.getId()).get();
+                                                        if (uh.getProgress() == 100) {
+                                                            lsDto.setCurrentUserFinished(true);
+                                                        } else {
+                                                            lsDto.setCurrentUserFinished(false);
+                                                        }
+                                                    });
+                                                }
+
+                                                return lsDto;
+                                            })
                                             .toList());
                             return dto;
                         })
                         .collect(Collectors.toList()));
 
+                Integer lessonIdToLearn = courseDTO.getChapterDtos().stream()
+                        .flatMap(chapter -> chapter.getLessonDtos().stream())
+                        .filter(lesson -> !lesson.isCurrentUserFinished())
+                        .findFirst()
+                        .map(LessonDTO::getId)
+                        .orElse(null);
+                courseDTO.setLessonIdTolearn(lessonIdToLearn);
+
+                var interest = userInterestRepo.findByCourseIdAndUserId(params.getCourseId(), params.getUserId());
+
+                courseDTO.setCurrentUserInterested(interest != null);
+
                 courseDTO.setParticipatedUserDtos(course.getParticipatedUsers().stream()
                         .map(student -> {
                             UserCourseDTO dto = modelMapper.map(student, UserCourseDTO.class);
-                           //dto.setUserDto(modelMapper.map(student.getUser(), UserDTO.class));
+                            dto.setUserDto(modelMapper.map(student.getUser(), UserDTO.class));
                             return dto;
                         })
                         .collect(Collectors.toList()));
@@ -75,7 +110,7 @@ public class GetCourseDetailUsecase implements Usecase<CourseDTO, Integer> {
 
                 return AppResult.successResult(courseDTO);
             } else {
-                return AppResult.failureResult(new Failure("Course not found with ID: " + courseId));
+                return AppResult.failureResult(new Failure("Course not found with ID: " + params.getCourseId()));
             }
         } catch (Exception e) {
             return AppResult.failureResult(new Failure("Error getting course details: " + e.getMessage()));

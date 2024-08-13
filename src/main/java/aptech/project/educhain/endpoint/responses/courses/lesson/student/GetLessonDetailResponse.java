@@ -16,4 +16,5 @@ public class GetLessonDetailResponse {
 
     private ChapterDTO chapterDto;
     private List<HomeworkDTO> homeworkDtos;
+    private boolean isCurrentUserFinished;
 }

@@ -1,4 +1,4 @@
-package aptech.project.educhain.endpoint.requests.blogs;
+package aptech.project.educhain.domain.useCases.blogs.BlogUseCases.BlogFilterUseCase;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -7,9 +7,9 @@ import lombok.NoArgsConstructor;
 import java.util.List;
 
 @Data
-@NoArgsConstructor
 @AllArgsConstructor
-public class FilterBlogRequest {
+@NoArgsConstructor
+public class BlogFilterParam {
     private int page;
     private int size;
     String keyword;

@@ -6,6 +6,7 @@ import lombok.Data;
 
 @Data
 public class LessonDTO {
+
     private Integer id;
     private String lessonTitle;
     private String description;
@@ -14,4 +15,5 @@ public class LessonDTO {
 
     private ChapterDTO chapterDto;
     private List<HomeworkDTO> homeworkDtos;
+    private boolean isCurrentUserFinished;
 }

@@ -1,7 +1,8 @@
-package aptech.project.educhain.domain.useCases.blogs.BlogUseCases;
+package aptech.project.educhain.domain.useCases.blogs.BlogUseCases.UpdateBlogUseCase;
 
 import aptech.project.educhain.data.entities.blogs.Blog;
 import aptech.project.educhain.data.repositories.blogs.BlogRepository;
+import aptech.project.educhain.domain.useCases.blogs.BlogUseCases.FindOneBlogUseCase.FindOneBlogUseCase;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 

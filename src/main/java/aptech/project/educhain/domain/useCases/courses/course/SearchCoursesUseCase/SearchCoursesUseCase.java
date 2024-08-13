@@ -14,12 +14,18 @@ import aptech.project.educhain.common.usecase.Usecase;
 import aptech.project.educhain.data.entities.courses.Course;
 import aptech.project.educhain.data.entities.courses.CourseStatus;
 import aptech.project.educhain.data.repositories.courses.CourseRepository;
+import aptech.project.educhain.data.repositories.courses.UserCourseRepository;
 import aptech.project.educhain.domain.dtos.courses.CourseDTO;
+import aptech.project.educhain.domain.dtos.courses.UserCourseDTO;
 
 @Component
 public class SearchCoursesUseCase implements Usecase<Page<CourseDTO>, CourseSearchParams> {
+
     @Autowired
     private CourseRepository courseRepository;
+
+    @Autowired
+    private UserCourseRepository userCourseRepository;
 
     @Autowired
     private ModelMapper modelMapper;
@@ -39,7 +45,21 @@ public class SearchCoursesUseCase implements Usecase<Page<CourseDTO>, CourseSear
                         request.getStatus());
             }
 
-            Page<CourseDTO> courseDTOPage = coursePage.map(course -> modelMapper.map(course, CourseDTO.class));
+            Page<CourseDTO> courseDTOPage = coursePage.map(course -> {
+                var dto = modelMapper.map(course, CourseDTO.class);
+
+                var lessonCount = course.getChapters().stream().mapToInt((chapter) -> chapter.getLessons().size()).sum();
+                dto.setNumberOfLessons(lessonCount);
+
+                if (request.getUserId() != null) {
+                    var userCourse = userCourseRepository.findByUserIdAndCourseId(request.getUserId(), course.getId()).get();
+                    userCourse.getProgress();
+                    userCourse.getCompletionStatus();
+                    dto.setCurrentUserCourse(modelMapper.map(userCourse, UserCourseDTO.class));
+                }
+
+                return dto;
+            });
 
             return AppResult.successResult(courseDTOPage);
         } catch (Exception e) {

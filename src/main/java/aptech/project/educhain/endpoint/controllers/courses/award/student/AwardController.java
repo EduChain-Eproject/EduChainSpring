@@ -36,12 +36,12 @@ public class AwardController {
     IJwtService iJwtService;
 
     @Operation(summary = "receive an award")
-    @PostMapping("receive/{homework_id}")
-    public ResponseEntity<?> receive(@PathVariable Integer homework_id, HttpServletRequest request) {
+    @PostMapping("receive/{award_id}")
+    public ResponseEntity<?> receive(@PathVariable Integer award_id, HttpServletRequest request) {
         var user = iJwtService.getUserByHeaderToken(request.getHeader("Authorization"));
 
         AppResult<AwardDTO> result = AwardService.receiveAward(
-                new ReceiveAwardParams(user.getId(), homework_id));
+                new ReceiveAwardParams(user.getId(), award_id));
 
         if (result.isSuccess()) {
             AwardResponse awardResponse = modelMapper.map(result.getSuccess(),AwardResponse.class);

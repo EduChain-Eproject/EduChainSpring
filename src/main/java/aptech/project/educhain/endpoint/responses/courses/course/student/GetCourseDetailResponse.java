@@ -15,6 +15,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class GetCourseDetailResponse {
+
     private Integer id;
     private String title;
     private String description;
@@ -28,4 +29,7 @@ public class GetCourseDetailResponse {
     private int numberOfEnrolledStudents;
     private UserCourseDTO currentUserCourse;
     private List<CourseDTO> relatedCourseDtos;
+    private List<UserCourseDTO> participatedUserDtos;
+    private boolean isCurrentUserInterested;
+    private Integer lessonIdTolearn;
 }

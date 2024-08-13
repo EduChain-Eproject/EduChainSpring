@@ -13,11 +13,13 @@ import aptech.project.educhain.common.result.Failure;
 import aptech.project.educhain.common.usecase.Usecase;
 import aptech.project.educhain.data.entities.courses.Category;
 import aptech.project.educhain.data.entities.courses.Course;
+import aptech.project.educhain.data.entities.courses.CourseStatus;
 import aptech.project.educhain.data.repositories.courses.CourseRepository;
 import aptech.project.educhain.domain.dtos.courses.CourseDTO;
 
 @Component
 public class GetRelatedCoursesUsecase implements Usecase<List<CourseDTO>, Integer> {
+
     @Autowired
     private CourseRepository courseRepository;
 
@@ -32,7 +34,7 @@ public class GetRelatedCoursesUsecase implements Usecase<List<CourseDTO>, Intege
                 Course course = courseOpt.get();
                 List<Category> categories = course.getCategories();
 
-                List<Course> relatedCourses = courseRepository.findDistinctByCategoriesInAndIdNot(categories, courseId);
+                List<Course> relatedCourses = courseRepository.findDistinctByCategoriesInAndIdNot(categories, courseId, CourseStatus.APPROVED);
                 List<CourseDTO> relatedCourseDtos = relatedCourses.stream()
                         .map(relatedCourse -> modelMapper.map(relatedCourse, CourseDTO.class))
                         .collect(Collectors.toList());

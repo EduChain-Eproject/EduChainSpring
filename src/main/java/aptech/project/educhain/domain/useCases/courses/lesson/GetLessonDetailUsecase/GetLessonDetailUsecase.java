@@ -11,13 +11,14 @@ import aptech.project.educhain.common.result.Failure;
 import aptech.project.educhain.common.usecase.Usecase;
 import aptech.project.educhain.data.entities.courses.Lesson;
 import aptech.project.educhain.data.repositories.courses.LessonRepository;
+import aptech.project.educhain.data.repositories.courses.UserHomeworkRepository;
 import aptech.project.educhain.domain.dtos.courses.ChapterDTO;
 import aptech.project.educhain.domain.dtos.courses.CourseDTO;
 import aptech.project.educhain.domain.dtos.courses.HomeworkDTO;
 import aptech.project.educhain.domain.dtos.courses.LessonDTO;
 
 @Component
-public class GetLessonDetailUsecase implements Usecase<LessonDTO, Integer> {
+public class GetLessonDetailUsecase implements Usecase<LessonDTO, GetLessonDetailParams> {
 
     @Autowired
     LessonRepository lessonRepository;
@@ -25,12 +26,15 @@ public class GetLessonDetailUsecase implements Usecase<LessonDTO, Integer> {
     @Autowired
     ModelMapper modelMapper;
 
+    @Autowired
+    UserHomeworkRepository userHomeworkRepository;
+
     @Override
-    public AppResult<LessonDTO> execute(Integer lessonId) {
+    public AppResult<LessonDTO> execute(GetLessonDetailParams params) {
         try {
-            Optional<Lesson> lessonOptional = lessonRepository.findById(lessonId);
+            Optional<Lesson> lessonOptional = lessonRepository.findById(params.getLessonId());
             if (!lessonOptional.isPresent()) {
-                return AppResult.failureResult(new Failure("Lesson not found with ID: " + lessonId));
+                return AppResult.failureResult(new Failure("Lesson not found with ID: " + params.getLessonId()));
             }
 
             Lesson lesson = lessonOptional.get();
@@ -47,6 +51,15 @@ public class GetLessonDetailUsecase implements Usecase<LessonDTO, Integer> {
                             .stream()
                             .map(hw -> modelMapper.map(hw, HomeworkDTO.class))
                             .toList());
+
+            lessonDTO.getHomeworkDtos().stream().forEach((homeworkDTO) -> {
+                var uh = userHomeworkRepository.findByUserIdAndHomeworkId(params.getUserId(), homeworkDTO.getId()).get();
+                if (uh.getProgress() == 100) {
+                    lessonDTO.setCurrentUserFinished(true);
+                } else {
+                    lessonDTO.setCurrentUserFinished(false);
+                }
+            });
 
             return AppResult.successResult(lessonDTO);
         } catch (Exception e) {
