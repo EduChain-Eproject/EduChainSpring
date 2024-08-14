@@ -78,7 +78,7 @@ public class BlogController {
     BlogCategoryService blogCategoryService;
 
     @Operation(summary = "Get all blog")
-    @PostMapping("")
+    @PostMapping("fetch")
     public ResponseEntity<?> getAllBlogs(@RequestBody FindAllBlogRequest request) {
         var params = modelMapper.map(request, GetAllBlogParams.class);
 
@@ -166,7 +166,7 @@ public class BlogController {
         try {
             String fileName = uploadPhotoService.uploadPhoto(req.getPhoto());
             Blog blog = new Blog();
-            User user = userService.findUserById(req.getId());
+            User user = userService.findUserById(req.getUserId());
             BlogCategory category = blogCategoryService.findBlogCategory(req.getBlogCategoryId());
 
             blog.setUser(user);
@@ -231,7 +231,7 @@ public class BlogController {
         try {
             String fileName = uploadPhotoService.uploadPhoto(req.getPhoto());
 
-            Blog blog = blogService.findOneBlog(req.getId());
+            Blog blog = blogService.findOneBlog(req.getUserId());
             BlogCategory category = blogCategoryService.findBlogCategory(req.getBlogCategoryId());
 
             blog.setTitle(req.getTitle());
@@ -248,7 +248,7 @@ public class BlogController {
                 Files.deleteIfExists(path.resolve(oldPhoto));
             }
 
-            Blog updatedBlog = blogService.update(req.getId(), blog);
+            Blog updatedBlog = blogService.update(req.getUserId (), blog);
 
             BlogDTO updatedBlogDTO = modelMapper.map(updatedBlog, BlogDTO.class);
 

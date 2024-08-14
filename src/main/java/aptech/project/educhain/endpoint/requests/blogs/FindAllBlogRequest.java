@@ -6,7 +6,7 @@ import lombok.Data;
 
 @Data
 public class FindAllBlogRequest {
-    private int page = 0;
-    private int size = 10;
-    private String sortBy = "createdAt";
+    private int page ;
+    private int size;
+        private String sortBy = "createdAt";
 }

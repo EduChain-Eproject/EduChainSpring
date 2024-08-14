@@ -9,6 +9,7 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import java.util.List;
 
@@ -20,10 +21,12 @@ import java.util.List;
 public class Blog extends BaseModel {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", referencedColumnName = "id")
+    @ToString.Exclude
     private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "blogCategory_id", referencedColumnName = "id")
+    @ToString.Exclude
     private BlogCategory blogCategory;
 
     @Column(name = "title", length = 100)
@@ -39,9 +42,11 @@ public class Blog extends BaseModel {
     private int voteUp;
 
     @OneToMany(mappedBy = "blog", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ToString.Exclude
     private List<BlogComment> blogComments;
 
     @OneToMany(mappedBy = "blog", cascade = CascadeType.ALL)
+    @ToString.Exclude
     private List<UserBlogVote> userBlogVotes;
 
 
