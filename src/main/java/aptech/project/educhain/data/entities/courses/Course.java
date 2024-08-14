@@ -40,6 +40,9 @@ public class Course extends BaseModel {
     @Column(name = "title")
     private String title;
 
+    @Column(name = "avatar")
+    private String avatarPath;
+
     @Column(name = "description")
     private String description;
 

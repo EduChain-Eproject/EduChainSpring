@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import aptech.project.educhain.common.result.ApiError;
 import aptech.project.educhain.common.result.AppResult;
@@ -53,7 +54,7 @@ public class CourseController {
     private IAuthService iAuthService;
 
     @PostMapping("create")
-    public ResponseEntity<?> createCourse(@Valid @RequestBody CreateCourseRequest request, BindingResult rs,
+    public ResponseEntity<?> createCourse(@Valid @ModelAttribute CreateCourseRequest request, BindingResult rs,
             HttpServletRequest httprequest) {
         if (rs.hasErrors()) {
             Map<String, String> errors = new HashMap<>();
@@ -112,7 +113,8 @@ public class CourseController {
     }
 
     @PutMapping("/update/{courseId}")
-    public ResponseEntity<?> updateCourse(@PathVariable int courseId, @Valid @RequestBody UpdateCourseRequest request, BindingResult rs) {
+    public ResponseEntity<?> updateCourse(@PathVariable int courseId,
+            @Valid @ModelAttribute UpdateCourseRequest request, BindingResult rs) {
         if (rs.hasErrors()) {
             Map<String, String> errors = new HashMap<>();
             rs.getFieldErrors().forEach(error -> errors.put(error.getField(), error.getDefaultMessage()));

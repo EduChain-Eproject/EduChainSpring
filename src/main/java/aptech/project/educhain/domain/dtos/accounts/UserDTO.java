@@ -24,6 +24,7 @@ public class UserDTO {
     private String address;
     private Role role;
     private String email;
+    private Boolean isActive;
 
     private List<AwardDTO> userAwardDtos;
     private List<UserHomeworkDTO> userHomeworkDtos;
@@ -32,4 +33,5 @@ public class UserDTO {
 
     private long numberOfStudents;
     private CourseDTO mostPopularCourse;
+
 }

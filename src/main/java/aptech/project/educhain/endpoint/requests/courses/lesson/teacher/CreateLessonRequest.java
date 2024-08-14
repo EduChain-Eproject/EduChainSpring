@@ -5,6 +5,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.web.multipart.MultipartFile;
 
 @Data
 @AllArgsConstructor
@@ -19,4 +20,6 @@ public class CreateLessonRequest {
     @NotEmpty(message = "videoTitle required")
     private String videoTitle;
     private String videoURL;
+    @NotNull(message = "Video file is required")
+    private MultipartFile videoFile;
 }

@@ -3,6 +3,7 @@ package aptech.project.educhain.endpoint.controllers.auth;
 import java.util.HashMap;
 import java.util.Map;
 
+import aptech.project.educhain.endpoint.requests.accounts.*;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -25,11 +26,6 @@ import aptech.project.educhain.data.entities.accounts.User;
 import aptech.project.educhain.domain.services.accounts.IAuthService;
 import aptech.project.educhain.domain.services.accounts.IEmailService;
 import aptech.project.educhain.domain.services.accounts.IJwtService;
-import aptech.project.educhain.endpoint.requests.accounts.LoginRequest;
-import aptech.project.educhain.endpoint.requests.accounts.ReNewToken;
-import aptech.project.educhain.endpoint.requests.accounts.RegisterRequest;
-import aptech.project.educhain.endpoint.requests.accounts.ResetEmailRequest;
-import aptech.project.educhain.endpoint.requests.accounts.ResetPasswordRequest;
 import aptech.project.educhain.endpoint.responses.JwtResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
@@ -79,11 +75,15 @@ public class AuthController {
             return new ResponseEntity<>(apiError, HttpStatus.BAD_REQUEST);
         }
 
+        if (user.getRole().name().equals("TEACHER") && !user.getIsActive()) {
+            ApiError apiError = new ApiError("You are teacher , your account need to be accepted by admin");
+            return new ResponseEntity<>(apiError, HttpStatus.BAD_REQUEST);
+        }
+
         if (!user.getIsActive()) {
             ApiError apiError = new ApiError("You have been blocked. Please contact our admin for more details");
             return new ResponseEntity<>(apiError, HttpStatus.BAD_REQUEST);
         }
-
         JwtResponse jwtResponse = new JwtResponse();
         jwtResponse.setAccessToken(iJwtService.generateToken(user));
         jwtResponse.setRefreshToken(iJwtService.generateRefreshToken(user.getId()));
@@ -103,17 +103,15 @@ public class AuthController {
             rs.getFieldErrors().forEach(error -> errors.put(error.getField(), error.getDefaultMessage()));
             return new ResponseEntity<>(new ApiError(errors), HttpStatus.BAD_REQUEST);
         }
-
         User checkUser = iAuthService.findUserByEmail(regis.getEmail());
         if (checkUser != null) {
             return new ResponseEntity<>(new ApiError("Your email already exists, please use another email."),
                     HttpStatus.BAD_REQUEST);
         }
-
         User user = iAuthService.register(regis);
         EmailToken emailToken = iAuthService.createTokenEmail(user.getId());
-        String url = baseUrlVerify + emailToken.getVerifyToken();
-        iEmailService.sendEmail(user.getEmail(), iEmailService.templateEmail(user.getEmail(), url));
+        String url = baseUrlVerify;
+        iEmailService.sendEmail(user.getEmail(), iEmailService.templateEmail(user.getEmail(), emailToken.getCode()));
         if (user.getEmail() == null) {
             return new ResponseEntity<>(new ApiError("Cannot register."), HttpStatus.BAD_REQUEST);
         }
@@ -140,9 +138,24 @@ public class AuthController {
         return ResponseEntity.ok(jwtResponse);
     }
 
-    @GetMapping("/verify")
-    public ResponseEntity<ApiError> verifyToken(@RequestParam("code") String token) {
-        EmailToken checkToken = iAuthService.verifyEmailToken(token);
+    @PostMapping("re-send-verify")
+    public ResponseEntity<ApiError> reSendCodeVerify(@RequestBody ReSendPasswordVerify req) {
+    if(req == null){
+            return new ResponseEntity<>(new ApiError("please submit email"), HttpStatus.NOT_FOUND);
+        }
+        User user = iAuthService.findUserByEmail(req.getEmail());
+        if(user == null){
+            return new ResponseEntity<>(new ApiError("your account not register yet"), HttpStatus.NOT_FOUND);
+        }
+        EmailToken emailToken = iAuthService.createTokenEmail(user.getId());
+        String url = baseUrlVerify;
+        iEmailService.sendEmail(user.getEmail(), iEmailService.templateEmail(user.getEmail(), emailToken.getCode()));
+        return new ResponseEntity<>(new ApiError("success re-send code"), HttpStatus.OK);
+    }
+
+    @PostMapping("/verify")
+    public ResponseEntity<ApiError> verifyToken(@RequestBody Integer code) {
+        EmailToken checkToken = iAuthService.verifyEmailToken(code);
         if (checkToken == null) {
             return new ResponseEntity<>(new ApiError("Token not found or expired."), HttpStatus.NOT_FOUND);
         }
@@ -155,13 +168,18 @@ public class AuthController {
 
     @PostMapping("/send_mail")
     public ResponseEntity<ApiError> sendMail(@RequestBody ResetEmailRequest request) {
+        if (request.getEmail() == null || request.getEmail().isEmpty()) {
+            return new ResponseEntity<>(new ApiError("your email required"), HttpStatus.NOT_FOUND);
+        }
         User user = iAuthService.findUserByEmail(request.getEmail());
         if (user.getEmail() == null) {
             return new ResponseEntity<>(new ApiError("Can't find your email"), HttpStatus.NOT_FOUND);
         }
+        if (!user.getIsVerify()){
+            return new ResponseEntity<>(new ApiError("your account not verify yet"), HttpStatus.NOT_FOUND);
+        }
         ResetPasswordToken resetPasswordToken = iAuthService.createResetPasswordToken(user.getId());
-        String baseurl = baseUrlResetPassword + resetPasswordToken.getResetPasswordToken();
-        iEmailService.sendEmail(user.getEmail(), iEmailService.templateResetPassword(user.getEmail(), baseurl));
+        iEmailService.sendEmail(user.getEmail(), iEmailService.templateResetPassword(user.getEmail(), resetPasswordToken.getResetPasswordToken()));
         return new ResponseEntity<>(new ApiError("Success sending email verify"), HttpStatus.OK);
     }
 
@@ -173,12 +191,12 @@ public class AuthController {
             return new ResponseEntity<>(new ApiError(errors), HttpStatus.BAD_REQUEST);
         }
 
-        int checkResult = iAuthService.resetPasswordAction(req.getCode(), req.getPassword());
+        int checkResult = iAuthService.resetPasswordAction(req.getCode(), req.getPassword(),req.getEmail());
         switch (checkResult) {
             case 0:
                 return new ResponseEntity<>(new ApiError("System can't find your token"), HttpStatus.BAD_REQUEST);
             case -1:
-                return new ResponseEntity<>(new ApiError("Can't find your account"), HttpStatus.BAD_REQUEST);
+                return new ResponseEntity<>(new ApiError("your email maybe wrong"), HttpStatus.BAD_REQUEST);
             case -2:
                 return new ResponseEntity<>(new ApiError("Your token is expired"), HttpStatus.BAD_REQUEST);
             default:

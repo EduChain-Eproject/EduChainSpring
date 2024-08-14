@@ -1,10 +1,7 @@
 package aptech.project.educhain.data.entities.accounts;
 
 import aptech.project.educhain.data.entities.BaseModel;
-import jakarta.persistence.Entity;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.OneToOne;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -18,10 +15,10 @@ import java.sql.Timestamp;
 @Entity
 @Table(name = "tbl_email_token")
 public class EmailToken extends BaseModel {
-    private String verifyToken;
+    private Integer code;
     private Timestamp timeExpire;
 
-    @OneToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     @ToString.Exclude
     private User user;

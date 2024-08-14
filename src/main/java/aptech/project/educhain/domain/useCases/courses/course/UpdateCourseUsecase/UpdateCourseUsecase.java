@@ -3,6 +3,7 @@ package aptech.project.educhain.domain.useCases.courses.course.UpdateCourseUseca
 import java.util.List;
 import java.util.Optional;
 
+import aptech.project.educhain.data.serviceImpl.cloudinary.CloudinarySerivce;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -26,6 +27,8 @@ public class UpdateCourseUsecase implements Usecase<CourseDTO, UpdateCourseParam
 
     @Autowired
     private ModelMapper modelMapper;
+    @Autowired
+    CloudinarySerivce cloudinarySerivce;
 
     @Override
     public AppResult<CourseDTO> execute(UpdateCourseParams params) {
@@ -37,8 +40,18 @@ public class UpdateCourseUsecase implements Usecase<CourseDTO, UpdateCourseParam
 
             Course course = optionalCourse.get();
             modelMapper.map(params, course);
+
             List<Category> categories = categoryRepository.findAllById(params.getCategoryIds());
             course.setCategories(categories);
+
+            if (params.getStatus() != null) {
+                course.setStatus(params.getStatus());
+            }
+
+            if (params.getAvatarCourse() != null) {
+                String newPath = cloudinarySerivce.upload(params.getAvatarCourse());
+                course.setAvatarPath(newPath);
+            }
 
             Course updatedCourse = courseRepository.saveAndFlush(course);
             CourseDTO courseDTO = modelMapper.map(updatedCourse, CourseDTO.class);
@@ -47,4 +60,5 @@ public class UpdateCourseUsecase implements Usecase<CourseDTO, UpdateCourseParam
             return AppResult.failureResult(new Failure("Error updating course: " + e.getMessage()));
         }
     }
+
 }

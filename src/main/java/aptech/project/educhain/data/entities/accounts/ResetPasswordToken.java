@@ -13,9 +13,9 @@ import java.sql.Timestamp;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "tbl_reset_token")
+@Table(name = "tbl_reset_password_token")
 public class ResetPasswordToken extends BaseModel {
-    private String resetPasswordToken;
+    private Integer resetPasswordToken;
     private Timestamp timeExpire;
     private String email;
     @ManyToOne(fetch = FetchType.LAZY)

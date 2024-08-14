@@ -9,6 +9,7 @@ import jakarta.validation.constraints.Positive;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.web.multipart.MultipartFile;
 
 @Data
 @AllArgsConstructor
@@ -25,4 +26,6 @@ public class CreateCourseRequest {
     @NotNull(message = "Price is required")
     @Positive(message = "Price must be greater than zero")
     private Double price;
+    @NotNull(message = "image file required")
+    MultipartFile avatarCourse;
 }

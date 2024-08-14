@@ -2,6 +2,7 @@ package aptech.project.educhain.domain.dtos.courses;
 
 import java.math.BigDecimal;
 import java.sql.Timestamp;
+import java.util.List;
 
 import aptech.project.educhain.data.entities.courses.UserCourse;
 import aptech.project.educhain.domain.dtos.accounts.UserDTO;
@@ -17,4 +18,6 @@ public class UserCourseDTO {
     private Timestamp enrollmentDate;
     private UserCourse.CompletionStatus completionStatus;
     private BigDecimal progress;
+    private List<CategoryDTO> categoryList;
+    private String avatarPath;
 }

@@ -3,6 +3,8 @@ package aptech.project.educhain.endpoint.controllers.courses.homeworks.student;
 import java.util.HashMap;
 import java.util.Map;
 
+import aptech.project.educhain.common.result.ApiError;
+import aptech.project.educhain.endpoint.responses.courses.answer.UserAnswerResponse;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -16,7 +18,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import aptech.project.educhain.common.result.ApiError;
 import aptech.project.educhain.common.result.AppResult;
 import aptech.project.educhain.data.serviceImpl.courses.AwardService;
 import aptech.project.educhain.data.serviceImpl.courses.HomeworkService;
@@ -115,10 +116,11 @@ public class HomeworkController {
                 new AnswerQuestionParams(user.getId(), homework_id, bodyReq.getQuestionId(), bodyReq.getAnswerId()));
 
         if (result.isSuccess()) {
-            return ResponseEntity.ok().body(result.getSuccess()); // TODO: map to res here
+            UserAnswerResponse userAnswerResponse = modelMapper.map(result.getSuccess(), UserAnswerResponse.class);
+            return ResponseEntity.ok().body(result.getSuccess()); // TODO: map to res done
         }
 
-        return new ResponseEntity<>(new ApiError(result.getFailure().getMessage()), HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(new ApiError(result.getFailure().getMessage()), HttpStatus.OK);
     }
 
     @Operation(summary = "submit a homework")
@@ -130,7 +132,7 @@ public class HomeworkController {
                 new SubmitHomeworkParams(user.getId(), homework_id));
 
         if (result.isSuccess()) {
-            return ResponseEntity.ok().body(result.getSuccess()); // TODO: map to res here
+            return ResponseEntity.ok().body(result.getSuccess()); // TODO: map to res done
         }
 
         return ResponseEntity.badRequest().body(result.getFailure().getMessage());
