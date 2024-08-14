@@ -7,10 +7,8 @@ import aptech.project.educhain.data.entities.accounts.User;
 import aptech.project.educhain.domain.dtos.accounts.UserDTO;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import lombok.Data;
-import lombok.ToString;
 
 @Data
 public class BlogCommentDTO {
@@ -23,4 +21,3 @@ public class BlogCommentDTO {
     private Integer parentCommentId;
     private List<BlogCommentDTO> replies;
 }
-
