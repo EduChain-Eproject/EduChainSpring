@@ -24,6 +24,5 @@ public class UpdateCourseRequest {
     @NotNull(message = "Price is required")
     @Positive(message = "Price must be greater than zero")
     private Double price;
-    private CourseStatus status;
     private MultipartFile avatarCourse;
 }
