@@ -25,6 +25,7 @@ public interface BlogRepository extends JpaRepository<Blog, Integer> {
             Pageable pageable);
 
 
+
     @Query("SELECT COUNT(v) FROM UserBlogVote v WHERE v.blog.id = :blogId AND v.vote = 1")
     int countVoteUpByBlogId(@Param("blogId") Integer blogId);
 

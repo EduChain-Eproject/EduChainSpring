@@ -29,7 +29,7 @@ public class FindAllBlogUseCase implements Usecase<Page<BlogDTO>, GetAllBlogPara
 
     public AppResult<Page<BlogDTO>> execute(GetAllBlogParams params) {
         try {
-            Pageable pageable = PageRequest.of(params.getPage(), params.getSize(), Sort.by(params.getSortBy()));
+            Pageable pageable = PageRequest.of(params.getPage(), params.getSize(), Sort.by(Sort.Direction.DESC, params.getSortBy()));
             Page<Blog> blogsPage = blogRepository.findAll(pageable);
             Page<BlogDTO> blogDTOsPage = blogsPage.map(blog -> {
                 BlogDTO blogDTO = modelMapper.map(blog, BlogDTO.class);

@@ -11,8 +11,8 @@ import java.util.List;
 @AllArgsConstructor
 public class FilterBlogRequest {
     private int page;
-    private int size;
+    private int size = 10;
     String keyword;
     String sortStrategy = "DATE_DESC";
-    List<Integer> categoryIds;
+    List<Integer> categoryIds = null;
 }

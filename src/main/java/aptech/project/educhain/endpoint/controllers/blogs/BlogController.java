@@ -27,10 +27,7 @@ import jakarta.validation.Valid;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -82,6 +79,7 @@ public class BlogController {
     public ResponseEntity<?> getAllBlogs(@RequestBody FindAllBlogRequest request) {
         var params = modelMapper.map(request, GetAllBlogParams.class);
 
+        Pageable pageable = PageRequest.of(request.getPage(), request.getSize(), Sort.by(Sort.Direction.DESC, request.getSortBy()));
         AppResult<Page<BlogDTO>> result = blogService.findAll(params);
         if (result.isSuccess()) {
             Page<BlogDTO> blogDTOPage = result.getSuccess();
@@ -92,7 +90,7 @@ public class BlogController {
 
             Page<GetAllBlogResponse> responsePage = new PageImpl<>(
                     getAllBlogResponses,
-                    PageRequest.of(request.getPage(), request.getSize(), Sort.by(request.getSortBy())),
+                    pageable,
                     blogDTOPage.getTotalElements());
 
             return ResponseEntity.ok().body(responsePage);
@@ -154,7 +152,7 @@ public class BlogController {
 
     @Operation(summary = "Add new blog")
     @PostMapping(value = "/create", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<?> create(@Valid @ModelAttribute CreateBlogReq req,BindingResult rs) {
+    public ResponseEntity<?> create(@Valid @ModelAttribute CreateBlogReq req, BindingResult rs) {
         if (rs.hasErrors()) {
             Map<String, String> errors = new HashMap<>();
             rs.getFieldErrors().forEach(error -> errors.put(error.getField(), error.getDefaultMessage()));
@@ -164,26 +162,27 @@ public class BlogController {
         }
 
         try {
-            String fileName = uploadPhotoService.uploadPhoto(req.getPhoto());
             Blog blog = new Blog();
-            User user = userService.findUserById(req.getId());
+            User user = userService.findUserById(req.getUserId());
             BlogCategory category = blogCategoryService.findBlogCategory(req.getBlogCategoryId());
 
             blog.setUser(user);
             blog.setTitle(req.getTitle());
             blog.setBlogCategory(category);
             blog.setBlogText(req.getBlogText());
-            blog.setPhoto(fileName);
+
+            if (req.getPhoto() != null && !req.getPhoto().isEmpty()) {
+                String fileName = uploadPhotoService.uploadPhoto(req.getPhoto());
+                blog.setPhoto(fileName);
+            }
 
             Blog createdBlog = blogService.create(blog);
-
             BlogDTO createdBlogDTO = modelMapper.map(createdBlog, BlogDTO.class);
 
             return new ResponseEntity<>(createdBlogDTO, HttpStatus.CREATED);
         } catch (Exception e) {
             ApiError apiError = new ApiError("Error when creating blog");
             return new ResponseEntity<>(apiError, HttpStatus.BAD_REQUEST);
-
         }
     }
 
@@ -231,7 +230,7 @@ public class BlogController {
         try {
             String fileName = uploadPhotoService.uploadPhoto(req.getPhoto());
 
-            Blog blog = blogService.findOneBlog(req.getId());
+            Blog blog = blogService.findOneBlog(req.getUserId());
             BlogCategory category = blogCategoryService.findBlogCategory(req.getBlogCategoryId());
 
             blog.setTitle(req.getTitle());
@@ -248,7 +247,7 @@ public class BlogController {
                 Files.deleteIfExists(path.resolve(oldPhoto));
             }
 
-            Blog updatedBlog = blogService.update(req.getId(), blog);
+            Blog updatedBlog = blogService.update(req.getUserId(), blog);
 
             BlogDTO updatedBlogDTO = modelMapper.map(updatedBlog, BlogDTO.class);
 

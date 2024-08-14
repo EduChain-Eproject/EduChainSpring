@@ -10,8 +10,7 @@ import org.springframework.web.multipart.MultipartFile;
 @Data
 
 public class CreateBlogReq {
-    @NotNull(message = "Id cannot be null")
-    private Integer id;
+    private Integer UserId;
 
     @NotBlank(message = "Title is required")
     @Size(max = 100, message = "Title cannot exceed 100 characters")
@@ -23,6 +22,5 @@ public class CreateBlogReq {
     @NotBlank(message = "Blog text is required")
     private String blogText;
 
-    @NotNull(message = "Photo is required")
     private MultipartFile photo;
 }
