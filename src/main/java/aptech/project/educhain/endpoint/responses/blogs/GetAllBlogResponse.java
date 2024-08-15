@@ -21,6 +21,5 @@ public class GetAllBlogResponse {
     private String photo;
     private UserDTO user;
     private BlogCategoryDTO blogCategory;
-    private List<BlogCommentDTO> blogComments;
     private List<UserBlogVoteDTO> userBlogVotes;
 }

@@ -10,8 +10,6 @@ import org.springframework.web.multipart.MultipartFile;
 @Data
 
 public class CreateBlogReq {
-    private Integer UserId;
-
     @NotBlank(message = "Title is required")
     @Size(max = 100, message = "Title cannot exceed 100 characters")
     private String title;

@@ -13,6 +13,7 @@ import aptech.project.educhain.data.entities.blogs.UserBlogVote;
 import aptech.project.educhain.domain.dtos.blogs.BlogCommentDTO;
 import aptech.project.educhain.domain.dtos.blogs.UserBlogVoteDTO;
 import aptech.project.educhain.domain.dtos.payment.OrderDTO;
+import aptech.project.educhain.domain.services.accounts.IJwtService;
 import aptech.project.educhain.domain.useCases.blogs.BlogUseCases.BlogFilterUseCase.BlogFilterParam;
 import aptech.project.educhain.domain.useCases.blogs.BlogUseCases.FindAllBlogUseCase.GetAllBlogParams;
 import aptech.project.educhain.domain.useCases.payment.order.getAllOrderUseCase.GetAllOrderParams;
@@ -23,6 +24,7 @@ import aptech.project.educhain.endpoint.requests.payment.order.OrderRequest;
 import aptech.project.educhain.endpoint.responses.blogs.FilterBlogResponse;
 import aptech.project.educhain.endpoint.responses.blogs.GetAllBlogResponse;
 import aptech.project.educhain.endpoint.responses.payment.order.GetOrderResponse;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -73,6 +75,9 @@ public class BlogController {
 
     @Autowired
     BlogCategoryService blogCategoryService;
+
+    @Autowired
+    IJwtService iJwtService;
 
     @Operation(summary = "Get all blog")
     @PostMapping("")
@@ -152,7 +157,7 @@ public class BlogController {
 
     @Operation(summary = "Add new blog")
     @PostMapping(value = "/create", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<?> create(@Valid @ModelAttribute CreateBlogReq req, BindingResult rs) {
+    public ResponseEntity<?> create(@Valid @ModelAttribute CreateBlogReq req, HttpServletRequest servletRequest, BindingResult rs) {
         if (rs.hasErrors()) {
             Map<String, String> errors = new HashMap<>();
             rs.getFieldErrors().forEach(error -> errors.put(error.getField(), error.getDefaultMessage()));
@@ -162,8 +167,10 @@ public class BlogController {
         }
 
         try {
+            var user = iJwtService.getUserByHeaderToken(servletRequest.getHeader("Authorization"));
+
+
             Blog blog = new Blog();
-            User user = userService.findUserById(req.getUserId());
             BlogCategory category = blogCategoryService.findBlogCategory(req.getBlogCategoryId());
 
             blog.setUser(user);
@@ -185,6 +192,51 @@ public class BlogController {
             return new ResponseEntity<>(apiError, HttpStatus.BAD_REQUEST);
         }
     }
+
+    @Operation(summary = "Edit blog")
+    @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<?> update(@PathVariable Integer id, @Valid @ModelAttribute CreateBlogReq req, BindingResult rs) {
+        if (rs.hasErrors()) {
+            Map<String, String> errors = new HashMap<>();
+            rs.getFieldErrors().forEach(error -> errors.put(error.getField(), error.getDefaultMessage()));
+
+            ApiError apiError = new ApiError(errors);
+            return new ResponseEntity<>(apiError, HttpStatus.BAD_REQUEST);
+        }
+
+        try {
+            String fileName = uploadPhotoService.uploadPhoto(req.getPhoto());
+
+            Blog blog = blogService.findOneBlog(id);
+            BlogCategory category = blogCategoryService.findBlogCategory(req.getBlogCategoryId());
+
+            blog.setTitle(req.getTitle());
+            blog.setBlogCategory(category);
+            blog.setBlogText(req.getBlogText());
+
+            String oldPhoto = blog.getPhoto();
+            String photoFile = fileName != null ? fileName : oldPhoto;
+
+            blog.setPhoto(photoFile);
+
+            if (fileName != null) {
+                Path path = Paths.get(uploadDir);
+                Files.deleteIfExists(path.resolve(oldPhoto));
+            }
+
+            Blog updatedBlog = blogService.update(id, blog);
+
+            BlogDTO updatedBlogDTO = modelMapper.map(updatedBlog, BlogDTO.class);
+
+            return new ResponseEntity<>(updatedBlogDTO, HttpStatus.CREATED);
+
+        } catch (Exception e) {
+            ApiError apiError = new ApiError("Error when updating blog");
+            return new ResponseEntity<>(apiError, HttpStatus.BAD_REQUEST);
+        }
+    }
+
+
 
     @Operation(summary = "Vote")
     @PostMapping("/vote")
@@ -216,47 +268,7 @@ public class BlogController {
         return true;
     }
 
-    @Operation(summary = "Edit blog")
-    @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<?> update(@Valid @ModelAttribute CreateBlogReq req, BindingResult rs) {
-        if (rs.hasErrors()) {
-            Map<String, String> errors = new HashMap<>();
-            rs.getFieldErrors().forEach(error -> errors.put(error.getField(), error.getDefaultMessage()));
 
-            ApiError apiError = new ApiError(errors);
-            return new ResponseEntity<>(apiError, HttpStatus.BAD_REQUEST);
-        }
-
-        try {
-            String fileName = uploadPhotoService.uploadPhoto(req.getPhoto());
-
-            Blog blog = blogService.findOneBlog(req.getUserId());
-            BlogCategory category = blogCategoryService.findBlogCategory(req.getBlogCategoryId());
-
-            blog.setTitle(req.getTitle());
-            blog.setBlogCategory(category);
-            blog.setBlogText(req.getBlogText());
-
-            String oldPhoto = blog.getPhoto();
-            String photoFile = fileName != null ? fileName : oldPhoto;
-
-            blog.setPhoto(photoFile);
-
-            if (fileName != null) {
-                Path path = Paths.get(uploadDir);
-                Files.deleteIfExists(path.resolve(oldPhoto));
-            }
-
-            Blog updatedBlog = blogService.update(req.getUserId(), blog);
-
-            BlogDTO updatedBlogDTO = modelMapper.map(updatedBlog, BlogDTO.class);
-
-            return new ResponseEntity<>(updatedBlogDTO, HttpStatus.OK);
-        } catch (Exception e) {
-            ApiError apiError = new ApiError("Error when creating blog");
-            return new ResponseEntity<>(apiError, HttpStatus.BAD_REQUEST);
-        }
-    }
 
     @Operation(summary = "Delete blog")
     @DeleteMapping("/{id}")

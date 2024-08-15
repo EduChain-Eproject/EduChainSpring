@@ -8,9 +8,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 public class BlogCommentReq {
         @NotBlank(message = "Text is required")
         private String text;
-        @NotNull(message = "User ID is required")
-        private Integer userId;
-        private Integer commentId;
+
+        private String parentCommentId;
         @NotNull(message = "Blog ID is required")
+
         private Integer blogId;
 }

@@ -7,7 +7,9 @@ import java.util.stream.Collectors;
 
 import aptech.project.educhain.common.result.ApiError;
 import aptech.project.educhain.domain.dtos.accounts.UserDTO;
+import aptech.project.educhain.domain.services.accounts.IJwtService;
 import aptech.project.educhain.endpoint.requests.blogs.BlogCommentReq;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,9 +36,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 @RestController
 @RequestMapping("/api/blog_comment")
 public class BlogCommentController {
-    @Value("${file.upload-dir}")
-    private String uploadDir;
-
     @Autowired
     BlogCommentService blogCommentService;
 
@@ -48,6 +47,9 @@ public class BlogCommentController {
 
     @Autowired
     AuthService userService;
+
+    @Autowired
+    IJwtService iJwtService;
 
     @Operation(summary = "Get 1 comment")
     @GetMapping("{id}")
@@ -86,45 +88,49 @@ public class BlogCommentController {
 
 
 
-//    @Operation(summary = "Add new comment")
-//    @PostMapping(value = "create", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-//    public ResponseEntity<?> create(@Valid @ModelAttribute BlogCommentReq req, BindingResult rs) {
-//        if (rs.hasErrors()) {
-//            Map<String, String> errors = new HashMap<>();
-//            rs.getFieldErrors().forEach(error -> errors.put(error.getField(), error.getDefaultMessage()));
-//
-//            ApiError apiError = new ApiError(errors);
-//            return new ResponseEntity<>(apiError, HttpStatus.BAD_REQUEST);
-//        }
-//        try {
-//            BlogComment comment = new BlogComment();
-//            User user = userService.findUserById(req.getUserId());
-//            Blog blog = blogService.findOneBlog(req.getBlogId());
-//            BlogComment parent = null;
-//
-//            if (req.getCommentId() != null) {
-//                try {
-//                    parent = blogCommentService.findComment(req.getCommentId());
-//                } catch (NumberFormatException e) {
-//                    return new ResponseEntity<>("Invalid comment ID", HttpStatus.BAD_REQUEST);
-//                }
-//            }
-//
-//            comment.setUser(user);
-//            comment.setBlog(blog);
-//            comment.setText(req.getText());
-//            comment.setParentComment(parent);
-//
-//            BlogComment createdComment = blogCommentService.addComment(comment);
-//
-//            BlogCommentDTO createdBlogCommentDTO = modelMapper.map(createdComment, BlogCommentDTO.class);
-//
-//            return new ResponseEntity<>(createdBlogCommentDTO, HttpStatus.CREATED);
-//        } catch (Exception e) {
-//            ApiError apiError = new ApiError("Error when add comment");
-//            return new ResponseEntity<>(apiError, HttpStatus.BAD_REQUEST);
-//            }
-//    }
+    @Operation(summary = "Add new comment")
+    @PostMapping(value = "create", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<?> create(@Valid @ModelAttribute BlogCommentReq req, HttpServletRequest servletRequest, BindingResult rs) {
+        if (rs.hasErrors()) {
+            Map<String, String> errors = new HashMap<>();
+            rs.getFieldErrors().forEach(error -> errors.put(error.getField(), error.getDefaultMessage()));
+
+            ApiError apiError = new ApiError(errors);
+            return new ResponseEntity<>(apiError, HttpStatus.BAD_REQUEST);
+        }
+        try {
+            var user = iJwtService.getUserByHeaderToken(servletRequest.getHeader("Authorization"));
+
+            BlogComment comment = new BlogComment();
+
+            Blog blog = blogService.findOneBlog(req.getBlogId());
+            BlogComment parent = null;
+
+            if (req.getParentCommentId() != null && !req.getParentCommentId().equals("null") && !req.getParentCommentId().isEmpty()) {
+                try {
+                    parent = blogCommentService.findComment(Integer.parseInt(req.getParentCommentId()));
+                } catch (NumberFormatException e) {
+                    return new ResponseEntity<>("Invalid comment ID", HttpStatus.BAD_REQUEST);
+                }
+            }
+
+            comment.setUser(user);
+            comment.setBlog(blog);
+            comment.setText(req.getText());
+            comment.setParentComment(parent);
+
+            BlogComment createdComment = blogCommentService.addComment(comment);
+
+            BlogCommentDTO createdBlogCommentDTO = modelMapper.map(createdComment, BlogCommentDTO.class);
+            createdBlogCommentDTO.setParentCommentId(createdComment.getParentComment().getId());
+            createdBlogCommentDTO.setBlogId(createdComment.getBlog().getId());
+
+            return new ResponseEntity<>(createdBlogCommentDTO, HttpStatus.CREATED);
+        } catch (Exception e) {
+            ApiError apiError = new ApiError("Error when add comment");
+            return new ResponseEntity<>(apiError, HttpStatus.BAD_REQUEST);
+            }
+    }
 
 //    @Operation(summary = "update comment")
 //    @PostMapping(value = "update", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -137,7 +143,7 @@ public class BlogCommentController {
 //            return new ResponseEntity<>(apiError, HttpStatus.BAD_REQUEST);
 //        }
 //        try {
-//            BlogComment existingComment = blogCommentService.findComment(req.getCommentId());
+//            BlogComment existingComment = blogCommentService.findComment(req.getParentComment());
 //            if (existingComment == null) {
 //                return new ResponseEntity<>("Comment not found", HttpStatus.NOT_FOUND);
 //            }
@@ -146,9 +152,9 @@ public class BlogCommentController {
 //            Blog blog = blogService.findOneBlog(req.getBlogId());
 //            BlogComment parent = null;
 //
-//            if (req.getCommentId() != null) {
+//            if (req.getParentComment() != null) {
 //                try {
-//                    parent = blogCommentService.findComment(req.getCommentId());
+//                    parent = blogCommentService.findComment(req.getParentComment());
 //                } catch (NumberFormatException e) {
 //                    return new ResponseEntity<>("Invalid comment ID", HttpStatus.BAD_REQUEST);
 //                }
@@ -160,7 +166,7 @@ public class BlogCommentController {
 //            existingComment.setText(req.getText());
 //            existingComment.setParentComment(parent);
 //
-//            BlogComment updatedComment = blogCommentService.editComment(req.getCommentId(),existingComment.getParentComment());
+//            BlogComment updatedComment = blogCommentService.editComment(req.getParentComment(),existingComment.getParentComment());
 //
 //            BlogCommentDTO updatedBlogCommentDTO = modelMapper.map(updatedComment, BlogCommentDTO.class);
 //
@@ -170,4 +176,15 @@ public class BlogCommentController {
 //            return new ResponseEntity<>(apiError, HttpStatus.BAD_REQUEST);
 //        }
 //    }
+
+    @Operation(summary = "Delete comment")
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> delete(@PathVariable Integer id) {
+        try {
+            boolean ok = blogCommentService.deleteComment(id);
+            return new ResponseEntity<>(ok, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(false, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 }
