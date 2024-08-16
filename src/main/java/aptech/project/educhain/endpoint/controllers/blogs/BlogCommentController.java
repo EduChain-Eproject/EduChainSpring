@@ -9,6 +9,7 @@ import aptech.project.educhain.common.result.ApiError;
 import aptech.project.educhain.domain.dtos.accounts.UserDTO;
 import aptech.project.educhain.domain.services.accounts.IJwtService;
 import aptech.project.educhain.endpoint.requests.blogs.BlogCommentReq;
+import aptech.project.educhain.endpoint.requests.blogs.UpdateBlogCommentReq;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.modelmapper.ModelMapper;
@@ -132,50 +133,34 @@ public class BlogCommentController {
             }
     }
 
-//    @Operation(summary = "update comment")
-//    @PostMapping(value = "update", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-//    public ResponseEntity<?> update(@Valid @ModelAttribute BlogCommentReq req, BindingResult rs) {
-//        if (rs.hasErrors()) {
-//            Map<String, String> errors = new HashMap<>();
-//            rs.getFieldErrors().forEach(error -> errors.put(error.getField(), error.getDefaultMessage()));
-//
-//            ApiError apiError = new ApiError(errors);
-//            return new ResponseEntity<>(apiError, HttpStatus.BAD_REQUEST);
-//        }
-//        try {
-//            BlogComment existingComment = blogCommentService.findComment(req.getParentComment());
-//            if (existingComment == null) {
-//                return new ResponseEntity<>("Comment not found", HttpStatus.NOT_FOUND);
-//            }
-//
-//            User user = userService.findUserById(req.getUserId());
-//            Blog blog = blogService.findOneBlog(req.getBlogId());
-//            BlogComment parent = null;
-//
-//            if (req.getParentComment() != null) {
-//                try {
-//                    parent = blogCommentService.findComment(req.getParentComment());
-//                } catch (NumberFormatException e) {
-//                    return new ResponseEntity<>("Invalid comment ID", HttpStatus.BAD_REQUEST);
-//                }
-//            }
-//
-//
-//            existingComment.setUser(user);
-//            existingComment.setBlog(blog);
-//            existingComment.setText(req.getText());
-//            existingComment.setParentComment(parent);
-//
-//            BlogComment updatedComment = blogCommentService.editComment(req.getParentComment(),existingComment.getParentComment());
-//
-//            BlogCommentDTO updatedBlogCommentDTO = modelMapper.map(updatedComment, BlogCommentDTO.class);
-//
-//            return new ResponseEntity<>(updatedBlogCommentDTO, HttpStatus.OK);
-//        } catch (Exception e) {
-//            ApiError apiError = new ApiError("Error when edit comment");
-//            return new ResponseEntity<>(apiError, HttpStatus.BAD_REQUEST);
-//        }
-//    }
+    @Operation(summary = "update comment")
+    @PutMapping(value = "{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<?> update(@PathVariable Integer id, @Valid @ModelAttribute UpdateBlogCommentReq req, BindingResult rs) {
+        if (rs.hasErrors()) {
+            Map<String, String> errors = new HashMap<>();
+            rs.getFieldErrors().forEach(error -> errors.put(error.getField(), error.getDefaultMessage()));
+
+            ApiError apiError = new ApiError(errors);
+            return new ResponseEntity<>(apiError, HttpStatus.BAD_REQUEST);
+        }
+        try {
+            BlogComment existingComment = blogCommentService.findComment(id);
+            if (existingComment == null) {
+                return new ResponseEntity<>("Comment not found", HttpStatus.NOT_FOUND);
+            }
+
+            existingComment.setText(req.getText());
+
+            BlogComment updatedComment = blogCommentService.editComment(id, existingComment);
+
+            BlogCommentDTO updatedBlogCommentDTO = modelMapper.map(updatedComment, BlogCommentDTO.class);
+
+            return new ResponseEntity<>(updatedBlogCommentDTO, HttpStatus.OK);
+        } catch (Exception e) {
+            ApiError apiError = new ApiError("Error when edit comment");
+            return new ResponseEntity<>(apiError, HttpStatus.BAD_REQUEST);
+        }
+    }
 
     @Operation(summary = "Delete comment")
     @DeleteMapping("/{id}")
