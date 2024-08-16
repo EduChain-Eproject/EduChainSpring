@@ -26,11 +26,13 @@ public class BlogFilterUseCase implements Usecase<Page<BlogDTO>, BlogFilterParam
     public AppResult<Page<BlogDTO>> execute(BlogFilterParam params) {
         try {
             Pageable pageable = PageRequest.of(params.getPage(), params.getSize());
-            Page<Blog> blogsPage = blogRepository.filter(params.getCategoryIds(), params.getKeyword(), params.getSortStrategy(), pageable);
-            Page<BlogDTO> blogDTOsPage = blogsPage.map(blog -> {
-                BlogDTO blogDTO = modelMapper.map(blog, BlogDTO.class);
-                return blogDTO;
-            });
+            Page<Blog> blogsPage;
+            if (params.getCategoryIds().isEmpty()) {
+                blogsPage = blogRepository.filter(null, params.getKeyword(), params.getSortStrategy(), pageable);
+            } else {
+                blogsPage = blogRepository.filter(params.getCategoryIds(), params.getKeyword(), params.getSortStrategy(), pageable);
+            }
+            Page<BlogDTO> blogDTOsPage = blogsPage.map(blog -> modelMapper.map(blog, BlogDTO.class));
             return AppResult.successResult(blogDTOsPage);
         } catch (Exception e) {
             return AppResult.failureResult(new Failure("Failed to get all blogs: " + e.getMessage()));
