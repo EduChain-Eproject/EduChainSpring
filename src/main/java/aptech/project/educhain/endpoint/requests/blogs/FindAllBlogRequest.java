@@ -8,5 +8,5 @@ import lombok.Data;
 public class FindAllBlogRequest {
     private int page ;
     private int size;
-        private String sortBy = "createdAt";
+     private String sortBy = "createdAt";
 }

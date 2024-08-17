@@ -9,8 +9,6 @@ import org.springframework.web.multipart.MultipartFile;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UserProfileResponse {
-    private int id;
-    private String email;
     private String password;
     private String firstName;
     private String lastName;

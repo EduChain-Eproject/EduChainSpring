@@ -6,7 +6,6 @@ import org.springframework.web.multipart.MultipartFile;
 @Data
 public class UpdateUserProfileParam {
     private int id;
-    private String email;
     private String password;
     private String firstName;
     private String lastName;

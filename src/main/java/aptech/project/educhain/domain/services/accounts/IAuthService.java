@@ -14,7 +14,7 @@ public interface IAuthService {
 
     User register(RegisterRequest reg);
     EmailToken createTokenEmail(int id);
-    EmailToken verifyEmailToken(Integer code);
+    EmailToken verifyEmailToken(Integer code,String email);
     boolean verifyUser(int id);
     ResetPasswordToken createResetPasswordToken(int id);
     int resetPasswordAction(Integer token,String password,String email);

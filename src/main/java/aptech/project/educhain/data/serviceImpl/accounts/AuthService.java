@@ -114,6 +114,7 @@ public class AuthService implements IAuthService {
             emailToken.setCode(combinedNumber);
             // find user by id
             User user = authUserRepository.findUserWithId(id);
+            emailToken.setEmail(user.getEmail());
             emailToken.setUser(user);
             emailVerifyRepository.save(emailToken);
             return emailToken;
@@ -146,9 +147,9 @@ public class AuthService implements IAuthService {
         return Integer.parseInt(combinedNumberStr.toString());
     }
     // verify email Token
-    public EmailToken verifyEmailToken(Integer code) {
+    public EmailToken verifyEmailToken(Integer code,String email) {
         try {
-            EmailToken emailToken = emailVerifyRepository.findEmailTokenByCode(code);
+            EmailToken emailToken = emailVerifyRepository.findEmailTokenByCodeAndEmail(code,email);
             LocalDateTime now = LocalDateTime.now();
             LocalDateTime expireTime = emailToken.getTimeExpire().toLocalDateTime();
             if (emailToken.getCode() == null || now.isAfter(expireTime.plusMinutes(15))
@@ -158,8 +159,8 @@ public class AuthService implements IAuthService {
             return emailToken;
         } catch (Exception e) {
             e.printStackTrace();
+            return null;
         }
-        return null;
     }
 
     // service change isVerify

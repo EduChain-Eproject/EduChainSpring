@@ -74,6 +74,7 @@ public class BlogCommentController {
                 if (comment.getParentComment() != null) {
                     dto.setParentCommentId(comment.getParentComment().getId());
                 }
+
                 // Map child comments
                 List<BlogCommentDTO> childComments = comment.getReplies().stream()
                         .map(child -> blogCommentService.mapChildCommentService(child, dto.getBlogId()))
@@ -90,8 +91,9 @@ public class BlogCommentController {
 
 
     @Operation(summary = "Add new comment")
-    @PostMapping(value = "create", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<?> create(@Valid @ModelAttribute BlogCommentReq req, HttpServletRequest servletRequest, BindingResult rs) {
+//    @PostMapping(value = "/create", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping("/create")
+    public ResponseEntity<?> create(@Valid @RequestBody BlogCommentReq req, HttpServletRequest servletRequest, BindingResult rs) {
         if (rs.hasErrors()) {
             Map<String, String> errors = new HashMap<>();
             rs.getFieldErrors().forEach(error -> errors.put(error.getField(), error.getDefaultMessage()));
@@ -123,19 +125,20 @@ public class BlogCommentController {
             BlogComment createdComment = blogCommentService.addComment(comment);
 
             BlogCommentDTO createdBlogCommentDTO = modelMapper.map(createdComment, BlogCommentDTO.class);
-            createdBlogCommentDTO.setParentCommentId(createdComment.getParentComment().getId());
+            createdBlogCommentDTO.setParentCommentId(createdComment.getParentComment() != null ? createdComment.getParentComment().getId() : null);
             createdBlogCommentDTO.setBlogId(createdComment.getBlog().getId());
 
             return new ResponseEntity<>(createdBlogCommentDTO, HttpStatus.CREATED);
         } catch (Exception e) {
             ApiError apiError = new ApiError("Error when add comment");
             return new ResponseEntity<>(apiError, HttpStatus.BAD_REQUEST);
-            }
+        }
     }
 
     @Operation(summary = "update comment")
-    @PutMapping(value = "{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<?> update(@PathVariable Integer id, @Valid @ModelAttribute UpdateBlogCommentReq req, BindingResult rs) {
+//    @PutMapping(value = "{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PutMapping("/{id}")
+    public ResponseEntity<?> update(@PathVariable Integer id, @Valid @RequestBody UpdateBlogCommentReq req, BindingResult rs) {
         if (rs.hasErrors()) {
             Map<String, String> errors = new HashMap<>();
             rs.getFieldErrors().forEach(error -> errors.put(error.getField(), error.getDefaultMessage()));
@@ -169,7 +172,8 @@ public class BlogCommentController {
             boolean ok = blogCommentService.deleteComment(id);
             return new ResponseEntity<>(ok, HttpStatus.OK);
         } catch (Exception e) {
-            return new ResponseEntity<>(false, HttpStatus.INTERNAL_SERVER_ERROR);
+            ApiError apiError = new ApiError("Error when delete comment");
+            return new ResponseEntity<>(apiError, HttpStatus.BAD_REQUEST);
         }
     }
 }

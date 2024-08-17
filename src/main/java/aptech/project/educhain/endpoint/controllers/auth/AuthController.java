@@ -91,13 +91,13 @@ public class AuthController {
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<ApiError> logOut(HttpServletRequest request) {
+    public ResponseEntity<?> logOut(HttpServletRequest request) {
         User user = iJwtService.getUserByHeaderToken(request.getHeader("Authorization"));
-        return new ResponseEntity<>(new ApiError("Success logout"), HttpStatus.OK);
+        return new ResponseEntity<>("Success logout", HttpStatus.OK);
     }
 
     @PostMapping("/register")
-    public ResponseEntity<ApiError> postRegister(@Valid @RequestBody RegisterRequest regis, BindingResult rs) {
+    public ResponseEntity<?> postRegister(@Valid @RequestBody RegisterRequest regis, BindingResult rs) {
         if (rs.hasErrors()) {
             Map<String, String> errors = new HashMap<>();
             rs.getFieldErrors().forEach(error -> errors.put(error.getField(), error.getDefaultMessage()));
@@ -116,7 +116,7 @@ public class AuthController {
             return new ResponseEntity<>(new ApiError("Cannot register."), HttpStatus.BAD_REQUEST);
         }
 
-        return new ResponseEntity<>(new ApiError("Please check your email to verify."), HttpStatus.OK);
+        return new ResponseEntity<>("Please check your email to verify.", HttpStatus.OK);
     }
 
     @PostMapping("/reset-access-token")
@@ -139,7 +139,7 @@ public class AuthController {
     }
 
     @PostMapping("re-send-verify")
-    public ResponseEntity<ApiError> reSendCodeVerify(@RequestBody ReSendPasswordVerify req) {
+    public ResponseEntity<?> reSendCodeVerify(@RequestBody ReSendPasswordVerify req) {
     if(req == null){
             return new ResponseEntity<>(new ApiError("please submit email"), HttpStatus.NOT_FOUND);
         }
@@ -150,12 +150,17 @@ public class AuthController {
         EmailToken emailToken = iAuthService.createTokenEmail(user.getId());
         String url = baseUrlVerify;
         iEmailService.sendEmail(user.getEmail(), iEmailService.templateEmail(user.getEmail(), emailToken.getCode()));
-        return new ResponseEntity<>(new ApiError("success re-send code"), HttpStatus.OK);
+        return new ResponseEntity<>("success re-send code", HttpStatus.OK);
     }
 
     @PostMapping("/verify")
-    public ResponseEntity<ApiError> verifyToken(@RequestBody Integer code) {
-        EmailToken checkToken = iAuthService.verifyEmailToken(code);
+    public ResponseEntity<?> verifyToken(@RequestBody VerifyRequest code,BindingResult rs) {
+        if (rs.hasErrors()) {
+            Map<String, String> errors = new HashMap<>();
+            rs.getFieldErrors().forEach(error -> errors.put(error.getField(), error.getDefaultMessage()));
+            return new ResponseEntity<>(new ApiError(errors), HttpStatus.BAD_REQUEST);
+        }
+        EmailToken checkToken = iAuthService.verifyEmailToken(code.getCode(),code.getEmail());
         if (checkToken == null) {
             return new ResponseEntity<>(new ApiError("Token not found or expired."), HttpStatus.NOT_FOUND);
         }
@@ -163,11 +168,11 @@ public class AuthController {
         if (!checkResult) {
             return new ResponseEntity<>(new ApiError("Server Error"), HttpStatus.BAD_REQUEST);
         }
-        return new ResponseEntity<>(new ApiError("Success verify"), HttpStatus.OK);
+        return new ResponseEntity<>("Success verify", HttpStatus.OK);
     }
 
     @PostMapping("/send_mail")
-    public ResponseEntity<ApiError> sendMail(@RequestBody ResetEmailRequest request) {
+    public ResponseEntity<?> sendMail(@RequestBody ResetEmailRequest request) {
         if (request.getEmail() == null || request.getEmail().isEmpty()) {
             return new ResponseEntity<>(new ApiError("your email required"), HttpStatus.NOT_FOUND);
         }
@@ -180,11 +185,11 @@ public class AuthController {
         }
         ResetPasswordToken resetPasswordToken = iAuthService.createResetPasswordToken(user.getId());
         iEmailService.sendEmail(user.getEmail(), iEmailService.templateResetPassword(user.getEmail(), resetPasswordToken.getResetPasswordToken()));
-        return new ResponseEntity<>(new ApiError("Success sending email verify"), HttpStatus.OK);
+        return new ResponseEntity<>("Success sending email verify", HttpStatus.OK);
     }
 
     @PostMapping("/reset_password")
-    public ResponseEntity<ApiError> resetAction(@Valid @RequestBody ResetPasswordRequest req, BindingResult rs) {
+    public ResponseEntity<?> resetAction(@Valid @RequestBody ResetPasswordRequest req, BindingResult rs) {
         if (rs.hasErrors()) {
             Map<String, String> errors = new HashMap<>();
             rs.getFieldErrors().forEach(error -> errors.put(error.getField(), error.getDefaultMessage()));
@@ -200,7 +205,7 @@ public class AuthController {
             case -2:
                 return new ResponseEntity<>(new ApiError("Your token is expired"), HttpStatus.BAD_REQUEST);
             default:
-                return new ResponseEntity<>(new ApiError("Success change password"), HttpStatus.OK);
+                return new ResponseEntity<>("Success change password", HttpStatus.OK);
         }
     }
 }

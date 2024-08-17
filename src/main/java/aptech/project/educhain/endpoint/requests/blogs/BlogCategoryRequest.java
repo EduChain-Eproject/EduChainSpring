@@ -9,6 +9,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class BlogCategoryRequest {
-    @NotEmpty
+    @NotEmpty(message = "category name cant be empty")
     private String categoryName;
 }
