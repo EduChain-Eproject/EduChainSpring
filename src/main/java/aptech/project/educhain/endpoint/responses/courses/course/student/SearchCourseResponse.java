@@ -15,6 +15,8 @@ public class SearchCourseResponse {
     private String description;
     private Double price;
     private String status;
+    private String avatarPath;
+
     private Integer numberOfLessons;
     private UserCourseDTO currentUserCourse;
 }

@@ -21,6 +21,7 @@ public class GetCourseDetailResponse {
     private String description;
     private Double price;
     private String status;
+    private String avatarPath;
 
     private UserDTO teacherDto;
     private List<ChapterDTO> chapterDtos;
