@@ -19,7 +19,6 @@ public class UpdateLessonRequest {
     private String description;
     @NotEmpty(message = "Video title is required")
     private String videoTitle;
-    private String videoURL;
     @NotNull(message = "videoFile is required")
     private MultipartFile videoFile;
 

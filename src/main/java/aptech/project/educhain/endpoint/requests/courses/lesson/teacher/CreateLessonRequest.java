@@ -19,7 +19,6 @@ public class CreateLessonRequest {
     private String description;
     @NotEmpty(message = "videoTitle required")
     private String videoTitle;
-    private String videoURL;
     @NotNull(message = "Video file is required")
     private MultipartFile videoFile;
 }
