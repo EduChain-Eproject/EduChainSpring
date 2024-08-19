@@ -48,14 +48,18 @@ public class SearchCoursesUseCase implements Usecase<Page<CourseDTO>, CourseSear
             Page<CourseDTO> courseDTOPage = coursePage.map(course -> {
                 var dto = modelMapper.map(course, CourseDTO.class);
 
-                var lessonCount = course.getChapters().stream().mapToInt((chapter) -> chapter.getLessons().size()).sum();
+                var lessonCount = course.getChapters().stream().mapToInt((chapter) -> chapter.getLessons().size())
+                        .sum();
                 dto.setNumberOfLessons(lessonCount);
 
                 if (request.getUserId() != null) {
-                    var userCourse = userCourseRepository.findByUserIdAndCourseId(request.getUserId(), course.getId()).get();
-                    userCourse.getProgress();
-                    userCourse.getCompletionStatus();
-                    dto.setCurrentUserCourse(modelMapper.map(userCourse, UserCourseDTO.class));
+                    var userCourse = userCourseRepository.findByUserIdAndCourseId(request.getUserId(), course.getId());
+                    if (userCourse.isPresent()) {
+                        var uc = userCourse.get();
+                        uc.getProgress();
+                        uc.getCompletionStatus();
+                        dto.setCurrentUserCourse(modelMapper.map(uc, UserCourseDTO.class));
+                    }
                 }
 
                 return dto;
