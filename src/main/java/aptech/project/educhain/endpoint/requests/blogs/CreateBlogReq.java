@@ -1,5 +1,6 @@
 package aptech.project.educhain.endpoint.requests.blogs;
 
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -14,7 +15,8 @@ public class CreateBlogReq {
     @Size(max = 100, message = "Title cannot exceed 100 characters")
     private String title;
 
-    @NotNull(message = "Blog category ID is required")
+    @NotNull(message = "Blog category is required")
+    @Min(value = 1, message = "Blog category must required")
     private Integer blogCategoryId;
 
     @NotBlank(message = "Blog text is required")

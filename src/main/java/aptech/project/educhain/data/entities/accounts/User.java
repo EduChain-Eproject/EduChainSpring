@@ -1,8 +1,10 @@
 package aptech.project.educhain.data.entities.accounts;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import aptech.project.educhain.data.entities.blogs.UserBlogVote;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -77,6 +79,8 @@ public class User extends BaseModel implements UserDetails {
     @Column(name = "avatarPath")
     private String avatarPath;
 
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<UserBlogVote> votes ;
 
     @JsonIgnoreProperties("user")
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
@@ -156,6 +160,9 @@ public class User extends BaseModel implements UserDetails {
     @OneToMany(mappedBy = "sender", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @ToString.Exclude
     private List<Notification> sentNotifications;
+
+
+
 
     // Using UserDetail interface for config spring security
     @Override
