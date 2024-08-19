@@ -8,6 +8,5 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class AddOrDeleteUserInterestRequest {
-
-    private int course_id;
+    private int courseId;
 }

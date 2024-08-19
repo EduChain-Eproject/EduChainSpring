@@ -1,15 +1,11 @@
 package aptech.project.educhain.endpoint.controllers.personalization;
 
+import aptech.project.educhain.endpoint.requests.personaliztion.user_interests.AddOrDeleteUserInterestRequest;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import aptech.project.educhain.common.result.ApiError;
 import aptech.project.educhain.data.entities.accounts.User;
@@ -36,11 +32,11 @@ public class UserInterestsController {
     @Autowired
     private IJwtService iJwtService;
 
-    @PostMapping("/add-to-wishlist/{courseId}")
-    public ResponseEntity<?> addToWishList(@PathVariable("courseId") int courseId, HttpServletRequest request) {
+    @PostMapping("/add-to-wishlist")
+    public ResponseEntity<?> addToWishList(@RequestBody AddOrDeleteUserInterestRequest rq, HttpServletRequest request) {
         var user = iJwtService.getUserByHeaderToken(request.getHeader("Authorization"));
 
-        AddToUserInterestsParams params = new AddToUserInterestsParams(user.getId(), courseId);
+        AddToUserInterestsParams params = new AddToUserInterestsParams(user.getId(), rq.getCourseId());
 
         var wishList = userInterestsService.addUserInterest(params);
         if (wishList.isSuccess()) {
@@ -51,11 +47,11 @@ public class UserInterestsController {
                 HttpStatus.BAD_REQUEST);
     }
 
-    @DeleteMapping("/delete-wishlist/{courseId}")
-    public ResponseEntity<?> deleteWishList(@PathVariable("courseId") int courseId, HttpServletRequest request) {
+    @DeleteMapping("/delete-wishlist")
+    public ResponseEntity<?> deleteWishList(@RequestBody AddOrDeleteUserInterestRequest rq, HttpServletRequest request) {
         var user = iJwtService.getUserByHeaderToken(request.getHeader("Authorization"));
 
-        DeleteUserInterestsParams deleteUserInterestsParams = new DeleteUserInterestsParams(user.getId(), courseId);
+        DeleteUserInterestsParams deleteUserInterestsParams = new DeleteUserInterestsParams(user.getId(), rq.getCourseId());
 
         var isDeleted = userInterestsService.deleteUserInterest(deleteUserInterestsParams);
         if (isDeleted.isSuccess()) {
@@ -65,7 +61,7 @@ public class UserInterestsController {
     }
 
     @PostMapping("/get-user-interest")
-    public ResponseEntity<?> getUserInterestlist(@RequestBody UserInterestRequest req, HttpServletRequest request) {
+    public ResponseEntity<?> getUserInterestlist(HttpServletRequest request, @RequestBody UserInterestRequest req) {
         String token = request.getHeader("Authorization");
         if (token == null) {
             return null;

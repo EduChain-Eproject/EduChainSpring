@@ -1,11 +1,16 @@
 package aptech.project.educhain.endpoint.controllers.personalization;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import aptech.project.educhain.common.result.ApiError;
 import aptech.project.educhain.common.result.AppResult;
+import aptech.project.educhain.data.serviceImpl.common.UploadPhotoService;
 import aptech.project.educhain.domain.dtos.courses.AwardDTO;
 import aptech.project.educhain.domain.dtos.courses.UserHomeworkDTO;
 import aptech.project.educhain.domain.useCases.personalization.user_award.get_user_award_userId.UserAwardParams;
@@ -20,6 +25,7 @@ import aptech.project.educhain.endpoint.responses.common.UserAwardResponse;
 import aptech.project.educhain.endpoint.responses.common.UserHomeworkResponse;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -55,6 +61,12 @@ public class UserProfileController {
 
     @Autowired
     IAuthService iAuthService;
+
+    @Autowired
+    UploadPhotoService uploadPhotoService;
+
+    @Value("${file.upload-dir}")
+    private String uploadDir;
 
 
     @GetMapping("getUser")
@@ -92,7 +104,7 @@ public class UserProfileController {
 
     @PutMapping(value = "/updateProfile", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> updateProfile(@Valid @ModelAttribute UpdateUserRequest updateUserRequest,
-            BindingResult rs,HttpServletRequest request) {
+                                           BindingResult rs, HttpServletRequest request) {
         if (rs.hasErrors()) {
             Map<String, String> errors = new HashMap<>();
             rs.getFieldErrors().forEach(error -> errors.put(error.getField(), error.getDefaultMessage()));
@@ -100,27 +112,48 @@ public class UserProfileController {
             ApiError apiError = new ApiError(errors);
             return new ResponseEntity<>(apiError, HttpStatus.BAD_REQUEST);
         }
-        String token = request.getHeader("Authorization");
-        if (token == null) {
-            //todo
-            return new ResponseEntity<>(new ApiError("cant find token in your header"),
-                    HttpStatus.BAD_REQUEST);
-        }
-        String newToken = token.substring(7);
-        var email = iJwtService.extractUserName(newToken);
-        User user = iAuthService.findUserByEmail(email);
-        UpdateUserProfileParam updateUserProfileParam = modelMapper.map(updateUserRequest,
-                UpdateUserProfileParam.class);
+        try {
+            String token = request.getHeader("Authorization");
+            if (token == null) {
+                return new ResponseEntity<>(new ApiError("cant find token in your header"), HttpStatus.BAD_REQUEST);
+            }
+            String newToken = token.substring(7);
+            var email = iJwtService.extractUserName(newToken);
+            User user = iAuthService.findUserByEmail(email);
+            UpdateUserProfileParam updateUserProfileParam = modelMapper.map(updateUserRequest, UpdateUserProfileParam.class);
 
-        updateUserProfileParam.setId(user.getId());
-        var result = userProfileService.updateProfile(updateUserProfileParam);
-        if (result.isSuccess()) {
-            var res = modelMapper.map(result.getSuccess(), UserProfileResponse.class);
-            return new ResponseEntity<>(res, HttpStatus.OK);
+            String fileName = uploadPhotoService.uploadPhoto(updateUserRequest.getAvatarFile());
+            String oldPhoto = user.getAvatarPath();
+
+            if (fileName != null) {
+                user.setAvatarPath(fileName);
+                if (oldPhoto != null) {
+                    Path path = Paths.get(uploadDir);
+                    Files.deleteIfExists(path.resolve(oldPhoto));
+                }
+            } else if (updateUserRequest.getAvatarFile().isEmpty()) {
+                user.setAvatarPath(null);
+                if (oldPhoto != null) {
+                    Path path = Paths.get(uploadDir);
+                    Files.deleteIfExists(path.resolve(oldPhoto));
+                }
+            }
+
+            updateUserProfileParam.setId(user.getId());
+            var result = userProfileService.updateProfile(updateUserProfileParam);
+
+            System.out.println(user.getAvatarPath());
+            if (result.isSuccess()) {
+                var res = modelMapper.map(result.getSuccess(), UserProfileResponse.class);
+                return new ResponseEntity<>(res, HttpStatus.OK);
+            } else {
+                ApiError apiError = new ApiError("Error when updating profile");
+                return new ResponseEntity<>(apiError, HttpStatus.BAD_REQUEST);
+            }
+        } catch (Exception e) {
+            ApiError apiError = new ApiError("Error when updating profile");
+            return new ResponseEntity<>(apiError, HttpStatus.BAD_REQUEST);
         }
-        //todo
-        return new ResponseEntity<>(new ApiError(result.getFailure().getMessage()),
-                HttpStatus.BAD_REQUEST);
     }
 
     //list award by user id

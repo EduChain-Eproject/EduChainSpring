@@ -9,6 +9,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class UserHomeworkRequest {
     private Boolean isSubmitted;
-    private int page;
-    private int size;
+    private int page = 0;
+    private int size = 10;
 }

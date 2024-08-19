@@ -20,5 +20,4 @@ public class UpdateUserRequest {
     @NotEmpty(message = "cant recognize your address")
     private String address;
     private MultipartFile avatarFile;
-
 }

@@ -1,11 +1,13 @@
 package aptech.project.educhain.endpoint.controllers.personalization;
 
 import aptech.project.educhain.common.result.ApiError;
+import aptech.project.educhain.domain.services.accounts.IJwtService;
 import aptech.project.educhain.domain.services.personalization.UserCourseService;
 import aptech.project.educhain.domain.useCases.personalization.user_course.add_user_course.AddUserCourseParams;
 import aptech.project.educhain.domain.useCases.personalization.user_course.get_all_user_course.UserCourseParams;
 import aptech.project.educhain.endpoint.requests.personaliztion.user_course.AddUserCourseRequest;
 import aptech.project.educhain.endpoint.requests.personaliztion.user_course.UserCourseRequest;
+import jakarta.servlet.http.HttpServletRequest;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -20,11 +22,18 @@ public class UserCourseController {
     ModelMapper modelMapper;
     @Autowired
     UserCourseService userCourseService;
+    @Autowired
+    IJwtService iJwtService;
     //get user course list
 
     @PostMapping("/all-user-course")
-    public ResponseEntity<?> takeAllUserCourse(@RequestBody UserCourseRequest req){
-            UserCourseParams params = modelMapper.map(req,UserCourseParams.class);
+    public ResponseEntity<?> takeAllUserCourse(HttpServletRequest servletRequest, @RequestBody UserCourseRequest req){
+        var user = iJwtService.getUserByHeaderToken(servletRequest.getHeader("Authorization"));
+
+        UserCourseParams params = modelMapper.map(req,UserCourseParams.class);
+
+        params.setStudentId(user.getId());
+
         var userCourseDTO = userCourseService.getAllUserCourseWithParams(params);
         if(userCourseDTO.isSuccess()){
             return new  ResponseEntity<>(userCourseDTO.getSuccess(), HttpStatus.OK);

@@ -9,9 +9,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class UserCourseRequest {
-    private int studentId;
-    private int page;
-    private int size;
+    private int page = 0;
+    private int size = 10;
     private String titleSearch;
     private UserCourse.CompletionStatus completionStatus;
 }

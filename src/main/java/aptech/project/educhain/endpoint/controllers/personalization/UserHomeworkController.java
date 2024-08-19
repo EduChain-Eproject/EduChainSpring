@@ -38,7 +38,7 @@ public class UserHomeworkController {
     IAuthService iAuthService;
 
     @PostMapping("/list-homework")
-    public ResponseEntity<?> listUserHomeWork(@RequestBody UserHomeworkRequest req, HttpServletRequest request) {
+    public ResponseEntity<?> listUserHomeWork(HttpServletRequest request, @RequestBody UserHomeworkRequest req) {
         String token = request.getHeader("Authorization");
         if (token == null) {
             return new ResponseEntity<>(new ApiError("cant find token in your header"),
