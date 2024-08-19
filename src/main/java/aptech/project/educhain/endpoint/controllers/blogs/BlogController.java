@@ -102,7 +102,7 @@ public class BlogController {
         }
         return ResponseEntity.badRequest().body(result.getFailure().getMessage());
     }
-    
+
 
     private BlogCommentDTO mapChildComment(BlogComment comment, Integer blogId) {
         BlogCommentDTO dto = modelMapper.map(comment, BlogCommentDTO.class);
@@ -157,7 +157,7 @@ public class BlogController {
 
     @Operation(summary = "Add new blog")
     @PostMapping(value = "/create", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<?> create(@Valid @ModelAttribute CreateBlogReq req, HttpServletRequest servletRequest, BindingResult rs) {
+    public ResponseEntity<?> create( HttpServletRequest servletRequest, @Valid @ModelAttribute CreateBlogReq req, BindingResult rs) {
         if (rs.hasErrors()) {
             Map<String, String> errors = new HashMap<>();
             rs.getFieldErrors().forEach(error -> errors.put(error.getField(), error.getDefaultMessage()));
