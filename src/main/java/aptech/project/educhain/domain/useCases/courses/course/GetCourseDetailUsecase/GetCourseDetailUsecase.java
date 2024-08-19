@@ -64,7 +64,8 @@ public class GetCourseDetailUsecase implements Usecase<CourseDTO, GetCourseDetai
 
                                                 if (params.getUserId() != null) {
                                                     ls.getHomeworks().stream().forEach((homework) -> {
-                                                        var uh = userHomeworkRepository.findByUserIdAndHomeworkId(params.getUserId(), homework.getId()).get();
+                                                        var uh = userHomeworkRepository.findByUserIdAndHomeworkId(
+                                                                params.getUserId(), homework.getId()).get();
                                                         if (uh.getProgress() == 100) {
                                                             lsDto.setCurrentUserFinished(true);
                                                         } else {
@@ -88,9 +89,11 @@ public class GetCourseDetailUsecase implements Usecase<CourseDTO, GetCourseDetai
                         .orElse(null);
                 courseDTO.setLessonIdTolearn(lessonIdToLearn);
 
-                var interest = userInterestRepo.findByCourseIdAndUserId(params.getCourseId(), params.getUserId());
+                if (params.getUserId() != null) {
+                    var interest = userInterestRepo.findByCourseIdAndUserId(params.getCourseId(), params.getUserId());
 
-                courseDTO.setCurrentUserInterested(interest != null);
+                    courseDTO.setCurrentUserInterested(interest != null);
+                }
 
                 courseDTO.setParticipatedUserDtos(course.getParticipatedUsers().stream()
                         .map(student -> {
