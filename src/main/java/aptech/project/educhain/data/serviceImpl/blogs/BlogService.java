@@ -3,22 +3,22 @@ package aptech.project.educhain.data.serviceImpl.blogs;
 import java.util.List;
 import java.util.Map;
 
+import aptech.project.educhain.common.result.AppResult;
+import aptech.project.educhain.domain.dtos.blogs.BlogDTO;
+import aptech.project.educhain.domain.useCases.blogs.BlogUseCases.BlogFilterUseCase.BlogFilterParam;
+import aptech.project.educhain.domain.useCases.blogs.BlogUseCases.BlogFilterUseCase.BlogFilterUseCase;
+import aptech.project.educhain.domain.useCases.blogs.BlogUseCases.FindAllBlogUseCase.GetAllBlogParams;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
 import aptech.project.educhain.data.entities.blogs.Blog;
 import aptech.project.educhain.domain.services.blogs.IBlogService;
-import aptech.project.educhain.domain.services.blogs.BlogSorting.SortStrategy;
-import aptech.project.educhain.domain.useCases.blogs.BlogUseCases.CreateBlogUseCase;
-import aptech.project.educhain.domain.useCases.blogs.BlogUseCases.DeleteBlogUseCase;
-import aptech.project.educhain.domain.useCases.blogs.BlogUseCases.FindAllBlogUseCase;
-import aptech.project.educhain.domain.useCases.blogs.BlogUseCases.FindBlogByCategoryUseCases;
-import aptech.project.educhain.domain.useCases.blogs.BlogUseCases.FindOneBlogUseCase;
-import aptech.project.educhain.domain.useCases.blogs.BlogUseCases.SearchBlogUseCase;
-import aptech.project.educhain.domain.useCases.blogs.BlogUseCases.SortingBlogUseCase;
-import aptech.project.educhain.domain.useCases.blogs.BlogUseCases.UpdateBlogUseCase;
-import aptech.project.educhain.domain.useCases.blogs.BlogUseCases.ValidateCreateUseCase;
-import aptech.project.educhain.domain.useCases.blogs.BlogUseCases.ValidateUpdateUseCase;
+import aptech.project.educhain.domain.useCases.blogs.BlogUseCases.CreateBlogUseCase.CreateBlogUseCase;
+import aptech.project.educhain.domain.useCases.blogs.BlogUseCases.DeleteBlogUseCase.DeleteBlogUseCase;
+import aptech.project.educhain.domain.useCases.blogs.BlogUseCases.FindAllBlogUseCase.FindAllBlogUseCase;
+import aptech.project.educhain.domain.useCases.blogs.BlogUseCases.FindOneBlogUseCase.FindOneBlogUseCase;
+import aptech.project.educhain.domain.useCases.blogs.BlogUseCases.UpdateBlogUseCase.UpdateBlogUseCase;
 
 @Service
 public class BlogService implements IBlogService {
@@ -32,25 +32,13 @@ public class BlogService implements IBlogService {
     FindAllBlogUseCase findAllBlogUseCase;
 
     @Autowired
-    FindBlogByCategoryUseCases findBlogByCategoryUseCases;
-
-    @Autowired
     FindOneBlogUseCase findOneBlogUseCase;
-
-    @Autowired
-    SearchBlogUseCase searchBlogUseCase;
-
-    @Autowired
-    SortingBlogUseCase sortingBlogUseCase;
 
     @Autowired
     UpdateBlogUseCase updateBlogUseCase;
 
     @Autowired
-    ValidateCreateUseCase validateCreateUseCase;
-
-    @Autowired
-    ValidateUpdateUseCase validateUpdateUseCase;
+    BlogFilterUseCase blogFilterUseCase;
 
     @Override
     public Blog findOneBlog(Integer id) {
@@ -58,8 +46,8 @@ public class BlogService implements IBlogService {
     }
 
     @Override
-    public List<Blog> findAll() {
-        return findAllBlogUseCase.execute();
+    public AppResult<Page<BlogDTO>> findAll(GetAllBlogParams params) {
+        return findAllBlogUseCase.execute(params);
     }
 
     @Override
@@ -78,31 +66,7 @@ public class BlogService implements IBlogService {
     }
 
     @Override
-    public List<Blog> sorting(List<Blog> blogs, SortStrategy sortStrategy) {
-        return sortingBlogUseCase.execute(blogs, sortStrategy);
-    }
-
-    @Override
-    public List<Blog> search(List<Blog> blogs, String keyword) {
-        return searchBlogUseCase.execute(blogs, keyword);
-    }
-
-    @Override
-    public List<Blog> findByCategory(List<Blog> blogs, Integer[] intArray) {
-        return findBlogByCategoryUseCases.execute(blogs, intArray);
-    }
-
-    @Override
-    public Map<String, String> validateFields(String title, Integer userId, Integer blogCategoryId, String blogText) {
-        return validateFieldsUpdate(title, blogCategoryId, blogText);
-    }
-
-    @Override
-    public Map<String, String> validateFieldsUpdate(String title, Integer blogCategoryId, String blogText) {
-        return validateUpdateUseCase.execute(title, blogCategoryId, blogText);
-    }
-
-    public SortStrategy getSortStrategy(String sortStrategy) {
-        return sortingBlogUseCase.getSortStrategy(sortStrategy);
+    public AppResult<Page<BlogDTO>> filter(BlogFilterParam params) {
+        return blogFilterUseCase.execute(params);
     }
 }

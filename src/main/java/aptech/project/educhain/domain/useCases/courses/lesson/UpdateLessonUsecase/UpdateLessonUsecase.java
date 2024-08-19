@@ -5,8 +5,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Optional;
 
-import aptech.project.educhain.data.serviceImpl.common.UploadVideoServiceImpl;
-import jakarta.transaction.Transactional;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -18,8 +16,10 @@ import aptech.project.educhain.common.usecase.Usecase;
 import aptech.project.educhain.data.entities.courses.Lesson;
 import aptech.project.educhain.data.repositories.courses.ChapterRepository;
 import aptech.project.educhain.data.repositories.courses.LessonRepository;
+import aptech.project.educhain.data.serviceImpl.common.UploadVideoServiceImpl;
 import aptech.project.educhain.domain.dtos.courses.ChapterDTO;
 import aptech.project.educhain.domain.dtos.courses.LessonDTO;
+import jakarta.transaction.Transactional;
 
 @Component
 public class UpdateLessonUsecase implements Usecase<LessonDTO, UpdateLessonParams> {
@@ -47,6 +47,7 @@ public class UpdateLessonUsecase implements Usecase<LessonDTO, UpdateLessonParam
             }
 
             Lesson lesson = lessonOptional.get();
+          
             lesson.setLessonTitle(params.getLessonTitle());
             lesson.setDescription(params.getDescription());
             lesson.setVideoTitle(params.getVideoTitle());

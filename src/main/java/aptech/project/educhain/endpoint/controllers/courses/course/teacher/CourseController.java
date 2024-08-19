@@ -84,6 +84,7 @@ public class CourseController {
             rs.getFieldErrors().forEach(error -> errors.put(error.getField(), error.getDefaultMessage()));
             return new ResponseEntity<>(new ApiError(errors), HttpStatus.BAD_REQUEST);
         }
+      
         var user = iJwtService.getUserByHeaderToken(servletRequest.getHeader("Authorization"));
 
         GetCoursesByTeacherParams params = modelMapper.map(request, GetCoursesByTeacherParams.class);

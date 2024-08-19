@@ -92,7 +92,7 @@ public class UserProfileController {
 
     @PostMapping(value = "/updateProfile", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> updateProfile(@Valid @ModelAttribute UpdateUserRequest updateUserRequest,
-            BindingResult rs) {
+            BindingResult rs,HttpServletRequest request) {
         if (rs.hasErrors()) {
             Map<String, String> errors = new HashMap<>();
             rs.getFieldErrors().forEach(error -> errors.put(error.getField(), error.getDefaultMessage()));
@@ -100,8 +100,19 @@ public class UserProfileController {
             ApiError apiError = new ApiError(errors);
             return new ResponseEntity<>(apiError, HttpStatus.BAD_REQUEST);
         }
+        String token = request.getHeader("Authorization");
+        if (token == null) {
+            //todo
+            return new ResponseEntity<>(new ApiError("cant find token in your header"),
+                    HttpStatus.BAD_REQUEST);
+        }
+        String newToken = token.substring(7);
+        var email = iJwtService.extractUserName(newToken);
+        User user = iAuthService.findUserByEmail(email);
         UpdateUserProfileParam updateUserProfileParam = modelMapper.map(updateUserRequest,
                 UpdateUserProfileParam.class);
+
+        updateUserProfileParam.setId(user.getId());
         var result = userProfileService.updateProfile(updateUserProfileParam);
         if (result.isSuccess()) {
             var res = modelMapper.map(result.getSuccess(), UserProfileResponse.class);

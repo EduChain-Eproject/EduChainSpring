@@ -20,7 +20,8 @@ public class FindCommentByBlogUseCase {
     public List<BlogComment> execute(Integer id) {
         try {
             Blog blog = blogRepository.findById(id).get();
-            return blogCommentRepository.findBlogCommentByBlog(blog);
+            var listblog = blogCommentRepository.findBlogCommentByBlogAndParentCommentIsNull(blog);
+            return listblog;
         }catch(Exception ex){
             ex.getMessage();
         }

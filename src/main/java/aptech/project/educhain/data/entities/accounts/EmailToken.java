@@ -17,7 +17,7 @@ import java.sql.Timestamp;
 public class EmailToken extends BaseModel {
     private Integer code;
     private Timestamp timeExpire;
-
+    private String email;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     @ToString.Exclude

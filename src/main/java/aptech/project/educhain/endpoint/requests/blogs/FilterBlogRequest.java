@@ -4,11 +4,15 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
 public class FilterBlogRequest {
-    private String sortStrategy = "ascTitle";
-    private String keyword;
-    private Integer categoryId;
+    private int page;
+    private int size = 10;
+    String keyword;
+    String sortStrategy = "DATE_DESC";
+    List<Integer> categoryIds = null;
 }

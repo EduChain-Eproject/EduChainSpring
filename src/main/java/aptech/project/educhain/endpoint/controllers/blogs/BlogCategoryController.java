@@ -74,7 +74,7 @@ public class BlogCategoryController {
 
     @Operation(summary = "Edit category")
     @PutMapping("/{id}")
-    public ResponseEntity<?> update( @Valid @RequestBody BlogCategory category,@PathVariable Integer id,BindingResult rs) {
+    public ResponseEntity<?> update(@PathVariable Integer id, @Valid @RequestBody BlogCategoryRequest text,BindingResult rs) {
         if (rs.hasErrors()) {
             Map<String, String> errors = new HashMap<>();
             rs.getFieldErrors().forEach(error -> errors.put(error.getField(), error.getDefaultMessage()));
@@ -82,8 +82,11 @@ public class BlogCategoryController {
             ApiError apiError = new ApiError(errors);
             return new ResponseEntity<>(apiError, HttpStatus.BAD_REQUEST);
         }
-        BlogCategory cate = service.update(id, category);
-        return ResponseEntity.status(HttpStatus.OK).body(cate);
+        BlogCategory findCateById = service.findBlogCategory(id);
+        findCateById.setCategoryName(text.getCategoryName());
+        BlogCategory cate = service.update(id, findCateById);
+        BlogCategoryDTO categoryDTO = modelMapper.map(cate, BlogCategoryDTO.class);
+        return ResponseEntity.status(HttpStatus.OK).body(categoryDTO);
     }
 
     @Operation(summary = "Delete category")

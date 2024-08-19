@@ -33,5 +33,4 @@ public class UserDTO {
 
     private long numberOfStudents;
     private CourseDTO mostPopularCourse;
-
 }

@@ -1,16 +1,8 @@
 package aptech.project.educhain.endpoint.controllers.courses.lesson.teacher;
 
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 
-import aptech.project.educhain.common.result.ApiError;
-import aptech.project.educhain.data.entities.courses.Lesson;
-import aptech.project.educhain.data.repositories.courses.LessonRepository;
-import aptech.project.educhain.data.serviceImpl.common.UploadVideoServiceImpl;
-import jakarta.validation.Valid;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -25,12 +17,12 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
 
 import aptech.project.educhain.common.result.ApiError;
 import aptech.project.educhain.common.result.AppResult;
+import aptech.project.educhain.data.repositories.courses.LessonRepository;
+import aptech.project.educhain.data.serviceImpl.common.UploadVideoServiceImpl;
 import aptech.project.educhain.data.serviceImpl.courses.LessonService;
 import aptech.project.educhain.domain.dtos.courses.LessonDTO;
 import aptech.project.educhain.domain.useCases.courses.lesson.CreateLessonUsecase.CreateLessonParams;
