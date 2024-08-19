@@ -11,8 +11,6 @@ import org.springframework.web.multipart.MultipartFile;
 @AllArgsConstructor
 @NoArgsConstructor
 public class UpdateUserRequest {
-    @NotNull(message = "cant recognize your id")
-    private int id;
     @NotEmpty(message = "cant recognize your email")
     private String email;
     @NotEmpty(message = "cant recognize your firstName")

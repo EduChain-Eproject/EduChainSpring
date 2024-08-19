@@ -10,7 +10,7 @@ public class BlogCommentReq {
         private String text;
 
         private String parentCommentId;
-        @NotNull(message = "Blog ID is required")
 
+        @NotNull(message = "Blog ID is required")
         private Integer blogId;
 }
