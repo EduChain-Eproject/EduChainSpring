@@ -2,6 +2,7 @@ package aptech.project.educhain.data.entities.blogs;
 
 import aptech.project.educhain.data.entities.BaseModel;
 import aptech.project.educhain.data.entities.accounts.User;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
@@ -9,6 +10,7 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import java.util.List;
 
@@ -39,9 +41,13 @@ public class Blog extends BaseModel {
     private int voteUp;
 
     @OneToMany(mappedBy = "blog", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JsonBackReference
+    @ToString.Exclude
     private List<BlogComment> blogComments;
 
     @OneToMany(mappedBy = "blog", cascade = CascadeType.ALL)
+
+    @ToString.Exclude
     private List<UserBlogVote> userBlogVotes;
 
 

@@ -40,14 +40,14 @@ public class UpdateLessonUsecase implements Usecase<LessonDTO, UpdateLessonParam
     @Transactional
     public AppResult<LessonDTO> execute(UpdateLessonParams params) {
         try {
-         Optional<Lesson> lessonOptional = lessonRepository.findById(params.getId());
+            Optional<Lesson> lessonOptional = lessonRepository.findById(params.getId());
 
             if (lessonOptional == null) {
                 return AppResult.failureResult(new Failure("Lesson not found with ID: " + params.getId()));
             }
 
             Lesson lesson = lessonOptional.get();
-
+          
             lesson.setLessonTitle(params.getLessonTitle());
             lesson.setDescription(params.getDescription());
             lesson.setVideoTitle(params.getVideoTitle());
@@ -55,7 +55,7 @@ public class UpdateLessonUsecase implements Usecase<LessonDTO, UpdateLessonParam
             var newChapter = chapterRepository.findById(params.getChapterId());
             if (newChapter.isEmpty()) {
                 return AppResult
-                        .failureResult(new Failure("Error updating lesson: chapter not found" ));
+                        .failureResult(new Failure("Error updating lesson: chapter not found"));
             }
             lesson.setChapter(newChapter.get());
 
@@ -65,7 +65,7 @@ public class UpdateLessonUsecase implements Usecase<LessonDTO, UpdateLessonParam
             String video = fileName != null ? fileName : oldVideo;
             if (fileName != null) {
                 Path path = Paths.get(uploadDir);
-                if(video == null){
+                if (video == null) {
                     Files.deleteIfExists(path.resolve(oldVideo));
                 }
             }
@@ -77,7 +77,7 @@ public class UpdateLessonUsecase implements Usecase<LessonDTO, UpdateLessonParam
             lessonDTO.setChapterDto(chapterDTO);
 
             return AppResult.successResult(lessonDTO);
-        }catch (Exception e) {
+        } catch (Exception e) {
             return AppResult.failureResult(new Failure("Error updating lesson: " + e.getMessage()));
 
         }

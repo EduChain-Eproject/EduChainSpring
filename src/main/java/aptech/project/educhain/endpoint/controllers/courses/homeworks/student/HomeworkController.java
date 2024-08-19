@@ -3,6 +3,8 @@ package aptech.project.educhain.endpoint.controllers.courses.homeworks.student;
 import java.util.HashMap;
 import java.util.Map;
 
+import aptech.project.educhain.common.result.ApiError;
+import aptech.project.educhain.endpoint.responses.courses.answer.UserAnswerResponse;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -116,7 +118,7 @@ public class HomeworkController {
                 new AnswerQuestionParams(user.getId(), homework_id, bodyReq.getQuestionId(), bodyReq.getAnswerId()));
 
         if (result.isSuccess()) {
-            UserAnswerResponse userAnswerResponse = modelMapper.map(result.getSuccess(),UserAnswerResponse.class);
+            UserAnswerResponse userAnswerResponse = modelMapper.map(result.getSuccess(), UserAnswerResponse.class);
             return ResponseEntity.ok().body(result.getSuccess()); // TODO: map to res done
         }
 

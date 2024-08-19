@@ -8,7 +8,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class UserHomeworkRequest {
-    private Integer userId;
     private Boolean isSubmitted;
     private int page;
     private int size;

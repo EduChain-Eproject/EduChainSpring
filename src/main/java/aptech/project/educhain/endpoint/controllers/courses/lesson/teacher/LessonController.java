@@ -62,7 +62,7 @@ public class LessonController {
 
     @PostMapping("/create")
     public ResponseEntity<?> createLesson(
-             @Validated @ModelAttribute CreateLessonRequest request,
+            @Validated @ModelAttribute CreateLessonRequest request,
             BindingResult rs) {
         if (rs.hasErrors()) {
             Map<String, String> errors = new HashMap<>();
@@ -80,7 +80,7 @@ public class LessonController {
 
     @PutMapping("/update/{lessonId}")
     public ResponseEntity<?> updateLesson(@PathVariable("lessonId") Integer lessonId,
-             @Validated @ModelAttribute UpdateLessonRequest request,
+            @Validated @ModelAttribute UpdateLessonRequest request,
             BindingResult rs) {
         if (rs.hasErrors()) {
             Map<String, String> errors = new HashMap<>();

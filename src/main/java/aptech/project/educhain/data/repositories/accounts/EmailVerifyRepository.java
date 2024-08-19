@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 public interface EmailVerifyRepository extends JpaRepository<EmailToken,Integer> {
-    @Query("SELECT u FROM EmailToken u WHERE u.code = :code")
-    EmailToken findEmailTokenByCode(@Param("code") Integer code);
+    @Query("SELECT u FROM EmailToken u WHERE u.code = :code AND u.email = :email")
+    EmailToken findEmailTokenByCodeAndEmail(@Param("code") Integer code, @Param("email") String email);
+
 }

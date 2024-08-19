@@ -80,7 +80,7 @@ public class BlogController {
     IJwtService iJwtService;
 
     @Operation(summary = "Get all blog")
-    @PostMapping("")
+    @PostMapping("fetch")
     public ResponseEntity<?> getAllBlogs(@RequestBody FindAllBlogRequest request) {
         var params = modelMapper.map(request, GetAllBlogParams.class);
 

@@ -14,6 +14,5 @@ public class UpdateLessonParams {
     private String lessonTitle;
     private String description;
     private String videoTitle;
-    private String videoURL;
     private MultipartFile videoFile;
 }

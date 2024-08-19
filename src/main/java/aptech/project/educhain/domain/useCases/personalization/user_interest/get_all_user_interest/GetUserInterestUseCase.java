@@ -2,6 +2,9 @@ package aptech.project.educhain.domain.useCases.personalization.user_interest.ge
 
 import java.util.List;
 
+import aptech.project.educhain.common.usecase.Usecase;
+import aptech.project.educhain.data.entities.courses.Course;
+import aptech.project.educhain.domain.dtos.UserInterests.UserInterestsDTO;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -12,13 +15,11 @@ import org.springframework.stereotype.Component;
 
 import aptech.project.educhain.common.result.AppResult;
 import aptech.project.educhain.common.result.Failure;
-import aptech.project.educhain.common.usecase.Usecase;
 import aptech.project.educhain.data.entities.accounts.UserInterest;
 import aptech.project.educhain.data.repositories.accounts.AuthUserRepository;
 import aptech.project.educhain.data.repositories.accounts.UserInterestRepository;
 import aptech.project.educhain.data.repositories.courses.CourseCategoryRepository;
 import aptech.project.educhain.data.repositories.courses.CourseRepository;
-import aptech.project.educhain.domain.dtos.UserInterests.UserInterestsDTO;
 import aptech.project.educhain.domain.dtos.accounts.UserDTO;
 import aptech.project.educhain.domain.dtos.courses.CourseDTO;
 
@@ -34,7 +35,7 @@ public class GetUserInterestUseCase implements Usecase<Page<UserInterestsDTO>, G
     CourseCategoryRepository courseCategoryRepository;
     @Autowired
     ModelMapper modelMapper;
-
+  
     @Override
     public AppResult<Page<UserInterestsDTO>> execute(GetUserInterestByUserIdParams params) {
         try {
