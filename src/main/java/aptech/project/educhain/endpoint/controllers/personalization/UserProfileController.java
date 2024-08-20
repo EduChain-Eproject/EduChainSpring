@@ -103,8 +103,8 @@ public class UserProfileController {
     }
 
     @PutMapping(value = "/updateProfile", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<?> updateProfile(@Valid @ModelAttribute UpdateUserRequest updateUserRequest,
-                                           BindingResult rs, HttpServletRequest request) {
+    public ResponseEntity<?> updateProfile(HttpServletRequest request, @Valid @ModelAttribute UpdateUserRequest updateUserRequest,
+                                           BindingResult rs) {
         if (rs.hasErrors()) {
             Map<String, String> errors = new HashMap<>();
             rs.getFieldErrors().forEach(error -> errors.put(error.getField(), error.getDefaultMessage()));
@@ -115,14 +115,18 @@ public class UserProfileController {
         try {
             String token = request.getHeader("Authorization");
             if (token == null) {
-                return new ResponseEntity<>(new ApiError("cant find token in your header"), HttpStatus.BAD_REQUEST);
+                return new ResponseEntity<>(new ApiError("Can't find token in your header"), HttpStatus.BAD_REQUEST);
             }
             String newToken = token.substring(7);
             var email = iJwtService.extractUserName(newToken);
             User user = iAuthService.findUserByEmail(email);
             UpdateUserProfileParam updateUserProfileParam = modelMapper.map(updateUserRequest, UpdateUserProfileParam.class);
 
-            String fileName = uploadPhotoService.uploadPhoto(updateUserRequest.getAvatarFile());
+            String fileName = null;
+            if (updateUserRequest.getAvatarFile() != null && !updateUserRequest.getAvatarFile().isEmpty()) {
+                fileName = uploadPhotoService.uploadPhoto(updateUserRequest.getAvatarFile());
+            }
+
             String oldPhoto = user.getAvatarPath();
 
             if (fileName != null) {
@@ -131,8 +135,8 @@ public class UserProfileController {
                     Path path = Paths.get(uploadDir);
                     Files.deleteIfExists(path.resolve(oldPhoto));
                 }
-            } else if (updateUserRequest.getAvatarFile().isEmpty()) {
-                user.setAvatarPath(null);
+            } else {
+                user.setAvatarPath(oldPhoto);
                 if (oldPhoto != null) {
                     Path path = Paths.get(uploadDir);
                     Files.deleteIfExists(path.resolve(oldPhoto));
@@ -155,6 +159,7 @@ public class UserProfileController {
             return new ResponseEntity<>(apiError, HttpStatus.BAD_REQUEST);
         }
     }
+
 
     //list award by user id
 
