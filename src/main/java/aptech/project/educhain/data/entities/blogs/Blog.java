@@ -26,6 +26,7 @@ public class Blog extends BaseModel {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "blogCategory_id", referencedColumnName = "id")
+    @ToString.Exclude
     private BlogCategory blogCategory;
 
     @Column(name = "title", length = 100)

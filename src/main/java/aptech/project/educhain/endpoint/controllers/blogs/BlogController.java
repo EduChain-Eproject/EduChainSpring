@@ -79,6 +79,9 @@ public class BlogController {
     @Autowired
     IJwtService iJwtService;
 
+    @Value("${base.url.default.blogImage}")
+    private String defaultImage;
+
     @Operation(summary = "Get all blog")
     @PostMapping("fetch")
     public ResponseEntity<?> getAllBlogs(@RequestBody FindAllBlogRequest request) {
@@ -102,7 +105,7 @@ public class BlogController {
         }
         return ResponseEntity.badRequest().body(result.getFailure().getMessage());
     }
-
+    
 
     private BlogCommentDTO mapChildComment(BlogComment comment, Integer blogId) {
         BlogCommentDTO dto = modelMapper.map(comment, BlogCommentDTO.class);
@@ -157,7 +160,7 @@ public class BlogController {
 
     @Operation(summary = "Add new blog")
     @PostMapping(value = "/create", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<?> create( HttpServletRequest servletRequest, @Valid @ModelAttribute CreateBlogReq req, BindingResult rs) {
+    public ResponseEntity<?> create(@Valid @ModelAttribute CreateBlogReq req, BindingResult rs,HttpServletRequest servletRequest) {
         if (rs.hasErrors()) {
             Map<String, String> errors = new HashMap<>();
             rs.getFieldErrors().forEach(error -> errors.put(error.getField(), error.getDefaultMessage()));
@@ -182,7 +185,6 @@ public class BlogController {
                 String fileName = uploadPhotoService.uploadPhoto(req.getPhoto());
                 blog.setPhoto(fileName);
             }
-
             Blog createdBlog = blogService.create(blog);
             BlogDTO createdBlogDTO = modelMapper.map(createdBlog, BlogDTO.class);
 
@@ -195,17 +197,23 @@ public class BlogController {
 
     @Operation(summary = "Edit blog")
     @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<?> update(@PathVariable Integer id, @Valid @ModelAttribute CreateBlogReq req, BindingResult rs) {
+    public ResponseEntity<?> update( @Valid @ModelAttribute CreateBlogReq req, BindingResult rs,@PathVariable Integer id) {
         if (rs.hasErrors()) {
             Map<String, String> errors = new HashMap<>();
-            rs.getFieldErrors().forEach(error -> errors.put(error.getField(), error.getDefaultMessage()));
+                rs.getFieldErrors().forEach(error -> errors.put(error.getField(), error.getDefaultMessage()));
 
             ApiError apiError = new ApiError(errors);
             return new ResponseEntity<>(apiError, HttpStatus.BAD_REQUEST);
         }
 
         try {
-            String fileName = uploadPhotoService.uploadPhoto(req.getPhoto());
+            // Initialize fileName as null
+            String fileName = null;
+
+            // Check if the photo is present before attempting to upload
+            if (req.getPhoto() != null) {
+                fileName = uploadPhotoService.uploadPhoto(req.getPhoto());
+            }
 
             Blog blog = blogService.findOneBlog(id);
             BlogCategory category = blogCategoryService.findBlogCategory(req.getBlogCategoryId());
@@ -214,18 +222,20 @@ public class BlogController {
             blog.setBlogCategory(category);
             blog.setBlogText(req.getBlogText());
 
+            // Get the old photo name
             String oldPhoto = blog.getPhoto();
-            String photoFile = fileName != null ? fileName : oldPhoto;
 
+            // If fileName is not null (photo uploaded), use it, otherwise retain oldPhoto
+            String photoFile = fileName != null ? fileName : oldPhoto;
             blog.setPhoto(photoFile);
 
-            if (fileName != null) {
+            // If a new photo was uploaded, delete the old photo
+            if (fileName != null && oldPhoto != null) {
                 Path path = Paths.get(uploadDir);
                 Files.deleteIfExists(path.resolve(oldPhoto));
             }
 
             Blog updatedBlog = blogService.update(id, blog);
-
             BlogDTO updatedBlogDTO = modelMapper.map(updatedBlog, BlogDTO.class);
 
             return new ResponseEntity<>(updatedBlogDTO, HttpStatus.CREATED);
@@ -295,6 +305,7 @@ public class BlogController {
 
             return ResponseEntity.ok().body(responsePage);
         }
-        return ResponseEntity.badRequest().body(result.getFailure().getMessage());
+        ApiError apiError = new ApiError("Error when filter blog");
+        return new ResponseEntity<>(apiError, HttpStatus.BAD_REQUEST);
     }
 }
