@@ -16,6 +16,7 @@ import aptech.project.educhain.data.entities.courses.Question;
 import aptech.project.educhain.data.repositories.accounts.AuthUserRepository;
 import aptech.project.educhain.data.repositories.courses.HomeworkRepository;
 import aptech.project.educhain.data.repositories.courses.QuestionRepository;
+import aptech.project.educhain.domain.dtos.courses.AnswerDTO;
 import aptech.project.educhain.domain.dtos.courses.QuestionDTO;
 
 @Component
@@ -64,6 +65,13 @@ public class CreateQuestionUseCase implements Usecase<QuestionDTO, CreateQuestio
             QuestionDTO questionDTO = modelMapper.map(savedQuestion, QuestionDTO.class);
             questionDTO.setHomeworkId(savedQuestion.getHomework().getId());
             questionDTO.setCorrectAnswerId(savedQuestion.getCorrectAnswer().getId());
+
+            questionDTO.setAnswerDtos(savedQuestion.getAnswers().stream().map(answers -> {
+                AnswerDTO answerDTO = modelMapper.map(answers, AnswerDTO.class);
+                answerDTO.setQuestionId(answers.getQuestion().getId());
+                answerDTO.setId(answers.getId());
+                return answerDTO;
+            }).toList());
 
             return AppResult.successResult(questionDTO);
         } catch (Exception e) {
