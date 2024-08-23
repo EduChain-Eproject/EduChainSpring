@@ -11,7 +11,7 @@ public class CreateQuestionResponse {
 
     private String questionText;
 
-    private List<AnswerDTO> answers;
+    private List<AnswerDTO> answerDtos;
 
     private Integer correctAnswerId;
 }
