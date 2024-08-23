@@ -112,53 +112,25 @@ public class UserProfileController {
             ApiError apiError = new ApiError(errors);
             return new ResponseEntity<>(apiError, HttpStatus.BAD_REQUEST);
         }
-        try {
-            String token = request.getHeader("Authorization");
-            if (token == null) {
-                return new ResponseEntity<>(new ApiError("Can't find token in your header"), HttpStatus.BAD_REQUEST);
-            }
-            String newToken = token.substring(7);
-            var email = iJwtService.extractUserName(newToken);
-            User user = iAuthService.findUserByEmail(email);
-            UpdateUserProfileParam updateUserProfileParam = modelMapper.map(updateUserRequest, UpdateUserProfileParam.class);
-
-            String fileName = null;
-            if (updateUserRequest.getAvatarFile() != null && !updateUserRequest.getAvatarFile().isEmpty()) {
-                fileName = uploadPhotoService.uploadPhoto(updateUserRequest.getAvatarFile());
-            }
-
-            String oldPhoto = user.getAvatarPath();
-
-            if (fileName != null) {
-                user.setAvatarPath(fileName);
-                if (oldPhoto != null) {
-                    Path path = Paths.get(uploadDir);
-                    Files.deleteIfExists(path.resolve(oldPhoto));
-                }
-            } else {
-                user.setAvatarPath(oldPhoto);
-                if (oldPhoto != null) {
-                    Path path = Paths.get(uploadDir);
-                    Files.deleteIfExists(path.resolve(oldPhoto));
-                }
-            }
-
-            updateUserProfileParam.setId(user.getId());
-            var result = userProfileService.updateProfile(updateUserProfileParam);
-
-            System.out.println(user.getAvatarPath());
-            if (result.isSuccess()) {
-                var res = modelMapper.map(result.getSuccess(), UserProfileResponse.class);
-                return new ResponseEntity<>(res, HttpStatus.OK);
-            } else {
-                ApiError apiError = new ApiError("Error when updating profile");
-                return new ResponseEntity<>(apiError, HttpStatus.BAD_REQUEST);
-            }
-        } catch (Exception e) {
-            ApiError apiError = new ApiError("Error when updating profile");
-            return new ResponseEntity<>(apiError, HttpStatus.BAD_REQUEST);
+        String token = request.getHeader("Authorization");
+        if (token == null) {
+            return new ResponseEntity<>(new ApiError("Can't find token in your header"), HttpStatus.BAD_REQUEST);
         }
+        String newToken = token.substring(7);
+        var email = iJwtService.extractUserName(newToken);
+        User user = iAuthService.findUserByEmail(email);
+        UpdateUserProfileParam updateUserProfileParam = modelMapper.map(updateUserRequest,
+                UpdateUserProfileParam.class);
+        updateUserProfileParam.setId(user.getId());
+        var result = userProfileService.updateProfile(updateUserProfileParam);
+        if (result.isSuccess()) {
+            var res = modelMapper.map(result.getSuccess(), UserProfileResponse.class);
+            return new ResponseEntity<>(res, HttpStatus.OK);
+        }
+        return new ResponseEntity<>(new ApiError(result.getFailure().getMessage()),
+                HttpStatus.BAD_REQUEST);
     }
+
 
 
     //list award by user id

@@ -20,7 +20,7 @@ public class UpdateLessonRequest {
     private String description;
     @NotEmpty(message = "Video title is required")
     private String videoTitle;
-    @NotNull(message = "videoFile is required")
+
     private MultipartFile videoFile;
 
 }

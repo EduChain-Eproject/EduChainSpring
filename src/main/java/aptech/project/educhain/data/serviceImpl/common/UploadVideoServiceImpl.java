@@ -16,20 +16,25 @@ public class UploadVideoServiceImpl {
     private String uploadDir;
 
     public String uploadVideo(MultipartFile video) throws IOException {
-        Path path = Paths.get(uploadDir);
+        try{
+            Path path = Paths.get(uploadDir);
 
-        if (!Files.exists(path)) {
-            Files.createDirectories(path);
+            if (!Files.exists(path)) {
+                Files.createDirectories(path);
+            }
+
+            String fileName = video.getOriginalFilename();
+            if (fileName == null) {
+                throw new IllegalArgumentException("File name cannot be null");
+            }
+            Path filePath = path.resolve(fileName);
+
+            Files.copy(video.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
+
+            return fileName;
         }
-
-        String fileName = video.getOriginalFilename();
-        if (fileName == null) {
-            throw new IllegalArgumentException("File name cannot be null");
+        catch (Exception e){
+            return null;
         }
-        Path filePath = path.resolve(fileName);
-
-        Files.copy(video.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
-
-        return fileName;
     }
 }

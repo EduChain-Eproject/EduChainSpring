@@ -52,15 +52,6 @@ public class GetLessonDetailUsecase implements Usecase<LessonDTO, GetLessonDetai
                             .map(hw -> modelMapper.map(hw, HomeworkDTO.class))
                             .toList());
 
-            lessonDTO.getHomeworkDtos().stream().forEach((homeworkDTO) -> {
-                var uh = userHomeworkRepository.findByUserIdAndHomeworkId(params.getUserId(), homeworkDTO.getId()).get();
-                if (uh.getProgress() == 100) {
-                    lessonDTO.setCurrentUserFinished(true);
-                } else {
-                    lessonDTO.setCurrentUserFinished(false);
-                }
-            });
-
             return AppResult.successResult(lessonDTO);
         } catch (Exception e) {
             return AppResult.failureResult(new Failure("Error retrieving lesson details: " + e.getMessage()));

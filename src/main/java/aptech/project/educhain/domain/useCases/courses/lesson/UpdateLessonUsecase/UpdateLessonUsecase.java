@@ -52,14 +52,7 @@ public class UpdateLessonUsecase implements Usecase<LessonDTO, UpdateLessonParam
             lesson.setDescription(params.getDescription());
             lesson.setVideoTitle(params.getVideoTitle());
 
-            var newChapter = chapterRepository.findById(params.getChapterId());
-            if (newChapter.isEmpty()) {
-                return AppResult
-                        .failureResult(new Failure("Error updating lesson: chapter not found"));
-            }
-            lesson.setChapter(newChapter.get());
 
-            //
             String fileName = uploadVideoService.uploadVideo(params.getVideoFile());
             String oldVideo = lesson.getVideoURL();
             String video = fileName != null ? fileName : oldVideo;

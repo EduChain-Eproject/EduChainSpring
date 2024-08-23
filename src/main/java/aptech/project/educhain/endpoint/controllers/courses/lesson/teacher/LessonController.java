@@ -3,6 +3,8 @@ package aptech.project.educhain.endpoint.controllers.courses.lesson.teacher;
 import java.util.HashMap;
 import java.util.Map;
 
+import aptech.project.educhain.domain.services.accounts.IJwtService;
+import jakarta.servlet.http.HttpServletRequest;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -49,10 +51,13 @@ public class LessonController {
 
     @Autowired
     private LessonRepository lessonRepository;
+    @Autowired
+    private IJwtService iJwtService;
 
     @GetMapping("/detail/{lessonId}")
-    public ResponseEntity<?> getLessonDetail(@PathVariable("lessonId") Integer lessonId) {
-        AppResult<LessonDTO> result = lessonService.getLessonDetail(new GetLessonDetailParams(null, lessonId));
+    public ResponseEntity<?> getLessonDetail(@PathVariable("lessonId") Integer lessonId, HttpServletRequest req) {
+        var user = iJwtService.getUserByHeaderToken(req.getHeader("Authorization"));
+        AppResult<LessonDTO> result = lessonService.getLessonDetail(new GetLessonDetailParams(user.getId(), lessonId));
         if (result.isSuccess()) {
             var res = modelMapper.map(result.getSuccess(), GetLessonDetailResponse.class);
             return ResponseEntity.ok().body(res);
