@@ -32,39 +32,28 @@ public class UpdateUserProfileUseCase implements Usecase<UserProfileDTO, UpdateU
     @Transactional
     public AppResult<UserProfileDTO> execute(UpdateUserProfileParam params) {
         try {
-            // Tìm user cần update dựa trên ID
             User findUser = authUserRepository.findUserWithId(params.getId());
-
-            // Giữ lại avatarPath cũ
             String oldAvatarPath = findUser.getAvatarPath();
 
-            // Cập update trường không null từ params vào findUser
             boolean isMapped = mapProfile(findUser, params);
             if (!isMapped) {
                 return AppResult.failureResult(new Failure("Failed to map profile fields."));
             }
 
             if (params.getAvatarFile() != null) {
-                // Nếu avatarFile !null, upload ảnh mới lên cloudinary và cập nhật avatarPath
-                String newPath = cloudinarySerivce.upload(params.getAvatarFile());
 
-                // Xóa ảnh cũ trên cloudinary nếu không phải là ảnh mặc định
+                String newPath = cloudinarySerivce.upload(params.getAvatarFile());
                 if (!oldAvatarPath.equals(defaultAvatar)) {
                     cloudinarySerivce.deleteImageByUrl(oldAvatarPath);
                 }
 
                 findUser.setAvatarPath(newPath);
             } else {
-                // Nếu avatarFile là null, giữ nguyên giá trị cũ
                 findUser.setAvatarPath(oldAvatarPath);
             }
 
-            // Lưu lại user đã được update vào database
             User updatedUser = authUserRepository.save(findUser);
-
-            // Map User đã update thành UserProfileDTO
             UserProfileDTO userProfileDTO = modelMapper.map(updatedUser, UserProfileDTO.class);
-
             return AppResult.successResult(userProfileDTO);
 
         } catch (Exception e) {
