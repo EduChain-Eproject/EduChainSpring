@@ -15,6 +15,7 @@ import aptech.project.educhain.data.entities.courses.Course;
 import aptech.project.educhain.data.entities.courses.CourseStatus;
 import aptech.project.educhain.data.repositories.courses.CourseRepository;
 import aptech.project.educhain.data.repositories.courses.UserCourseRepository;
+import aptech.project.educhain.domain.dtos.accounts.UserDTO;
 import aptech.project.educhain.domain.dtos.courses.CourseDTO;
 import aptech.project.educhain.domain.dtos.courses.UserCourseDTO;
 
@@ -47,6 +48,8 @@ public class SearchCoursesUseCase implements Usecase<Page<CourseDTO>, CourseSear
 
             Page<CourseDTO> courseDTOPage = coursePage.map(course -> {
                 var dto = modelMapper.map(course, CourseDTO.class);
+
+                dto.setTeacherDto(modelMapper.map(course.getTeacher(), UserDTO.class));
 
                 var lessonCount = course.getChapters().stream().mapToInt((chapter) -> chapter.getLessons().size())
                         .sum();

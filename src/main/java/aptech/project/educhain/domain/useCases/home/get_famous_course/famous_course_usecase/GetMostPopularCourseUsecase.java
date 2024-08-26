@@ -8,6 +8,7 @@ import aptech.project.educhain.data.entities.courses.Course;
 import aptech.project.educhain.data.entities.courses.UserCourse;
 import aptech.project.educhain.data.repositories.courses.CourseRepository;
 import aptech.project.educhain.data.repositories.courses.UserCourseRepository;
+import aptech.project.educhain.domain.dtos.accounts.UserDTO;
 import aptech.project.educhain.domain.dtos.courses.CategoryDTO;
 import aptech.project.educhain.domain.dtos.courses.CourseDTO;
 import aptech.project.educhain.domain.dtos.courses.UserCourseDTO;
@@ -38,6 +39,7 @@ public class GetMostPopularCourseUsecase implements Usecase<List<CourseDTO>, Voi
                 List<CourseDTO> courseDTOs = mostPopularCourse.stream()
                         .map(this::mapCourseToDTO)
                         .collect(Collectors.toList());
+
                 return AppResult.successResult(courseDTOs);
             } else {
                 return AppResult.failureResult(new Failure("No course found"));
@@ -61,11 +63,20 @@ public class GetMostPopularCourseUsecase implements Usecase<List<CourseDTO>, Voi
         courseDTO.setDescription(course.getDescription());
         courseDTO.setPrice(course.getPrice());
         courseDTO.setStatus(course.getStatus().toString());
+        courseDTO.setAvatarPath(course.getAvatarPath());
 
         List<CategoryDTO> categoryDTOs = course.getCategories().stream()
                 .map(this::mapCategoryToDTO)
                 .collect(Collectors.toList());
         courseDTO.setCategoryDtos(categoryDTOs);
+
+        courseDTO.setParticipatedUserDtos(course.getParticipatedUsers().stream()
+                .map(student -> {
+                    UserCourseDTO dto = modelMapper.map(student, UserCourseDTO.class);
+                    dto.setUserDto(modelMapper.map(student.getUser(), UserDTO.class));
+                    return dto;
+                })
+                .collect(Collectors.toList()));
         return courseDTO;
     }
 }
