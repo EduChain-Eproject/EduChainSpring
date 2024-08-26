@@ -2,6 +2,9 @@ package aptech.project.educhain.data.serviceImpl.home;
 
 import java.util.List;
 
+import aptech.project.educhain.domain.dtos.blogs.BlogDTO;
+import aptech.project.educhain.domain.useCases.home.get_famous_course.famous_course_usecase.GetListPopularCourse;
+import aptech.project.educhain.domain.useCases.home.get_newst_course.GetNewestCourseUseCase;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -21,7 +24,8 @@ import aptech.project.educhain.domain.useCases.home.get_statistics.GetStatisticU
 public class HomeServiceImpl implements HomeService {
     @Autowired
     private GetMostPopularCourseUsecase getMostPopularCourseUsecase;
-
+    @Autowired
+    private GetListPopularCourse getListPopularCourseUsecase;
     @Autowired
     private GetMostCategoryUseCase getMostCategoryUseCase;
 
@@ -30,6 +34,8 @@ public class HomeServiceImpl implements HomeService {
 
     @Autowired
     private GetStatisticUseCase getStatisticUseCase;
+    @Autowired
+    private GetNewestCourseUseCase getNewestCourseUseCase;
 
     @Override
     public AppResult<List<CourseDTO>> getMostPopularCourse() {
@@ -50,4 +56,15 @@ public class HomeServiceImpl implements HomeService {
     public AppResult<Statistics> getStatistics() {
         return getStatisticUseCase.execute(null);
     }
+
+    @Override
+    public AppResult<List<BlogDTO>> getNewestBlog() {
+        return getNewestCourseUseCase.execute(null);
+    }
+
+    @Override
+    public AppResult<List<CourseDTO>> getListPopularCourse() {
+        return getListPopularCourseUsecase.execute(null);
+    }
+
 }

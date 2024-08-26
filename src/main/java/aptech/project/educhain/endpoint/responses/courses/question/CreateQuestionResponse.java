@@ -7,6 +7,8 @@ import java.util.List;
 
 @Data
 public class CreateQuestionResponse {
+    private Integer id;
+
     private Integer homeworkId;
 
     private String questionText;

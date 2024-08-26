@@ -1,5 +1,6 @@
 package aptech.project.educhain.endpoint.responses.courses.course.student;
 
+import aptech.project.educhain.domain.dtos.accounts.UserDTO;
 import aptech.project.educhain.domain.dtos.courses.UserCourseDTO;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -16,6 +17,8 @@ public class SearchCourseResponse {
     private Double price;
     private String status;
     private String avatarPath;
+
+    private UserDTO teacherDto;
 
     private Integer numberOfLessons;
     private UserCourseDTO currentUserCourse;

@@ -77,7 +77,7 @@ public class AuthService implements IAuthService {
     @Transactional
     public User register(RegisterRequest reg) {
         try {
-            User user = new User();
+                User user = new User();
             user.setEmail(reg.getEmail());
             user.setPassword(passwordEncoder.encode(reg.getPassword()));
             user.setFirstName(reg.getFirstName());

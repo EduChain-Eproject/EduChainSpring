@@ -7,6 +7,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
@@ -45,7 +46,7 @@ public class CourseController {
     @Autowired
     private IAuthService iAuthService;
 
-    @PostMapping("create")
+    @PostMapping(value = "create",consumes = MediaType.MULTIPART_FORM_DATA_VALUE )
     public ResponseEntity<?> createCourse(@Valid @ModelAttribute CreateCourseRequest request, BindingResult rs,
             HttpServletRequest httprequest) {
         if (rs.hasErrors()) {
