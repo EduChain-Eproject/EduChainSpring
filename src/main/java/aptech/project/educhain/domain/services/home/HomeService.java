@@ -3,6 +3,7 @@ package aptech.project.educhain.domain.services.home;
 import java.util.List;
 
 import aptech.project.educhain.common.result.AppResult;
+import aptech.project.educhain.domain.dtos.blogs.BlogDTO;
 import aptech.project.educhain.domain.dtos.courses.CategoryDTO;
 import aptech.project.educhain.domain.dtos.courses.CourseDTO;
 import aptech.project.educhain.domain.dtos.home.PopularTeacherDTO;
@@ -17,4 +18,7 @@ public interface HomeService {
     AppResult<PopularTeacherDTO> getMostPopularTeacher();
 
     AppResult<Statistics> getStatistics();
+    AppResult<List<BlogDTO>> getNewestBlog();
+
+    AppResult<List<CourseDTO>> getListPopularCourse();
 }
