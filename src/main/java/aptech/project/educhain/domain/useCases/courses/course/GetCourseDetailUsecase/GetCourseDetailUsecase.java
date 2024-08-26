@@ -65,12 +65,16 @@ public class GetCourseDetailUsecase implements Usecase<CourseDTO, GetCourseDetai
                                                 if (params.getUserId() != null) {
                                                     ls.getHomeworks().stream().forEach((homework) -> {
                                                         var uh = userHomeworkRepository.findByUserIdAndHomeworkId(
-                                                                params.getUserId(), homework.getId()).get();
-                                                        if (uh.getProgress() == 100) {
+                                                                params.getUserId(), homework.getId());
+                                                        if(uh.isPresent()){
+
+                                                        if (uh.get().getProgress() == 100) {
                                                             lsDto.setCurrentUserFinished(true);
                                                         } else {
                                                             lsDto.setCurrentUserFinished(false);
                                                         }
+                                                        }
+
                                                     });
                                                 }
 

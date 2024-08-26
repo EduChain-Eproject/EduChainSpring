@@ -18,7 +18,7 @@ import jakarta.servlet.http.HttpServletRequest;
 
 @RestController("StudentLessonController")
 @RequestMapping("/STUDENT/api/lesson")
-public class LessonController {
+public class  LessonController {
 
     @Autowired
     private LessonService lessonService;

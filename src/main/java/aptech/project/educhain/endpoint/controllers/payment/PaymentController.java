@@ -4,8 +4,12 @@ import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.Optional;
 
+import aptech.project.educhain.common.result.ApiError;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -45,11 +49,15 @@ public class PaymentController {
     private IJwtService iJwtService;
 
     @PostMapping("pay/{courseId}")
-    public String pay(@PathVariable Integer courseId, HttpServletRequest request) {
-        User user = iJwtService.getUserByHeaderToken(request.getHeader("Authorization"));
-
+    public ResponseEntity<?> pay(@PathVariable Integer courseId, HttpServletRequest request) {
         try {
-            Course course = courseRepository.findById(courseId).get();
+            User user = iJwtService.getUserByHeaderToken(request.getHeader("Authorization"));
+            Optional<Course> courseOptional = courseRepository.findById(courseId);
+            if (courseOptional.isEmpty()) {
+                ApiError apiError = new ApiError("Course not found");
+                return new ResponseEntity<>(apiError, HttpStatus.NOT_FOUND);
+            }
+            Course course = courseOptional.get();
             var price = course.getPrice();
 
             String successUrl = "http://localhost:8080/api/paypal/success?sum="
@@ -67,33 +75,41 @@ public class PaymentController {
                     successUrl);
             for (Links link : payment.getLinks()) {
                 if (link.getRel().equals("approval_url")) {
-                    return link.getHref();
+                    return new ResponseEntity<>(link.getHref(), HttpStatus.OK);
                 }
             }
+            ApiError apiError = new ApiError("Approval URL not found");
+            return new ResponseEntity<>(apiError, HttpStatus.INTERNAL_SERVER_ERROR);
         } catch (PayPalRESTException e) {
             e.printStackTrace();
+            ApiError apiError = new ApiError("PayPal error: " + e.getMessage());
+            return new ResponseEntity<>(apiError, HttpStatus.INTERNAL_SERVER_ERROR);
         } catch (UnsupportedEncodingException e) {
-            throw new RuntimeException(e);
+            e.printStackTrace();
+            ApiError apiError = new ApiError("Encoding error: " + e.getMessage());
+            return new ResponseEntity<>(apiError, HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        return "redirect:/";
     }
 
     @GetMapping("/success")
     @ResponseBody
     public String success(@RequestParam("paymentId") String paymentId, @RequestParam("PayerID") String payerId,
-            @RequestParam double sum, @RequestParam Integer userId, @RequestParam Integer courseId) {
+            @RequestParam double sum, @RequestParam Integer courseId, HttpServletRequest request) {
 
         try {
+            User user = iJwtService.getUserByHeaderToken(request.getHeader("Authorization"));
+
+
             Payment payment = paypalService.executePayment(paymentId, payerId);
             if (payment.getState().equals("approved")) {
                 AddOrderParams params = new AddOrderParams();
                 params.setAmount(BigDecimal.valueOf(sum));
-                params.setUserId(userId);
+                params.setUserId(user.getId());
                 params.setCourseId(courseId);
 
                 AddUserCourseParams addUserCourseParams = new AddUserCourseParams();
                 addUserCourseParams.setCourse_id(courseId);
-                addUserCourseParams.setStudent_id(userId);
+                addUserCourseParams.setStudent_id(user.getId());
 
                 userCourseService.addUserCourseWithParams(addUserCourseParams);
                 orderService.addOrder(params);
