@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import aptech.project.educhain.common.result.ApiError;
+import aptech.project.educhain.endpoint.responses.home.NewestBlogResponse;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -30,6 +31,7 @@ public class HomeController {
 
     @Autowired
     private ModelMapper modelMapper;
+
 
     // get most popular course base on student
     //todo
@@ -80,6 +82,32 @@ public class HomeController {
         }
         return new ResponseEntity<>(new ApiError(statistics.getFailure().getMessage()), HttpStatus.BAD_REQUEST);
     }
+
+    @GetMapping("/newest-blog")
+    public ResponseEntity<?> getNewestBlog() {
+        var result = homeService.getNewestBlog();
+        if (result.isSuccess()) {
+            List<NewestBlogResponse> newestBlogResponses = result.getSuccess().stream()
+                    .map(blogDTO -> modelMapper.map(blogDTO, NewestBlogResponse.class))
+                    .collect(Collectors.toList());
+            return ResponseEntity.ok(newestBlogResponses);
+        }
+        return new ResponseEntity<>(new ApiError(result.getFailure().getMessage()), HttpStatus.BAD_REQUEST);
+    }
+
+    @GetMapping("/list-popular-courses")
+    public ResponseEntity<?> getListPopularCourse() {
+        AppResult<List<CourseDTO>> result = homeService.getListPopularCourse();
+        if (result.isSuccess()) {
+            List<CourseDTO> courseDTOs = result.getSuccess();
+            List<MostPopularCourseResponse> responses = courseDTOs.stream()
+                    .map(courseDTO -> modelMapper.map(courseDTO, MostPopularCourseResponse.class))
+                    .collect(Collectors.toList());
+            return ResponseEntity.ok().body(responses);
+        }
+        return new ResponseEntity<>(new ApiError(result.getFailure().getMessage()), HttpStatus.BAD_REQUEST);
+    }
+
 }
 
 /*

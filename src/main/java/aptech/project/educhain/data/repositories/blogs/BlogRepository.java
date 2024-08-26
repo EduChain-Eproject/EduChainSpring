@@ -1,6 +1,8 @@
 package aptech.project.educhain.data.repositories.blogs;
 
 import aptech.project.educhain.data.entities.blogs.Blog;
+import aptech.project.educhain.data.entities.courses.Category;
+import aptech.project.educhain.data.entities.courses.Course;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -31,5 +33,6 @@ public interface BlogRepository extends JpaRepository<Blog, Integer> {
     @Query("SELECT b FROM Blog b LEFT JOIN FETCH b.blogCategory")
     Page<Blog> findAllWithCategory(Pageable pageable);
 
-
+    @Query("SELECT b FROM Blog b ORDER BY b.createdAt DESC")
+    List<Blog> findNewestBlogs(Pageable pageable);
 }

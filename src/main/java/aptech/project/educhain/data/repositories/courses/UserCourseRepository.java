@@ -21,12 +21,17 @@ public interface UserCourseRepository extends JpaRepository<UserCourse, Integer>
                         @Param("titleSearch") String titleSearch,
                         Pageable pageable);
 
+                @Query("SELECT uc.course " +
+                                "FROM UserCourse uc " +
+                                "GROUP BY uc.course " +
+                                "ORDER BY COUNT(uc.user) DESC " +
+                                "LIMIT 4")
+                List<Course> findMostPopularCourse();
         @Query("SELECT uc.course " +
-                        "FROM UserCourse uc " +
-                        "GROUP BY uc.course " +
-                        "ORDER BY COUNT(uc.user) DESC " +
-                        "LIMIT 4")
-        List<Course> findMostPopularCourse();
+                "FROM UserCourse uc " +
+                "GROUP BY uc.course " +
+                "ORDER BY COUNT(uc.user) DESC")
+        List<Course> findListPopularCourses(Pageable pageable);
 
         @Query("SELECT COUNT(DISTINCT uc.user.id) " +
                         "FROM UserCourse uc " +

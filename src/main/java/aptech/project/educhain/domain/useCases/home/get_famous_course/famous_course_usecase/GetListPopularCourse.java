@@ -5,12 +5,10 @@ import aptech.project.educhain.common.result.Failure;
 import aptech.project.educhain.common.usecase.Usecase;
 import aptech.project.educhain.data.entities.courses.Category;
 import aptech.project.educhain.data.entities.courses.Course;
-import aptech.project.educhain.data.entities.courses.UserCourse;
 import aptech.project.educhain.data.repositories.courses.CourseRepository;
 import aptech.project.educhain.data.repositories.courses.UserCourseRepository;
 import aptech.project.educhain.domain.dtos.courses.CategoryDTO;
 import aptech.project.educhain.domain.dtos.courses.CourseDTO;
-import aptech.project.educhain.domain.dtos.courses.UserCourseDTO;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -18,11 +16,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
-
 @Component
-public class GetMostPopularCourseUsecase implements Usecase<List<CourseDTO>, Void> {
+public class GetListPopularCourse implements Usecase<List<CourseDTO>, Void> {
 
     @Autowired
     private UserCourseRepository userCourseRepository;
@@ -35,8 +31,8 @@ public class GetMostPopularCourseUsecase implements Usecase<List<CourseDTO>, Voi
     @Override
     public AppResult<List<CourseDTO>> execute(Void params) {
         try {
-
-            List<Course> mostPopularCourse = userCourseRepository.findMostPopularCourse();
+            Pageable page = PageRequest.of(0,9);
+            List<Course> mostPopularCourse = userCourseRepository.findListPopularCourses(page);
 
             if (!mostPopularCourse.isEmpty()) {
                 List<CourseDTO> courseDTOs = mostPopularCourse.stream()
