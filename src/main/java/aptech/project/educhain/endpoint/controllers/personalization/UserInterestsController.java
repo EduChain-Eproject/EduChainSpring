@@ -47,11 +47,11 @@ public class UserInterestsController {
                 HttpStatus.BAD_REQUEST);
     }
 
-    @DeleteMapping("/delete-wishlist")
-    public ResponseEntity<?> deleteWishList(@RequestBody AddOrDeleteUserInterestRequest rq, HttpServletRequest request) {
+    @DeleteMapping("/delete-wishlist/{courseId}")
+    public ResponseEntity<?> deleteWishList(@PathVariable("courseId") Integer courseId, HttpServletRequest request) {
         var user = iJwtService.getUserByHeaderToken(request.getHeader("Authorization"));
 
-        DeleteUserInterestsParams deleteUserInterestsParams = new DeleteUserInterestsParams(user.getId(), rq.getCourseId());
+        DeleteUserInterestsParams deleteUserInterestsParams = new DeleteUserInterestsParams(user.getId(), courseId);
 
         var isDeleted = userInterestsService.deleteUserInterest(deleteUserInterestsParams);
         if (isDeleted.isSuccess()) {
