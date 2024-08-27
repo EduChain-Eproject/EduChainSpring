@@ -53,4 +53,8 @@ public interface CourseRepository extends JpaRepository<Course, Integer> {
             + "GROUP BY uc.course.id "
             + "ORDER BY COUNT(uc.user.id) DESC")
     Optional<Course> findMostPopularCourse();
+
+
+    @Query("SELECT c FROM Course c WHERE (:title IS NULL OR :title = '' OR LOWER(c.title) LIKE LOWER(CONCAT('%', :title, '%')))")
+    Page<Course> searchByTitle(@Param("title") String title, Pageable pageable);
 }
