@@ -3,10 +3,13 @@ package aptech.project.educhain.endpoint.controllers.admin;
 import aptech.project.educhain.common.result.ApiError;
 import aptech.project.educhain.common.result.AppResult;
 import aptech.project.educhain.domain.dtos.accounts.UserDTO;
+import aptech.project.educhain.domain.dtos.courses.CourseDTO;
 import aptech.project.educhain.domain.services.accounts.IAuthService;
 import aptech.project.educhain.domain.services.admin.IAdmin;
 import aptech.project.educhain.domain.useCases.admin.block_or_unblock.BlockOrUnBlockParams;
+import aptech.project.educhain.domain.useCases.admin.course_list.GetCourseListParams;
 import aptech.project.educhain.domain.useCases.admin.get_userlist.GetListUserParams;
+import aptech.project.educhain.endpoint.requests.admin.CourseListRequest;
 import aptech.project.educhain.endpoint.requests.admin.GetUserListReq;
 import aptech.project.educhain.endpoint.responses.admin.BlockOrUnBlocReq;
 import aptech.project.educhain.endpoint.responses.admin.GetListUserResponse;
@@ -58,5 +61,19 @@ public class AdminController {
         return new ResponseEntity<>(new ApiError(result.getFailure().getMessage()),
                 HttpStatus.BAD_REQUEST);
     }
+
+
+    @PostMapping("/course-list")
+    public ResponseEntity<?> courseList(@RequestBody CourseListRequest req) {
+        GetCourseListParams params = modelMapper.map(req,GetCourseListParams.class);
+        AppResult<Page<CourseDTO>> result = iAdmin.getCourseList(params);
+        if (result.isSuccess()) {
+
+            return ResponseEntity.ok(result.getSuccess());
+        }
+        return new ResponseEntity<>(new ApiError(result.getFailure().getMessage()),
+                HttpStatus.BAD_REQUEST);
+    }
+
 }
 

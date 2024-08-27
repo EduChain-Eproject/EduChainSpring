@@ -117,17 +117,17 @@ public class EmailVerifyService implements IEmailService {
 
     @Override
     public String templateResetPassword(String name, Integer code) {
-        return "<div style=\"font-family:Helvetica,Arial,sans-serif;font-size:16px;margin:0;color:#0b0c0c\">\n" +
+        return "<div style=\"font-family:Helvetica,Arial,sans-serif;font-size:16px;margin:0;color:#333333\">\n" +
                 "\n" +
                 "<span style=\"display:none;font-size:1px;color:#fff;max-height:0\"></span>\n" +
                 "\n" +
                 "  <table role=\"presentation\" width=\"100%\" style=\"border-collapse:collapse;min-width:100%;width:100%!important\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\">\n" +
                 "    <tbody><tr>\n" +
-                "      <td width=\"100%\" height=\"53\" bgcolor=\"#0b0c0c\">\n" +
+                "      <td width=\"100%\" height=\"53\" bgcolor=\"#006d6a\">\n" +  // Teal color for header
                 "        \n" +
                 "        <table role=\"presentation\" width=\"100%\" style=\"border-collapse:collapse;max-width:580px\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" align=\"center\">\n" +
                 "          <tbody><tr>\n" +
-                "            <td width=\"70\" bgcolor=\"#0b0c0c\" valign=\"middle\">\n" +
+                "            <td width=\"70\" bgcolor=\"#006d6a\" valign=\"middle\">\n" +
                 "                <table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"border-collapse:collapse\">\n" +
                 "                  <tbody><tr>\n" +
                 "                    <td style=\"padding-left:10px\">\n" +
@@ -153,7 +153,7 @@ public class EmailVerifyService implements IEmailService {
                 "        \n" +
                 "                <table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"border-collapse:collapse\">\n" +
                 "                  <tbody><tr>\n" +
-                "                    <td bgcolor=\"#1D70B8\" width=\"100%\" height=\"10\"></td>\n" +
+                "                    <td bgcolor=\"#e0f2f1\" width=\"100%\" height=\"10\"></td>\n" + // Light teal separator
                 "                  </tr>\n" +
                 "                </tbody></table>\n" +
                 "        \n" +
@@ -172,8 +172,8 @@ public class EmailVerifyService implements IEmailService {
                 "      <td width=\"10\" valign=\"middle\"><br></td>\n" +
                 "      <td style=\"font-family:Helvetica,Arial,sans-serif;font-size:19px;line-height:1.315789474;max-width:560px\">\n" +
                 "        \n" +
-                "            <p style=\"Margin:0 0 20px 0;font-size:19px;line-height:25px;color:#0b0c0c\">Hi " + name + ",</p><p style=\"Margin:0 0 20px 0;font-size:19px;line-height:25px;color:#0b0c0c\"> please submit your code to reset your account password: </p><blockquote style=\"Margin:0 0 20px 0;border-left:10px solid #b1b4b6;padding:15px 0 0.1px 15px;font-size:19px;line-height:25px\"><p style=\"Margin:0 0 20px 0;font-size:19px;line-height:25px;color:#0b0c0c\"> " +
-                "           <h2 style=\"color:#1D70B8;\">" + code + "</h2>" +
+                "            <p style=\"Margin:0 0 20px 0;font-size:19px;line-height:25px;color:#333333\">Hi " + name + ",</p><p style=\"Margin:0 0 20px 0;font-size:19px;line-height:25px;color:#333333\"> please submit your code to reset your account password: </p><blockquote style=\"Margin:0 0 20px 0;border-left:10px solid #80cbc4;padding:15px 0 0.1px 15px;font-size:19px;line-height:25px\"><p style=\"Margin:0 0 20px 0;font-size:19px;line-height:25px;color:#333333\"> " +
+                "           <h2 style=\"color:#006d6a;\">" + code + "</h2>" +  // Teal color for the code
                 "           </p></blockquote>\n code will expire in 15 minutes. <p>See you soon</p>" +
                 "        \n" +
                 "      </td>\n" +
@@ -186,5 +186,6 @@ public class EmailVerifyService implements IEmailService {
                 "\n" +
                 "</div></div>";
     }
+
 }
 
