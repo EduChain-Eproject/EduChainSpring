@@ -46,11 +46,26 @@ public class GetUserInterestUseCase implements Usecase<Page<UserInterestsDTO>, G
             List<UserInterestsDTO> userInterestsDTOList = userInterestList.stream()
                     .map(userInterest -> {
                         UserInterestsDTO dto = new UserInterestsDTO();
+
+                        // Map UserDTO
                         dto.setUserDto(modelMapper.map(userInterest.getUser(), UserDTO.class));
-                        dto.setCourseDto(modelMapper.map(userInterest.getCourse(), CourseDTO.class));
+
+                        // Map CourseDTO including teacherDto
+                        CourseDTO courseDto = modelMapper.map(userInterest.getCourse(), CourseDTO.class);
+
+                        // Map teacherDto into courseDto
+                        if (userInterest.getCourse().getTeacher() != null) {
+                            UserDTO teacherDto = modelMapper.map(userInterest.getCourse().getTeacher(), UserDTO.class);
+                            courseDto.setTeacherDto(teacherDto);
+                        }
+
+                        // Set the courseDto with teacherDto in the user interest DTO
+                        dto.setCourseDto(courseDto);
+
                         return dto;
                     })
                     .toList();
+
             // Create a Page<UserInterestsDTO> object with mapped data
             return AppResult
                     .successResult(new PageImpl<>(userInterestsDTOList, pageable, userInterestList.getTotalElements()));
