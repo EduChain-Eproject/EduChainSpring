@@ -6,6 +6,9 @@ import aptech.project.educhain.data.entities.payment.Order;
 import aptech.project.educhain.domain.dtos.payment.OrderDTO;
 import aptech.project.educhain.domain.useCases.payment.order.addOrderUseCase.AddOrderParams;
 import aptech.project.educhain.domain.useCases.payment.order.getAllOrderUseCase.GetAllOrderParams;
+import aptech.project.educhain.domain.useCases.payment.order.getOrderByUserUseCase.GetOrderByUserParams;
+import aptech.project.educhain.domain.useCases.payment.order.getOrdersByCourseUseCase.GetOrderCourseParams;
+import aptech.project.educhain.endpoint.requests.order.ListOrderByCourseRequest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.repository.query.Param;
 
@@ -16,9 +19,9 @@ public interface IOrder {
 
     AppResult<Page<OrderDTO>> getAllOrders(GetAllOrderParams param);
 
-    AppResult<List<OrderDTO>> getOrdersByUserId(int userId);
+    AppResult<Page<OrderDTO>> getOrdersByUserId(GetOrderByUserParams param);
 
-    AppResult<List<OrderDTO>> getOrdersByCourseId(int courseId);
+    AppResult<Page<OrderDTO>> getOrdersByCourseId(GetOrderCourseParams req);
 
     AppResult<OrderDTO> getOrderById(int orderId);
 }

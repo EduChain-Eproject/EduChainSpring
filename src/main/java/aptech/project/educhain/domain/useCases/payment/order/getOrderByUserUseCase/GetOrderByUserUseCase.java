@@ -10,13 +10,18 @@ import aptech.project.educhain.data.repositories.payment.OrderRepository;
 import aptech.project.educhain.domain.dtos.payment.OrderDTO;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 
 @Component
-public class GetOrderByUserUseCase implements Usecase<List<OrderDTO>, Integer> {
+public class GetOrderByUserUseCase implements Usecase<Page<OrderDTO>, GetOrderByUserParams> {
     @Autowired
     ModelMapper modelMapper;
 
@@ -25,18 +30,25 @@ public class GetOrderByUserUseCase implements Usecase<List<OrderDTO>, Integer> {
 
     @Autowired
     AuthUserRepository authUserRepository;
+
+
     @Override
-    public AppResult<List<OrderDTO>> execute(Integer id) {
+    public AppResult<Page<OrderDTO>> execute(GetOrderByUserParams params) {
         try {
-            User user = authUserRepository.findUserWithId(id);
-            List<Order> orders = orderRepository.findOrderByUser(user);
-            List<OrderDTO> orderDTOs = orders.stream().map(order -> {
-                OrderDTO orderDTO = modelMapper.map(order, OrderDTO.class);
-                orderDTO.setUserId(order.getUser().getId());
-                orderDTO.setCourseId(order.getCourse().getId());
-                return orderDTO;
-            }).toList();
-            return AppResult.successResult(orderDTOs);
+            Pageable pageable = PageRequest.of(params.getPage(), params.getSize());
+            Page<Order> ordersPage = orderRepository.findOrdersByUserIdAndTitle(params.getUserId(), params.getTitleSearch(), pageable);
+
+            List<OrderDTO> orderDTOs = ordersPage.getContent().stream()
+                    .map(order -> {
+                        OrderDTO orderDTO = modelMapper.map(order, OrderDTO.class);
+                        orderDTO.setUserId(order.getUser().getId());
+                        orderDTO.setCourseId(order.getCourse().getId());
+                        return orderDTO;
+                    })
+                    .collect(Collectors.toList());
+
+            Page<OrderDTO> orderDTOPage = new PageImpl<>(orderDTOs, pageable, ordersPage.getTotalElements());
+            return AppResult.successResult(orderDTOPage);
         } catch (Exception e) {
             return AppResult.failureResult(new Failure("Failed to get orders: " + e.getMessage()));
         }

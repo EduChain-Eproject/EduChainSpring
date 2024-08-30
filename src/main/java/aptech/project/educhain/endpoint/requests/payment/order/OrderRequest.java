@@ -10,5 +10,6 @@ import lombok.NoArgsConstructor;
 public class OrderRequest {
     private int page = 0;
     private int size = 10;
+    private String titleSearch;
     private String sortBy = "createdAt";
 }
