@@ -1,8 +1,10 @@
 package aptech.project.educhain.data.entities.accounts;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import aptech.project.educhain.data.entities.blogs.UserBlogVote;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -77,10 +79,8 @@ public class User extends BaseModel implements UserDetails {
     @Column(name = "avatarPath")
     private String avatarPath;
 
-    @JsonIgnoreProperties("user")
-    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @ToString.Exclude
-    private UserSession userSession;
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<UserBlogVote> votes ;
 
     @JsonIgnoreProperties("user")
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
@@ -88,9 +88,9 @@ public class User extends BaseModel implements UserDetails {
     private RefreshToken refreshToken;
 
     @JsonIgnoreProperties("user")
-    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @ToString.Exclude
-    private EmailToken emailToken;
+    private List<EmailToken> emailToken;
 
     @JsonIgnoreProperties("user")
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
@@ -98,52 +98,71 @@ public class User extends BaseModel implements UserDetails {
     private List<ResetPasswordToken> resetPasswordTokens;
 
     @OneToMany(mappedBy = "teacher", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ToString.Exclude
     private List<Course> courses;
 
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ToString.Exclude
     private List<Homework> homeworks;
 
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ToString.Exclude
     private List<Award> userAwards;
 
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ToString.Exclude
     private List<Comment> comments;
 
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ToString.Exclude
     private List<UserCourse> coursesParticipated;
 
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ToString.Exclude
     private List<UserHomework> userHomeworks;
 
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ToString.Exclude
     private List<UserAnswer> userAnswers;
 
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ToString.Exclude
     private List<UserInterest> userInterests;
 
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ToString.Exclude
     private List<UserChat> userChats;
 
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ToString.Exclude
     private List<Message> messages;
 
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ToString.Exclude
     private List<Coupon> coupons;
 
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ToString.Exclude
     private List<CourseFeedback> courseFeedbacks;
 
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ToString.Exclude
     private List<Blog> blogs;
 
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ToString.Exclude
     private List<BlogComment> blogComments;
 
     @OneToMany(mappedBy = "receiver", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ToString.Exclude
     private List<Notification> receivedNotifications;
 
     @OneToMany(mappedBy = "sender", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ToString.Exclude
     private List<Notification> sentNotifications;
+
+
+
 
     // Using UserDetail interface for config spring security
     @Override

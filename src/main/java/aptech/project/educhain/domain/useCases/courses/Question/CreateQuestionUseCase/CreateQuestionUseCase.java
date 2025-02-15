@@ -16,6 +16,7 @@ import aptech.project.educhain.data.entities.courses.Question;
 import aptech.project.educhain.data.repositories.accounts.AuthUserRepository;
 import aptech.project.educhain.data.repositories.courses.HomeworkRepository;
 import aptech.project.educhain.data.repositories.courses.QuestionRepository;
+import aptech.project.educhain.domain.dtos.courses.AnswerDTO;
 import aptech.project.educhain.domain.dtos.courses.QuestionDTO;
 
 @Component
@@ -46,10 +47,13 @@ public class CreateQuestionUseCase implements Usecase<QuestionDTO, CreateQuestio
                         .failureResult(new Failure("Failed to create question: maximum number of answers is 4"));
             } else if (params.getAnswerTexts().size() > 0) {
                 List<Answer> answers = new ArrayList<>();
-                for (int i = 0; i < params.getAnswerTexts().size(); i++) {
+
+                var filteredAnswers = params.getAnswerTexts().stream().filter((a) -> !a.isEmpty()).toList();
+
+                for (int i = 0; i < filteredAnswers.size(); i++) {
                     var answer = new Answer();
                     answer.setQuestion(question);
-                    answer.setAnswerText(params.getAnswerTexts().get(i));
+                    answer.setAnswerText(filteredAnswers.get(i));
                     answers.add(answer);
                 }
                 question.setAnswers(answers);
@@ -64,6 +68,13 @@ public class CreateQuestionUseCase implements Usecase<QuestionDTO, CreateQuestio
             QuestionDTO questionDTO = modelMapper.map(savedQuestion, QuestionDTO.class);
             questionDTO.setHomeworkId(savedQuestion.getHomework().getId());
             questionDTO.setCorrectAnswerId(savedQuestion.getCorrectAnswer().getId());
+
+            questionDTO.setAnswerDtos(savedQuestion.getAnswers().stream().map(answers -> {
+                AnswerDTO answerDTO = modelMapper.map(answers, AnswerDTO.class);
+                answerDTO.setQuestionId(answers.getQuestion().getId());
+                answerDTO.setId(answers.getId());
+                return answerDTO;
+            }).toList());
 
             return AppResult.successResult(questionDTO);
         } catch (Exception e) {

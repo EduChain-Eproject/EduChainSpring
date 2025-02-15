@@ -3,33 +3,38 @@ package aptech.project.educhain.endpoint.controllers.blogs;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
+import aptech.project.educhain.common.result.ApiError;
+import aptech.project.educhain.common.result.AppResult;
 import aptech.project.educhain.data.entities.blogs.BlogComment;
 import aptech.project.educhain.data.entities.blogs.UserBlogVote;
 import aptech.project.educhain.domain.dtos.blogs.BlogCommentDTO;
 import aptech.project.educhain.domain.dtos.blogs.UserBlogVoteDTO;
+import aptech.project.educhain.domain.dtos.payment.OrderDTO;
+import aptech.project.educhain.domain.services.accounts.IJwtService;
+import aptech.project.educhain.domain.useCases.blogs.BlogUseCases.BlogFilterUseCase.BlogFilterParam;
+import aptech.project.educhain.domain.useCases.blogs.BlogUseCases.FindAllBlogUseCase.GetAllBlogParams;
+import aptech.project.educhain.domain.useCases.payment.order.getAllOrderUseCase.GetAllOrderParams;
+import aptech.project.educhain.endpoint.requests.blogs.CreateBlogReq;
+import aptech.project.educhain.endpoint.requests.blogs.FindAllBlogRequest;
 import aptech.project.educhain.endpoint.requests.blogs.VoteRequest;
+import aptech.project.educhain.endpoint.requests.payment.order.OrderRequest;
+import aptech.project.educhain.endpoint.responses.blogs.FilterBlogResponse;
+import aptech.project.educhain.endpoint.responses.blogs.GetAllBlogResponse;
+import aptech.project.educhain.endpoint.responses.payment.order.GetOrderResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import aptech.project.educhain.data.entities.accounts.User;
@@ -54,7 +59,7 @@ public class BlogController {
     private String uploadDir;
 
     @Autowired
-    BlogService service;
+    BlogService blogService;
 
     @Autowired
     UserBlogVoteService userBlogVoteService;
@@ -71,19 +76,34 @@ public class BlogController {
     @Autowired
     BlogCategoryService blogCategoryService;
 
+    @Autowired
+    IJwtService iJwtService;
+
+    @Value("${base.url.default.blogImage}")
+    private String defaultImage;
+
     @Operation(summary = "Get all blog")
-    @GetMapping("")
-    public List<BlogDTO> findAll() {
-        List<Blog> blogs = service.findAll();
+    @PostMapping("fetch")
+    public ResponseEntity<?> getAllBlogs(@RequestBody FindAllBlogRequest request) {
+        var params = modelMapper.map(request, GetAllBlogParams.class);
 
-        // Sắp xếp blog theo thứ tự mới nhất trước
-        List<Blog> sortedBlogs = blogs.stream()
-                .sorted(Comparator.comparing(Blog::getCreatedAt).reversed())
-                .collect(Collectors.toList());
+        Pageable pageable = PageRequest.of(request.getPage(), request.getSize(), Sort.by(Sort.Direction.DESC, request.getSortBy()));
+        AppResult<Page<BlogDTO>> result = blogService.findAll(params);
+        if (result.isSuccess()) {
+            Page<BlogDTO> blogDTOPage = result.getSuccess();
+            List<GetAllBlogResponse> getAllBlogResponses = blogDTOPage.getContent()
+                    .stream()
+                    .map(blogDTO -> modelMapper.map(blogDTO, GetAllBlogResponse.class))
+                    .collect(Collectors.toList());
 
-        return sortedBlogs.stream()
-                .map(blog -> modelMapper.map(blog, BlogDTO.class))
-                .collect(Collectors.toList());
+            Page<GetAllBlogResponse> responsePage = new PageImpl<>(
+                    getAllBlogResponses,
+                    pageable,
+                    blogDTOPage.getTotalElements());
+
+            return ResponseEntity.ok().body(responsePage);
+        }
+        return ResponseEntity.badRequest().body(result.getFailure().getMessage());
     }
     
 
@@ -104,67 +124,146 @@ public class BlogController {
     @Operation(summary = "Get 1 blog")
     @GetMapping("/{id}")
     public BlogDTO findOne(@PathVariable Integer id) {
-        Blog blog = service.findOneBlog(id);
+        Blog blog = blogService.findOneBlog(id);
 
-        BlogDTO blogDTO =  modelMapper.map(blog, BlogDTO.class);
-        List<BlogComment> comments = blog.getBlogComments();
-        List<BlogCommentDTO> commentDTOs = comments.stream().map(comment -> {
-            BlogCommentDTO dto = modelMapper.map(comment, BlogCommentDTO.class);
-            if (comment.getBlog() != null) {
-                dto.setBlogId(comment.getBlog().getId());
-            }
-            if (comment.getParentComment() != null) {
-                dto.setParentCommentId(comment.getParentComment().getId());
-            }
-            // Map child comments
-            List<BlogCommentDTO> childComments = comment.getReplies().stream()
-                    .map(child -> mapChildComment(child, dto.getBlogId()))
-                    .collect(Collectors.toList());
-            dto.setReplies(childComments);
-            return dto;
-        }).toList();
+        BlogDTO blogDTO = modelMapper.map(blog, BlogDTO.class);
+        List<BlogCommentDTO> commentDTOs = blog.getBlogComments().stream()
+                .map(comment -> mapCommentToDTO(comment, blog.getId()))
+                .collect(Collectors.toList());
+
+        List<UserBlogVoteDTO> userBlogVoteDTOs = blog.getUserBlogVotes().stream()
+                .map(userBlogVote -> {
+                    UserBlogVoteDTO userBlogVoteDTO = modelMapper.map(userBlogVote, UserBlogVoteDTO.class);
+                    userBlogVoteDTO.setBlogId(userBlogVote.getBlog().getId());
+                    userBlogVoteDTO.setUserId(userBlogVote.getUser().getId());
+                    return userBlogVoteDTO;
+                })
+                .collect(Collectors.toList());
+
         blogDTO.setBlogComments(commentDTOs);
+        blogDTO.setUserBlogVotes(userBlogVoteDTOs);
         return blogDTO;
     }
 
+    private BlogCommentDTO mapCommentToDTO(BlogComment comment, Integer blogId) {
+        BlogCommentDTO dto = modelMapper.map(comment, BlogCommentDTO.class);
+        dto.setBlogId(blogId);
+        if (comment.getParentComment() != null) {
+            dto.setParentCommentId(comment.getParentComment().getId());
+        }
+        List<BlogCommentDTO> childComments = comment.getReplies().stream()
+                .map(child -> mapCommentToDTO(child, blogId))
+                .collect(Collectors.toList());
+        dto.setReplies(childComments);
+        return dto;
+    }
+
     @Operation(summary = "Add new blog")
-    @PostMapping(value = "", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<?> create(@RequestParam("title") String title, @RequestParam("userId") Integer userId,
-            @RequestParam("blogCategoryId") Integer blogCategoryId, @RequestParam("blogText") String blogText,
-            @RequestParam("photo") MultipartFile photo) {
-        Map<String, String> errors = service.validateFields(title, userId, blogCategoryId, blogText);
-        if (!errors.isEmpty()) {
-            return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
+    @PostMapping(value = "/create", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<?> create(@Valid @ModelAttribute CreateBlogReq req, BindingResult rs,HttpServletRequest servletRequest) {
+        if (rs.hasErrors()) {
+            Map<String, String> errors = new HashMap<>();
+            rs.getFieldErrors().forEach(error -> errors.put(error.getField(), error.getDefaultMessage()));
+
+            ApiError apiError = new ApiError(errors);
+            return new ResponseEntity<>(apiError, HttpStatus.BAD_REQUEST);
         }
 
         try {
-            String fileName = uploadPhotoService.uploadPhoto(photo);
+            var user = iJwtService.getUserByHeaderToken(servletRequest.getHeader("Authorization"));
+
+
             Blog blog = new Blog();
-            User user = userService.findUserById(userId);
-            BlogCategory category = blogCategoryService.findBlogCategory(blogCategoryId);
+            BlogCategory category = blogCategoryService.findBlogCategory(req.getBlogCategoryId());
 
             blog.setUser(user);
-            blog.setTitle(title);
+            blog.setTitle(req.getTitle());
             blog.setBlogCategory(category);
-            blog.setBlogText(blogText);
-            blog.setPhoto(fileName);
+            blog.setBlogText(req.getBlogText());
 
-            Blog createdBlog = service.create(blog);
-
+            if (req.getPhoto() != null && !req.getPhoto().isEmpty()) {
+                String fileName = uploadPhotoService.uploadPhoto(req.getPhoto());
+                blog.setPhoto(fileName);
+            }
+            Blog createdBlog = blogService.create(blog);
             BlogDTO createdBlogDTO = modelMapper.map(createdBlog, BlogDTO.class);
 
             return new ResponseEntity<>(createdBlogDTO, HttpStatus.CREATED);
         } catch (Exception e) {
-            return new ResponseEntity<>("An error occurred: " + e.getMessage(), HttpStatus.BAD_REQUEST);
+            ApiError apiError = new ApiError("Error when creating blog");
+            return new ResponseEntity<>(apiError, HttpStatus.BAD_REQUEST);
         }
     }
+
+    @Operation(summary = "Edit blog")
+    @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<?> update( @Valid @ModelAttribute CreateBlogReq req, BindingResult rs,@PathVariable Integer id) {
+        if (rs.hasErrors()) {
+            Map<String, String> errors = new HashMap<>();
+                rs.getFieldErrors().forEach(error -> errors.put(error.getField(), error.getDefaultMessage()));
+
+            ApiError apiError = new ApiError(errors);
+            return new ResponseEntity<>(apiError, HttpStatus.BAD_REQUEST);
+        }
+
+        try {
+            // Initialize fileName as null
+            String fileName = null;
+
+            // Check if the photo is present before attempting to upload
+            if (req.getPhoto() != null) {
+                fileName = uploadPhotoService.uploadPhoto(req.getPhoto());
+            }
+
+            Blog blog = blogService.findOneBlog(id);
+            BlogCategory category = blogCategoryService.findBlogCategory(req.getBlogCategoryId());
+
+            blog.setTitle(req.getTitle());
+            blog.setBlogCategory(category);
+            blog.setBlogText(req.getBlogText());
+
+            // Get the old photo name
+            String oldPhoto = blog.getPhoto();
+
+            // If fileName is not null (photo uploaded), use it, otherwise retain oldPhoto
+            String photoFile = fileName != null ? fileName : oldPhoto;
+            blog.setPhoto(photoFile);
+
+            // If a new photo was uploaded, delete the old photo
+            if (fileName != null && oldPhoto != null) {
+                Path path = Paths.get(uploadDir);
+                Files.deleteIfExists(path.resolve(oldPhoto));
+            }
+
+            Blog updatedBlog = blogService.update(id, blog);
+            BlogDTO updatedBlogDTO = modelMapper.map(updatedBlog, BlogDTO.class);
+
+            return new ResponseEntity<>(updatedBlogDTO, HttpStatus.CREATED);
+
+        } catch (Exception e) {
+            ApiError apiError = new ApiError("Error when updating blog");
+            return new ResponseEntity<>(apiError, HttpStatus.BAD_REQUEST);
+        }
+    }
+
+
 
     @Operation(summary = "Vote")
     @PostMapping("/vote")
     public BlogDTO vote(
             @RequestBody VoteRequest rq) {
         Blog updatedBlog = userBlogVoteService.vote(rq.getUserId(), rq.getBlogId(), rq.getVote());
-        return modelMapper.map(updatedBlog, BlogDTO.class);
+        BlogDTO blogDTO = modelMapper.map(updatedBlog, BlogDTO.class);
+        List<UserBlogVoteDTO> userBlogVoteDTOs = updatedBlog.getUserBlogVotes().stream()
+                .map(userBlogVote -> {
+                    UserBlogVoteDTO userBlogVoteDTO = modelMapper.map(userBlogVote, UserBlogVoteDTO.class);
+                    userBlogVoteDTO.setBlogId(userBlogVote.getBlog().getId());
+                    userBlogVoteDTO.setUserId(userBlogVote.getUser().getId());
+                    return userBlogVoteDTO;
+                })
+                .collect(Collectors.toList());
+        blogDTO.setUserBlogVotes(userBlogVoteDTOs);
+        return blogDTO;
     }
 
     @Operation(summary = "Find user blog vote")
@@ -179,75 +278,34 @@ public class BlogController {
         return true;
     }
 
-    @Operation(summary = "Edit blog")
-    @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<?> update(@PathVariable Integer id, @RequestParam("title") String title,
-            @RequestParam("blogCategoryId") Integer blogCategoryId, @RequestParam("blogText") String blogText,
-            @RequestParam("photo") MultipartFile photo) {
-        Map<String, String> errors = service.validateFieldsUpdate(title, blogCategoryId, blogText);
-        if (!errors.isEmpty()) {
-            return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
-        }
 
-        try {
-            String fileName = uploadPhotoService.uploadPhoto(photo);
-
-            Blog blog = service.findOneBlog(id);
-            BlogCategory category = blogCategoryService.findBlogCategory(blogCategoryId);
-
-            blog.setTitle(title);
-            blog.setBlogCategory(category);
-            blog.setBlogText(blogText);
-
-            String oldPhoto = blog.getPhoto();
-            String photoFile = fileName != null ? fileName : oldPhoto;
-
-            blog.setPhoto(photoFile);
-
-            if (fileName != null) {
-                Path path = Paths.get(uploadDir);
-                Files.deleteIfExists(path.resolve(oldPhoto));
-            }
-
-            Blog updatedBlog = service.update(id, blog);
-
-            BlogDTO updatedBlogDTO = modelMapper.map(updatedBlog, BlogDTO.class);
-
-            return new ResponseEntity<>(updatedBlogDTO, HttpStatus.OK);
-        } catch (Exception e) {
-            return new ResponseEntity<>("An error occurred: " + e.getMessage(), HttpStatus.BAD_REQUEST);
-        }
-    }
 
     @Operation(summary = "Delete blog")
     @DeleteMapping("/{id}")
     public boolean delete(@PathVariable Integer id) {
-        return service.delete(id);
+        return blogService.delete(id);
     }
 
-    @GetMapping("/filter")
-    public List<BlogDTO> filter(
-            @RequestParam(required = false) String sortStrategy,
-            @RequestParam(required = false) String keyword,
-            @RequestParam(required = false) Integer[] categoryIdArray) {
+    @PostMapping("/filter")
+    public ResponseEntity<?> filter(@RequestBody FilterBlogRequest request) {
+        var params = modelMapper.map(request, BlogFilterParam.class);
 
-        System.out.println(sortStrategy);
-        System.out.println(keyword);
-        System.out.println(Arrays.stream(categoryIdArray).toList());
+        AppResult<Page<BlogDTO>> result = blogService.filter(params);
+        if (result.isSuccess()) {
+            Page<BlogDTO> blogDTOPage = result.getSuccess();
+            List<FilterBlogResponse> filterBlogResponses = blogDTOPage.getContent()
+                    .stream()
+                    .map(blogDTO -> modelMapper.map(blogDTO, FilterBlogResponse.class))
+                    .collect(Collectors.toList());
 
-        List<Blog> blogs = service.findAll();
-        if (categoryIdArray != null && categoryIdArray.length > 0){
-            blogs = service.findByCategory(blogs, categoryIdArray);
+            Page<FilterBlogResponse> responsePage = new PageImpl<>(
+                    filterBlogResponses,
+                    PageRequest.of(request.getPage(), request.getSize()),
+                    blogDTOPage.getTotalElements());
 
+            return ResponseEntity.ok().body(responsePage);
         }
-        if (keyword != null || !keyword.isEmpty() || keyword != ""){
-            blogs = service.search(blogs, keyword);
-
-        }
-
-        if (sortStrategy != null || !sortStrategy.isEmpty() || sortStrategy != "" ){
-            blogs = service.sorting(blogs, service.getSortStrategy(sortStrategy));
-        }
-        return blogs.stream().map(blog -> modelMapper.map(blog, BlogDTO.class)).collect(Collectors.toList());
+        ApiError apiError = new ApiError("Error when filter blog");
+        return new ResponseEntity<>(apiError, HttpStatus.BAD_REQUEST);
     }
 }

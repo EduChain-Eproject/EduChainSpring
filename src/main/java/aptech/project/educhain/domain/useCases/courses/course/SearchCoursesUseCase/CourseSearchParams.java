@@ -11,10 +11,12 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class CourseSearchParams {
+
     private String search;
     private int page = 0;
     private int size = 10;
     private String sortBy = "title";
     private List<Integer> categoryIds;
     private CourseStatus status;
+    private Integer userId;
 }

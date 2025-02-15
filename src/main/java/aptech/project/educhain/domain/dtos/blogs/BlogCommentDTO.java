@@ -21,4 +21,3 @@ public class BlogCommentDTO {
     private Integer parentCommentId;
     private List<BlogCommentDTO> replies;
 }
-

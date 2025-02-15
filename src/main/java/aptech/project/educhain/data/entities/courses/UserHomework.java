@@ -24,11 +24,11 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class UserHomework extends BaseModel {
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY,cascade = CascadeType.ALL)
     @JoinColumn(name = "homework_id", referencedColumnName = "id")
     private Homework homework;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY,cascade = CascadeType.ALL)
     @JoinColumn(name = "user_id", referencedColumnName = "id")
     private User user;
 
@@ -36,7 +36,7 @@ public class UserHomework extends BaseModel {
     private Date submissionDate;
 
     @Column(name = "progress")
-    private Double progress; // This can be a percentage or any metric that makes sense
+    private Double progress;
 
     @Column(name = "grade")
     private BigDecimal grade;

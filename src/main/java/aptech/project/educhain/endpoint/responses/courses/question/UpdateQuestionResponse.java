@@ -7,8 +7,9 @@ import java.util.List;
 
 @Data
 public class UpdateQuestionResponse {
+    private Integer id;
     private Integer homeworkId;
     private String questionText;
-    private List<AnswerDTO> answers;
+    private List<AnswerDTO> answerDtos;
     private Integer correctAnswerId;
 }

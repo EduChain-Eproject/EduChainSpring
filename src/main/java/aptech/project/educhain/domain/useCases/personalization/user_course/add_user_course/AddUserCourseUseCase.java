@@ -1,5 +1,14 @@
 package aptech.project.educhain.domain.useCases.personalization.user_course.add_user_course;
 
+import java.math.BigDecimal;
+import java.sql.Timestamp;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
 import aptech.project.educhain.common.result.AppResult;
 import aptech.project.educhain.common.result.Failure;
 import aptech.project.educhain.common.usecase.Usecase;
@@ -10,18 +19,11 @@ import aptech.project.educhain.data.entities.courses.UserCourse;
 import aptech.project.educhain.data.repositories.accounts.AuthUserRepository;
 import aptech.project.educhain.data.repositories.courses.CourseRepository;
 import aptech.project.educhain.data.repositories.courses.UserCourseRepository;
+import aptech.project.educhain.domain.dtos.accounts.UserDTO;
+import aptech.project.educhain.domain.dtos.courses.CategoryDTO;
+import aptech.project.educhain.domain.dtos.courses.CourseDTO;
 import aptech.project.educhain.domain.dtos.courses.UserCourseDTO;
-import aptech.project.educhain.domain.useCases.personalization.user_course.get_all_user_course.UserCourseParams;
 import jakarta.transaction.Transactional;
-import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.stereotype.Component;
-
-import java.math.BigDecimal;
-import java.sql.Timestamp;
-import java.util.List;
-import java.util.Optional;
 
 @Component
 public class AddUserCourseUseCase implements Usecase<UserCourseDTO, AddUserCourseParams> {
@@ -34,13 +36,12 @@ public class AddUserCourseUseCase implements Usecase<UserCourseDTO, AddUserCours
     @Autowired
     CourseRepository courseRepository;
 
-
     @Override
     @Transactional
     public AppResult<UserCourseDTO> execute(AddUserCourseParams params) {
-        try{
-            //save new userCourse
-            User user =  authUserRepository.findUserWithId(params.getStudent_id());
+        try {
+            // save new userCourse
+            User user = authUserRepository.findUserWithId(params.getStudent_id());
             Course course = courseRepository.findCourseWithId(params.getCourse_id());
             UserCourse userCourse = new UserCourse();
             userCourse.setUser(user);
@@ -49,28 +50,34 @@ public class AddUserCourseUseCase implements Usecase<UserCourseDTO, AddUserCours
             userCourse.setEnrollmentDate(new Timestamp(System.currentTimeMillis()));
             userCourse.setCompletionStatus(UserCourse.CompletionStatus.NOT_STARTED);
             UserCourse newUserCourse = userCourseRepository.saveAndFlush(userCourse);
-            //find some value
+            // find some value
             User teacher = newUserCourse.getCourse().getTeacher();
             UserCourseDTO userCourseDTO = createUserCourseDTO(newUserCourse, teacher);
             return AppResult.successResult(userCourseDTO);
-        }
-        catch (Exception e){
+        } catch (Exception e) {
             return AppResult.failureResult(new Failure("Fail to create user-course"));
         }
 
     }
 
-    private static UserCourseDTO createUserCourseDTO(UserCourse newUserCourse, User teacher) {
+    private UserCourseDTO createUserCourseDTO(UserCourse newUserCourse, User teacher) {
         List<Category> categoryList = newUserCourse.getCourse().getCategories();
-        //map model
+
+        // Map Category entities to CategoryDTOs
+        List<CategoryDTO> categoryDTOList = categoryList.stream()
+                .map(category -> modelMapper.map(category, CategoryDTO.class))
+                .collect(Collectors.toList());
+
+        // Map other properties
         UserCourseDTO userCourseDTO = new UserCourseDTO();
-        userCourseDTO.setTeacherName(teacher.getFirstName() + " " + teacher.getLastName());
-        userCourseDTO.setTeacherEmail(teacher.getEmail());
-        userCourseDTO.setTitle(newUserCourse.getCourse().getTitle());
+
         userCourseDTO.setEnrollmentDate(newUserCourse.getEnrollmentDate());
-        userCourseDTO.setPrice(newUserCourse.getCourse().getPrice());
         userCourseDTO.setCompletionStatus(newUserCourse.getCompletionStatus());
-        userCourseDTO.setCategoryList(categoryList);
+        userCourseDTO.setProgress(newUserCourse.getProgress());
+        userCourseDTO.setUserDto(modelMapper.map(newUserCourse.getUser(), UserDTO.class));
+        userCourseDTO.setCourseDto(modelMapper.map(newUserCourse.getCourse(), CourseDTO.class));
+
         return userCourseDTO;
     }
+
 }

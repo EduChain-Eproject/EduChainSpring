@@ -14,13 +14,13 @@ public interface IAuthService {
 
     User register(RegisterRequest reg);
     EmailToken createTokenEmail(int id);
-    EmailToken verifyEmailToken(String token);
+    EmailToken verifyEmailToken(Integer code,String email);
     boolean verifyUser(int id);
     ResetPasswordToken createResetPasswordToken(int id);
-    int resetPasswordAction(String token,String password);
+    int resetPasswordAction(Integer token,String password,String email);
 
-    boolean checkLoginDevice(int userId);
-    boolean deleteUserSession(int userId);
+//    boolean checkLoginDevice(int userId);
+//    boolean deleteUserSession(int userId);
 
 
 }

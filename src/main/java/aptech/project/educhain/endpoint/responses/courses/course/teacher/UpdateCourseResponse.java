@@ -13,4 +13,5 @@ public class UpdateCourseResponse {
     private Double price;
     private String status;
     private List<CategoryDTO> categoryDtos;
+    private String avatarPath;
 }

@@ -36,3 +36,5 @@ build/
 /src/main/java/aptech/project/educhain/controllers/auth/TestController.java
 
 src/main/resources/application.properties
+src/main/resources/static/video
+src/main/resources/static/uploads

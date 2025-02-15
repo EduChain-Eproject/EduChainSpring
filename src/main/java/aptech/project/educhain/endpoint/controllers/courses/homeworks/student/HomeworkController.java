@@ -1,16 +1,24 @@
 package aptech.project.educhain.endpoint.controllers.courses.homeworks.student;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import aptech.project.educhain.common.result.ApiError;
+import aptech.project.educhain.endpoint.responses.courses.answer.UserAnswerResponse;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import aptech.project.educhain.common.result.ApiError;
 import aptech.project.educhain.common.result.AppResult;
 import aptech.project.educhain.data.serviceImpl.courses.AwardService;
 import aptech.project.educhain.data.serviceImpl.courses.HomeworkService;
@@ -26,10 +34,10 @@ import aptech.project.educhain.domain.useCases.courses.UserHomework.AnswerQuesti
 import aptech.project.educhain.domain.useCases.courses.UserHomework.GetUserHomeworkUseCase.GetUserHomeworkParams;
 import aptech.project.educhain.domain.useCases.courses.UserHomework.SubmitHomeworkUseCase.SubmitHomeworkParams;
 import aptech.project.educhain.endpoint.requests.Homework.AnswerAQuestionReq;
+import aptech.project.educhain.endpoint.responses.courses.answer.UserAnswerResponse;
 import aptech.project.educhain.endpoint.responses.courses.homework.GetHomeworkAndUserHomeworkResponse;
 import aptech.project.educhain.endpoint.responses.courses.homework.SubmitHomeworkResponse;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
@@ -39,6 +47,7 @@ import jakarta.validation.Valid;
 @CrossOrigin
 @RequestMapping("/STUDENT/api/homework")
 public class HomeworkController {
+
     @Autowired
     HomeworkService homeworkService;
 
@@ -71,7 +80,7 @@ public class HomeworkController {
 
                 var userHomework = result2.getSuccess();
 
-                if (userHomework.getUserAnswerDtos().size() > 0) {
+                if (userHomework.getUserAnswerDtos() != null && !userHomework.getUserAnswerDtos().isEmpty()) {
                     homework.mergeUserAnswersToQuestions(userHomework.getUserAnswerDtos());
                 }
 
@@ -100,15 +109,20 @@ public class HomeworkController {
             BindingResult rs,
             HttpServletRequest request) {
         var user = iJwtService.getUserByHeaderToken(request.getHeader("Authorization"));
-
+        if (rs.hasErrors()) {
+            Map<String, String> errors = new HashMap<>();
+            rs.getFieldErrors().forEach(error -> errors.put(error.getField(), error.getDefaultMessage()));
+            return new ResponseEntity<>(new ApiError(errors), HttpStatus.BAD_REQUEST);
+        }
         AppResult<UserAnswerDTO> result = userHomeworkService.answerQuestion(
                 new AnswerQuestionParams(user.getId(), homework_id, bodyReq.getQuestionId(), bodyReq.getAnswerId()));
 
         if (result.isSuccess()) {
-            return ResponseEntity.ok().body(result.getSuccess()); // TODO: map to res here
+            UserAnswerResponse userAnswerResponse = modelMapper.map(result.getSuccess(), UserAnswerResponse.class);
+            return ResponseEntity.ok().body(result.getSuccess()); // TODO: map to res done
         }
 
-        return ResponseEntity.badRequest().body(result.getFailure().getMessage());
+        return new ResponseEntity<>(new ApiError(result.getFailure().getMessage()), HttpStatus.OK);
     }
 
     @Operation(summary = "submit a homework")
@@ -120,7 +134,7 @@ public class HomeworkController {
                 new SubmitHomeworkParams(user.getId(), homework_id));
 
         if (result.isSuccess()) {
-            return ResponseEntity.ok().body(result.getSuccess()); // TODO: map to res here
+            return ResponseEntity.ok().body(result.getSuccess()); // TODO: map to res done
         }
 
         return ResponseEntity.badRequest().body(result.getFailure().getMessage());

@@ -36,4 +36,5 @@ public class GetCoursesByTeacherUsecase implements Usecase<Page<CourseDTO>, GetC
             return AppResult.failureResult(new Failure("Error fetching courses: " + e.getMessage()));
         }
     }
+
 }

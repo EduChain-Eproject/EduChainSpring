@@ -7,11 +7,13 @@ import java.util.List;
 
 @Data
 public class CreateQuestionResponse {
+    private Integer id;
+
     private Integer homeworkId;
 
     private String questionText;
 
-    private List<AnswerDTO> answers;
+    private List<AnswerDTO> answerDtos;
 
     private Integer correctAnswerId;
 }

@@ -1,5 +1,6 @@
 package aptech.project.educhain.domain.dtos.blogs;
 
+import aptech.project.educhain.data.entities.blogs.UserBlogVote;
 import aptech.project.educhain.domain.dtos.accounts.UserDTO;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
@@ -20,4 +21,5 @@ public class BlogDTO {
     private UserDTO user;
     private BlogCategoryDTO blogCategory;
     private List<BlogCommentDTO> blogComments;
+    private List<UserBlogVoteDTO> userBlogVotes;
 }

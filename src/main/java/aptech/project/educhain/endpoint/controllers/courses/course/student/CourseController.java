@@ -22,10 +22,11 @@ import aptech.project.educhain.common.result.AppResult;
 import aptech.project.educhain.data.entities.accounts.User;
 import aptech.project.educhain.data.entities.courses.CourseStatus;
 import aptech.project.educhain.data.serviceImpl.courses.CourseService;
+import aptech.project.educhain.data.serviceImpl.personalization.UserCourseServiceImpl;
 import aptech.project.educhain.domain.dtos.courses.CourseDTO;
 import aptech.project.educhain.domain.dtos.courses.UserCourseDTO;
 import aptech.project.educhain.domain.services.accounts.IJwtService;
-import aptech.project.educhain.domain.services.personalization.UserCourseService;
+import aptech.project.educhain.domain.useCases.courses.course.GetCourseDetailUsecase.GetCourseDetailParams;
 import aptech.project.educhain.domain.useCases.courses.course.SearchCoursesUseCase.CourseSearchParams;
 import aptech.project.educhain.domain.useCases.personalization.user_course.add_user_course.AddUserCourseParams;
 import aptech.project.educhain.domain.useCases.personalization.user_course.get_user_course.GetUserCourseParams;
@@ -37,6 +38,7 @@ import jakarta.servlet.http.HttpServletRequest;
 @RestController("StudentCourseController")
 @RequestMapping("/STUDENT/api/course")
 public class CourseController {
+
     @Autowired
     private CourseService courseService;
 
@@ -44,15 +46,17 @@ public class CourseController {
     private ModelMapper modelMapper;
 
     @Autowired
-    UserCourseService userCourseService;
+    UserCourseServiceImpl userCourseService;
 
     @Autowired
     IJwtService iJwtService;
 
     @PostMapping("/list")
-    public ResponseEntity<?> getCourses(@RequestBody CourseSearchRequest request) {
+    public ResponseEntity<?> getCourses(@RequestBody CourseSearchRequest request, HttpServletRequest servletRequest) {
+        var user = iJwtService.getUserByHeaderToken(servletRequest.getHeader("Authorization"));
 
         var params = modelMapper.map(request, CourseSearchParams.class);
+        params.setUserId(user.getId());
         params.setStatus(CourseStatus.APPROVED);
 
         AppResult<Page<CourseDTO>> result = courseService.searchCourses(params);
@@ -80,7 +84,7 @@ public class CourseController {
     public ResponseEntity<?> getCourseDetail(@PathVariable Integer courseId, HttpServletRequest request) {
         var user = iJwtService.getUserByHeaderToken(request.getHeader("Authorization"));
 
-        AppResult<CourseDTO> result = courseService.getCourseDetail(courseId);
+        AppResult<CourseDTO> result = courseService.getCourseDetail(new GetCourseDetailParams(user.getId(), courseId));
 
         if (result.isSuccess()) {
             var successValue = result.getSuccess();
@@ -93,6 +97,7 @@ public class CourseController {
             if (result2.isSuccess()) {
                 successValue.setCurrentUserCourse(result2.getSuccess());
             }
+
             AppResult<List<CourseDTO>> relatedCoursesResult = courseService.getRelatedCourses(courseId);
             if (relatedCoursesResult.isSuccess()) {
                 successValue.setRelatedCourseDtos(relatedCoursesResult.getSuccess());

@@ -15,4 +15,5 @@ public class GetCourseDetailResponse {
     private String status;
     private List<CategoryDTO> categoryDtos;
     private List<ChapterDTO> chapterDtos;
+    private String avatarPath;
 }

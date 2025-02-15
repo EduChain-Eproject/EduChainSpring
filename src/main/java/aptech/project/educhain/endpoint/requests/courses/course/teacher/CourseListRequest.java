@@ -8,7 +8,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class CourseListRequest {
-    private int teacherId;
     private String search;
     private int page = 0;
     private int size = 10;

@@ -3,7 +3,9 @@ package aptech.project.educhain.data.serviceImpl.accounts;
 import java.security.SecureRandom;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.Random;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -15,11 +17,9 @@ import aptech.project.educhain.data.entities.accounts.EmailToken;
 import aptech.project.educhain.data.entities.accounts.ResetPasswordToken;
 import aptech.project.educhain.data.entities.accounts.Role;
 import aptech.project.educhain.data.entities.accounts.User;
-import aptech.project.educhain.data.entities.accounts.UserSession;
 import aptech.project.educhain.data.repositories.accounts.AuthUserRepository;
 import aptech.project.educhain.data.repositories.accounts.EmailVerifyRepository;
 import aptech.project.educhain.data.repositories.accounts.ResetPasswordRepository;
-import aptech.project.educhain.data.repositories.accounts.UserSessionRepository;
 import aptech.project.educhain.domain.services.accounts.IAuthService;
 import aptech.project.educhain.endpoint.requests.accounts.RegisterRequest;
 import jakarta.transaction.Transactional;
@@ -27,15 +27,14 @@ import jakarta.transaction.Transactional;
 @Service
 public class AuthService implements IAuthService {
 
-    private static final long EXPIRATION_TIME = 900000;
+    private static final long EXPIRATION_TIME = 20000;
+
     @Autowired
     public EmailVerifyRepository emailVerifyRepository;
     @Autowired
     public ResetPasswordRepository resetPasswordRepository;
     @Autowired
     public AuthUserRepository authUserRepository;
-    @Autowired
-    public UserSessionRepository userSessionRepository;
     @Autowired
     @Lazy
     private PasswordEncoder passwordEncoder;
@@ -66,7 +65,8 @@ public class AuthService implements IAuthService {
     @Override
     public User findUserByEmail(String email) {
         try {
-            return authUserRepository.findUserByEmail(email);
+            User user = authUserRepository.findUserByEmail(email);
+            return user;
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -77,18 +77,23 @@ public class AuthService implements IAuthService {
     @Transactional
     public User register(RegisterRequest reg) {
         try {
-            User user = new User();
+                User user = new User();
             user.setEmail(reg.getEmail());
-            var encode = passwordEncoder.encode(reg.getPassword());
             user.setPassword(passwordEncoder.encode(reg.getPassword()));
             user.setFirstName(reg.getFirstName());
             user.setLastName(reg.getLastName());
             user.setPhone(reg.getPhone());
             user.setAddress(reg.getAddress());
-            user.setRole(Role.STUDENT);
-            user.setIsActive(true);
             user.setIsVerify(false);
             user.setAvatarPath(defaultAvatar);
+            if(Objects.equals(reg.getAccountType(), "TEACHER")){
+                user.setIsActive(false);
+                user.setRole(Role.TEACHER);
+            }
+            else {
+                user.setIsActive(true);
+                user.setRole(Role.STUDENT);
+            }
             authUserRepository.save(user);
             User newUser = authUserRepository.findUserWithId(user.getId());
             return newUser;
@@ -102,13 +107,14 @@ public class AuthService implements IAuthService {
     @Transactional
     public EmailToken createTokenEmail(int id) {
         try {
+            int combinedNumber = generateRandomNumber();
             EmailToken emailToken = new EmailToken();
-            String token = generateRandomString();
             var timeEnd = System.currentTimeMillis() + EXPIRATION_TIME;
             emailToken.setTimeExpire(new Timestamp(timeEnd));
-            emailToken.setVerifyToken(token);
+            emailToken.setCode(combinedNumber);
             // find user by id
             User user = authUserRepository.findUserWithId(id);
+            emailToken.setEmail(user.getEmail());
             emailToken.setUser(user);
             emailVerifyRepository.save(emailToken);
             return emailToken;
@@ -120,33 +126,41 @@ public class AuthService implements IAuthService {
     }
 
     // generate token
-    public static String generateRandomString() {
-        int length = 15;
-        String ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
-        SecureRandom RANDOM = new SecureRandom();
-        StringBuilder sb = new StringBuilder(length);
-        for (int i = 0; i < length; i++) {
-            int index = RANDOM.nextInt(ALPHABET.length());
-            sb.append(ALPHABET.charAt(index));
-        }
-        return sb.toString();
-    }
+    public static Integer generateRandomNumber() {
+        Random random = new Random();
 
+        int[] randomNumbers = new int[4];
+
+        // Ensure the first digit is not zero
+        randomNumbers[0] = random.nextInt(9) + 1;
+
+        // Generate the remaining digits
+        for (int i = 1; i < randomNumbers.length; i++) {
+            randomNumbers[i] = random.nextInt(10);
+        }
+
+        StringBuilder combinedNumberStr = new StringBuilder();
+        for (int number : randomNumbers) {
+            combinedNumberStr.append(number);
+        }
+
+        return Integer.parseInt(combinedNumberStr.toString());
+    }
     // verify email Token
-    public EmailToken verifyEmailToken(String token) {
+    public EmailToken verifyEmailToken(Integer code,String email) {
         try {
-            EmailToken emailToken = emailVerifyRepository.findEmaiTokenWithString(token);
+            EmailToken emailToken = emailVerifyRepository.findEmailTokenByCodeAndEmail(code,email);
             LocalDateTime now = LocalDateTime.now();
             LocalDateTime expireTime = emailToken.getTimeExpire().toLocalDateTime();
-            if (emailToken.getVerifyToken() == null || now.isAfter(expireTime.plusMinutes(15))
+            if (emailToken.getCode() == null || now.isAfter(expireTime.plusMinutes(15))
                     || emailToken.getUser().getId() == null) {
                 return null;
             }
             return emailToken;
         } catch (Exception e) {
             e.printStackTrace();
+            return null;
         }
-        return null;
     }
 
     // service change isVerify
@@ -161,7 +175,7 @@ public class AuthService implements IAuthService {
     public ResetPasswordToken createResetPasswordToken(int id) {
         try {
             ResetPasswordToken resetPasswordToken = new ResetPasswordToken();
-            String token = generateRandomString();
+            Integer token = generateRandomNumber();
             var timeEnd = System.currentTimeMillis() + EXPIRATION_TIME;
             resetPasswordToken.setTimeExpire(new Timestamp(timeEnd));
             resetPasswordToken.setResetPasswordToken(token);
@@ -176,16 +190,18 @@ public class AuthService implements IAuthService {
     }
 
     @Override
-    public int resetPasswordAction(String token, String password) {
+    public int resetPasswordAction(Integer token, String password,String email) {
         try {
             // find token
             ResetPasswordToken resetPasswordToken = resetPasswordRepository.findResetToken(token);
+            //findemail
+            User findUser = authUserRepository.findUserByEmail(email);
             if (resetPasswordToken.getResetPasswordToken() == null) {
                 return 0;
             }
             // find User with userId in token
             User user = authUserRepository.findUserWithId(resetPasswordToken.getUser().getId());
-            if (user.getEmail() == null) {
+            if (user.getEmail() == null || user.getId() != findUser.getId()) {
                 return -1;
             }
 
@@ -205,53 +221,8 @@ public class AuthService implements IAuthService {
         return 0;
     }
 
-    // check login device
-    public boolean checkLoginDevice(int userId) {
-        UserSession oldUserSession = userSessionRepository.findUserSessionWithId(userId);
-        UserSession userSession = createUserSession(userId);
-        if (oldUserSession == null) {
-            userSessionRepository.save(userSession);
-            return true;
-        }
-        return false;
-    }
 
-    @Transactional
-    public UserSession createUserSession(int userId) {
-        try {
-            User user = authUserRepository.findUserWithId(userId);
-            UserSession userSession = new UserSession();
-            userSession.setUser(user);
-            long timeEnd = System.currentTimeMillis();
-            userSession.setLastLogin(new Timestamp(timeEnd));
-            // find userSession by userid
-            UserSession oldUserSession = userSessionRepository.findUserSessionWithId(userId);
-            if (oldUserSession != null) {
-                return null;
-            }
-            userSessionRepository.save(userSession);
-            String token = generateRandomString();
-            userSession.setToken(token);
-            return userSession;
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
+    //function generate 4 number
 
-    // logout
-    @Override
-    @Transactional
-    public boolean deleteUserSession(int userId) {
-        try {
-            User user = authUserRepository.findUserWithId(userId);
-            UserSession userSession = userSessionRepository.findUserSessionWithId(userId);
-            // userSessionRepository.delete(userSession);
-            userSessionRepository.deleteSessionByUserId(userSession.getUser().getId());
-            return true;
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return false;
-    }
+    //function check number
 }

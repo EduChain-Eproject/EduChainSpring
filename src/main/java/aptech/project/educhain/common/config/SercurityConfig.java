@@ -37,7 +37,8 @@ public class SercurityConfig {
                 .requestMatchers("/ADMIN/**").hasAnyAuthority("ADMIN")
                 .requestMatchers("/STUDENT/**").hasAnyAuthority("STUDENT")
                 .requestMatchers("/CENSOR/**").hasAnyAuthority("CENSOR")
-                .requestMatchers("/COMMON/**").authenticated()
+                        .requestMatchers("/VideoUrl/**").authenticated()
+
                 .anyRequest().permitAll())
                 // .formLogin(
                 // form -> form

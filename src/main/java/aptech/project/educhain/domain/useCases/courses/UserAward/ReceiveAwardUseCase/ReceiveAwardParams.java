@@ -7,5 +7,5 @@ import lombok.Data;
 @AllArgsConstructor
 public class ReceiveAwardParams {
     Integer userId;
-    Integer homeworkId;
+    Integer awardId;
 }

@@ -1,7 +1,10 @@
 package aptech.project.educhain.endpoint.controllers.courses.award.student;
 
+import aptech.project.educhain.common.result.ApiError;
+import aptech.project.educhain.endpoint.responses.courses.AwardResponse.AwardResponse;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -33,18 +36,17 @@ public class AwardController {
     IJwtService iJwtService;
 
     @Operation(summary = "receive an award")
-    @PostMapping("receive/{homework_id}")
-    public ResponseEntity<?> receive(@PathVariable Integer homework_id, HttpServletRequest request) {
+    @PostMapping("receive/{award_id}")
+    public ResponseEntity<?> receive(@PathVariable Integer award_id, HttpServletRequest request) {
         var user = iJwtService.getUserByHeaderToken(request.getHeader("Authorization"));
 
         AppResult<AwardDTO> result = AwardService.receiveAward(
-                new ReceiveAwardParams(user.getId(), homework_id));
+                new ReceiveAwardParams(user.getId(), award_id));
 
         if (result.isSuccess()) {
-            return ResponseEntity.ok().body(result.getSuccess()); // TODO: map to res here
+            AwardResponse awardResponse = modelMapper.map(result.getSuccess(),AwardResponse.class);
+            return ResponseEntity.ok().body(awardResponse); // TODO: map to res done 
         }
-
-        return ResponseEntity.badRequest().body(result.getFailure().getMessage());
+        return new ResponseEntity<>(new ApiError(result.getFailure().getMessage()), HttpStatus.OK);
     }
-
 }

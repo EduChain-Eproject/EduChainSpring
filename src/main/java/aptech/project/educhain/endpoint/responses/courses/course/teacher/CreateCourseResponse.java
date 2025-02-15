@@ -7,9 +7,11 @@ import lombok.Data;
 
 @Data
 public class CreateCourseResponse {
+    private Integer id;
     private String title;
     private String description;
     private Double price;
     private String status;
+    private String avatarPath;
     private List<CategoryDTO> categoryDtos;
 }

@@ -30,8 +30,7 @@ public class ReceiveAwardUseCase implements Usecase<AwardDTO, ReceiveAwardParams
     @Override
     public AppResult<AwardDTO> execute(ReceiveAwardParams params) {
         try {
-            Optional<Award> awardOptional = awardRepository.findByUserIdAndHomeworkId(params.getUserId(),
-                    params.getHomeworkId());
+            Optional<Award> awardOptional = awardRepository.findByUserIdAndAwardId(params.getUserId(), params.getAwardId());
             if (!awardOptional.isPresent()) {
                 return AppResult.failureResult(new Failure("Award not found"));
             }

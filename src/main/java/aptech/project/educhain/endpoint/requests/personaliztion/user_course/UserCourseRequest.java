@@ -1,5 +1,6 @@
 package aptech.project.educhain.endpoint.requests.personaliztion.user_course;
 
+import aptech.project.educhain.data.entities.courses.UserCourse;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -8,8 +9,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class UserCourseRequest {
-    private int student_id;
-    private int page;
-    private int size;
+    private int page = 0;
+    private int size = 10;
     private String titleSearch;
+    private UserCourse.CompletionStatus completionStatus;
 }

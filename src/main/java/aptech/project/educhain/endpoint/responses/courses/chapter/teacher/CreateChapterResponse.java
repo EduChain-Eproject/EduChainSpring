@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class CreateChapterResponse {
+    private Integer id;
     private CourseDTO courseDto;
     private String chapterTitle;
 }

@@ -21,6 +21,7 @@ public class ImageController {
     private String uploadDir;
 
 
+
     @GetMapping("/uploads/{filename:.+}")
     public ResponseEntity<Resource> serveFile(@PathVariable String filename) {
         try {
@@ -44,5 +45,7 @@ public class ImageController {
             throw new RuntimeException("Could not read file: " + filename, e);
         }
     }
+
+
 }
 

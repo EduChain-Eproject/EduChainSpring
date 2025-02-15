@@ -14,6 +14,7 @@ import aptech.project.educhain.domain.useCases.courses.course.ChangeCourseStatus
 import aptech.project.educhain.domain.useCases.courses.course.CreateCourseUsecase.CreateCourseParams;
 import aptech.project.educhain.domain.useCases.courses.course.CreateCourseUsecase.CreateCourseUsecase;
 import aptech.project.educhain.domain.useCases.courses.course.DeleteCourseUsecase.DeleteCourseUsecase;
+import aptech.project.educhain.domain.useCases.courses.course.GetCourseDetailUsecase.GetCourseDetailParams;
 import aptech.project.educhain.domain.useCases.courses.course.GetCourseDetailUsecase.GetCourseDetailUsecase;
 import aptech.project.educhain.domain.useCases.courses.course.GetCoursesByTeacherUsecase.GetCoursesByTeacherParams;
 import aptech.project.educhain.domain.useCases.courses.course.GetCoursesByTeacherUsecase.GetCoursesByTeacherUsecase;
@@ -25,6 +26,7 @@ import aptech.project.educhain.domain.useCases.courses.course.UpdateCourseUsecas
 
 @Service
 public class CourseService implements ICourseService {
+
     @Autowired
     CreateCourseUsecase createCourseUsecase;
 
@@ -60,8 +62,8 @@ public class CourseService implements ICourseService {
     }
 
     @Override
-    public AppResult<CourseDTO> getCourseDetail(Integer courseId) {
-        return getCourseDetailUsecase.execute(courseId);
+    public AppResult<CourseDTO> getCourseDetail(GetCourseDetailParams params) {
+        return getCourseDetailUsecase.execute(params);
     }
 
     @Override

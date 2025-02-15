@@ -21,12 +21,17 @@ public interface UserCourseRepository extends JpaRepository<UserCourse, Integer>
                         @Param("titleSearch") String titleSearch,
                         Pageable pageable);
 
+                @Query("SELECT uc.course " +
+                                "FROM UserCourse uc " +
+                                "GROUP BY uc.course " +
+                                "ORDER BY COUNT(uc.user) DESC " +
+                                "LIMIT 4")
+                List<Course> findMostPopularCourse();
         @Query("SELECT uc.course " +
-                        "FROM UserCourse uc " +
-                        "GROUP BY uc.course " +
-                        "ORDER BY COUNT(uc.user) DESC " +
-                        "LIMIT 4")
-        List<Course> findMostPopularCourse();
+                "FROM UserCourse uc " +
+                "GROUP BY uc.course " +
+                "ORDER BY COUNT(uc.user) DESC")
+        List<Course> findListPopularCourses(Pageable pageable);
 
         @Query("SELECT COUNT(DISTINCT uc.user.id) " +
                         "FROM UserCourse uc " +
@@ -39,4 +44,7 @@ public interface UserCourseRepository extends JpaRepository<UserCourse, Integer>
         @Query("SELECT uc FROM UserCourse uc WHERE uc.user.id = :userId AND uc.course.id = :courseId")
         Optional<UserCourse> findByUserIdAndCourseId(@Param("userId") Integer userId,
                         @Param("courseId") Integer courseId);
+
+        @Query("SELECT uc FROM UserCourse uc WHERE uc.user.id = :userId AND (:titleSearch IS NULL OR uc.course.title LIKE %:titleSearch%) AND (:completionStatus IS NULL OR uc.completionStatus = :completionStatus)")
+        Page<UserCourse> findAllWithParams(@Param("userId") Integer userId, @Param("titleSearch") String titleSearch, @Param("completionStatus") UserCourse.CompletionStatus completionStatus, Pageable pageable);
 }

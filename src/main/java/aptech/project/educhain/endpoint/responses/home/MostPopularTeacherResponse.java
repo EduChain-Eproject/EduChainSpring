@@ -12,8 +12,8 @@ public class MostPopularTeacherResponse {
     private String firstName;
     private String lastName;
     private String phone;
-    private String teacherEmail;
+    private String email;
     private String avatarPath;
-    private long studentParticipating;
+    private long numberOfStudents;
     private CourseDTO mostPopularCourse;
 }

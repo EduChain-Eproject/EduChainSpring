@@ -8,6 +8,7 @@ import aptech.project.educhain.domain.dtos.courses.AwardDTO;
 import aptech.project.educhain.domain.services.courses.IAwardService;
 import aptech.project.educhain.domain.useCases.courses.UserAward.ApproveOrRejectAwardUseCase.ApproveOrRejectAwardParams;
 import aptech.project.educhain.domain.useCases.courses.UserAward.ApproveOrRejectAwardUseCase.ApproveOrRejectAwardUseCase;
+import aptech.project.educhain.domain.useCases.courses.UserAward.GetAwardUseCase.GetAwardUseCase;
 import aptech.project.educhain.domain.useCases.courses.UserAward.GetUserAwardUseCase.GetUserAwardParams;
 import aptech.project.educhain.domain.useCases.courses.UserAward.GetUserAwardUseCase.GetUserAwardUseCase;
 import aptech.project.educhain.domain.useCases.courses.UserAward.ReceiveAwardUseCase.ReceiveAwardParams;
@@ -24,6 +25,14 @@ public class AwardService implements IAwardService {
 
     @Autowired
     ApproveOrRejectAwardUseCase approveOrRejectAwardUseCase;
+
+    @Autowired
+    GetAwardUseCase getAwardUseCase;
+
+    @Override
+    public AppResult<AwardDTO> getAward(Integer awardId) {
+        return getAwardUseCase.execute(awardId);
+    }
 
     @Override
     public AppResult<AwardDTO> getUserAward(GetUserAwardParams params) {

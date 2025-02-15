@@ -11,6 +11,7 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import java.util.List;
 
@@ -21,8 +22,10 @@ import java.util.List;
 @NoArgsConstructor
 public class BlogCategory extends BaseModel {
     @Column(name = "CategoryName", length = 50)
+    @ToString.Exclude
     private String categoryName;
 
     @OneToMany(mappedBy = "blogCategory", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ToString.Exclude
     private List<Blog> blogs;
 }

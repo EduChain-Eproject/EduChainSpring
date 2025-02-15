@@ -8,6 +8,8 @@ import aptech.project.educhain.domain.useCases.personalization.user_course.add_u
 import aptech.project.educhain.domain.useCases.personalization.user_course.get_all_user_course.UserCourseParams;
 import aptech.project.educhain.domain.useCases.personalization.user_course.get_user_course.GetUserCourseParams;
 
+import java.util.List;
+
 public interface UserCourseService {
      AppResult<Page<UserCourseDTO>> getAllUserCourseWithParams(UserCourseParams params);
 

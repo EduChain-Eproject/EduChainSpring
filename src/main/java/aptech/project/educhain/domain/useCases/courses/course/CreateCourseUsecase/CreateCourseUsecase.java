@@ -3,8 +3,10 @@ package aptech.project.educhain.domain.useCases.courses.course.CreateCourseUseca
 import java.util.List;
 import java.util.stream.Collectors;
 
+import aptech.project.educhain.data.serviceImpl.cloudinary.CloudinarySerivce;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import aptech.project.educhain.common.result.AppResult;
@@ -31,23 +33,25 @@ public class CreateCourseUsecase implements Usecase<CourseDTO, CreateCourseParam
 
     @Autowired
     private ModelMapper modelMapper;
+    @Autowired
+    CloudinarySerivce cloudinarySerivce;
+    @Value("${base.url.default.avatar}")
+    private String defaultAvatar;
 
     @Override
     public AppResult<CourseDTO> execute(CreateCourseParams params) {
         try {
             Course course = modelMapper.map(params, Course.class);
-
             List<Category> categories = categoryRepository.findAllById(params.getCategoryIds());
             var teacher = authUserRepository.findById(params.getTeacherId());
-
             if (!teacher.isPresent()) {
                 return AppResult.failureResult(new Failure("Failed to create course: Teacher not exist!"));
             }
             course.setTeacher(teacher.get());
             course.setCategories(categories);
-
+            String newPath = cloudinarySerivce.upload(params.getAvatarCourse());
+            course.setAvatarPath(newPath);
             Course savedCourse = courseRepository.saveAndFlush(course);
-
             CourseDTO courseDTO = modelMapper.map(savedCourse, CourseDTO.class);
             courseDTO.setCategoryDtos(savedCourse.getCategories().stream()
                     .map(category -> modelMapper.map(category, CategoryDTO.class))

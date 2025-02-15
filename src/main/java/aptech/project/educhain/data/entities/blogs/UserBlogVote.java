@@ -6,6 +6,7 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -18,10 +19,12 @@ import java.util.List;
 public class UserBlogVote extends BaseModel {
     @ManyToOne
     @JoinColumn(name = "user_id")
+    @ToString.Exclude
     private User user;
 
     @ManyToOne
     @JoinColumn(name = "blog_id")
+    @ToString.Exclude
     private Blog blog;
 
     @Column(name = "vote")

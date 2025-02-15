@@ -21,6 +21,7 @@ import aptech.project.educhain.common.result.AppResult;
 import aptech.project.educhain.data.serviceImpl.courses.CourseService;
 import aptech.project.educhain.domain.dtos.courses.CourseDTO;
 import aptech.project.educhain.domain.useCases.courses.course.ChangeCourseStatusUsecase.ChangeCourseStatusParams;
+import aptech.project.educhain.domain.useCases.courses.course.GetCourseDetailUsecase.GetCourseDetailParams;
 import aptech.project.educhain.domain.useCases.courses.course.SearchCoursesUseCase.CourseSearchParams;
 import aptech.project.educhain.endpoint.requests.courses.course.censor.ApproveDeleteRequest;
 import aptech.project.educhain.endpoint.requests.courses.course.censor.CourseSearchRequest;
@@ -30,6 +31,7 @@ import aptech.project.educhain.endpoint.responses.courses.course.teacher.GetCour
 @RestController("CensorCourseController")
 @RequestMapping("/CENSOR/api/course")
 public class CourseController {
+
     @Autowired
     private CourseService courseService;
 
@@ -63,7 +65,7 @@ public class CourseController {
 
     @GetMapping("/detail/{courseId}")
     public ResponseEntity<?> getCourseDetail(@PathVariable("courseId") Integer courseId) {
-        AppResult<CourseDTO> result = courseService.getCourseDetail(courseId);
+        AppResult<CourseDTO> result = courseService.getCourseDetail(new GetCourseDetailParams(null, courseId));
         if (result.isSuccess()) {
             var res = modelMapper.map(result.getSuccess(), GetCourseDetailResponse.class);
             return ResponseEntity.ok().body(res);

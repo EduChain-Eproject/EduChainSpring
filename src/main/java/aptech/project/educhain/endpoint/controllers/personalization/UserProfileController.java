@@ -1,22 +1,42 @@
 package aptech.project.educhain.endpoint.controllers.personalization;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import aptech.project.educhain.common.result.ApiError;
+import aptech.project.educhain.common.result.AppResult;
+import aptech.project.educhain.data.serviceImpl.common.UploadPhotoService;
+import aptech.project.educhain.domain.dtos.courses.AwardDTO;
+import aptech.project.educhain.domain.dtos.courses.UserCourseDTO;
+import aptech.project.educhain.domain.dtos.courses.UserHomeworkDTO;
+import aptech.project.educhain.domain.useCases.personalization.user_award.get_user_award_userId.UserAwardParams;
+import aptech.project.educhain.domain.useCases.personalization.user_award.take_one_award.TakeOneAwardParams;
+import aptech.project.educhain.domain.useCases.personalization.user_homework.list_userhomework.ListUserHomeworkParams;
+import aptech.project.educhain.domain.useCases.personalization.user_homework.take_one_userhomework.TakeOneUserHomeworkParams;
+import aptech.project.educhain.endpoint.requests.personaliztion.user_award.TakeOneAwardRequest;
+import aptech.project.educhain.endpoint.requests.personaliztion.user_award.UserAwardRequest;
+import aptech.project.educhain.endpoint.requests.personaliztion.user_homework.TakeOneUserHomeworkRequest;
+import aptech.project.educhain.endpoint.requests.personaliztion.user_homework.UserHomeworkRequest;
+import aptech.project.educhain.endpoint.responses.common.UserAwardResponse;
+import aptech.project.educhain.endpoint.responses.common.UserHomeworkResponse;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.ObjectError;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import aptech.project.educhain.data.entities.accounts.User;
+import aptech.project.educhain.data.entities.courses.Course;
 import aptech.project.educhain.domain.dtos.UserProfile.UserProfileDTO;
 import aptech.project.educhain.domain.dtos.accounts.UserDTO;
 import aptech.project.educhain.domain.services.accounts.IAuthService;
@@ -44,19 +64,35 @@ public class UserProfileController {
     @Autowired
     IAuthService iAuthService;
 
+    @Autowired
+    UploadPhotoService uploadPhotoService;
+
+    @Value("${file.upload-dir}")
+    private String uploadDir;
+
     @GetMapping("getUser")
     public ResponseEntity<?> getUser(HttpServletRequest request) {
         String token = request.getHeader("Authorization");
         if (token == null) {
-            return  ResponseEntity.badRequest().body("error when take token form header");
+            // todo
+            return new ResponseEntity<>(new ApiError("cant find token in your header"),
+                    HttpStatus.BAD_REQUEST);
         }
         String newToken = token.substring(7);
         var email = iJwtService.extractUserName(newToken);
-        if(email == null){
-            return  ResponseEntity.badRequest().body("invalid token from header");
+        if (email == null) {
+            // todo
+            return new ResponseEntity<>(new ApiError("invalid token from header"),
+                    HttpStatus.BAD_REQUEST);
         }
         User user = iAuthService.findUserByEmail(email);
         UserDTO userDtoResponse = modelMapper.map(user, UserDTO.class);
+        userDtoResponse.setCourseDtosParticipated(
+                user
+                        .getCoursesParticipated()
+                        .stream()
+                        .map((uc) -> modelMapper.map(uc, UserCourseDTO.class))
+                        .toList());
         return ResponseEntity.ok(userDtoResponse);
     }
 
@@ -69,28 +105,69 @@ public class UserProfileController {
             var res = modelMapper.map(result.getSuccess(), UserProfileDTO.class);
             return new ResponseEntity<>(res, HttpStatus.OK);
         }
-        return new ResponseEntity<>(result.getFailure().getMessage(), HttpStatus.BAD_REQUEST);
+        ApiError apiError = new ApiError(result.getFailure().getMessage());
+        return new ResponseEntity<>(apiError, HttpStatus.BAD_REQUEST);
     }
 
-    @PostMapping(value = "/updateProfile", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<?> updateProfile(@Valid @ModelAttribute UpdateUserRequest updateUserRequest,
+    @PutMapping(value = "/updateProfile", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<?> updateProfile(HttpServletRequest request,
+            @Valid @ModelAttribute UpdateUserRequest updateUserRequest,
             BindingResult rs) {
         if (rs.hasErrors()) {
-            StringBuilder errors = new StringBuilder();
-            // ObjectError
-            List<ObjectError> errorList = rs.getAllErrors();
-            for (var err : errorList) {
-                errors.append(err.getDefaultMessage()).append("\n");
-            }
-            return ResponseEntity.badRequest().body(errors.toString());
+            Map<String, String> errors = new HashMap<>();
+            rs.getFieldErrors().forEach(error -> errors.put(error.getField(), error.getDefaultMessage()));
+
+            ApiError apiError = new ApiError(errors);
+            return new ResponseEntity<>(apiError, HttpStatus.BAD_REQUEST);
         }
+        String token = request.getHeader("Authorization");
+        if (token == null) {
+            return new ResponseEntity<>(new ApiError("Can't find token in your header"), HttpStatus.BAD_REQUEST);
+        }
+        String newToken = token.substring(7);
+        var email = iJwtService.extractUserName(newToken);
+        User user = iAuthService.findUserByEmail(email);
         UpdateUserProfileParam updateUserProfileParam = modelMapper.map(updateUserRequest,
                 UpdateUserProfileParam.class);
+        updateUserProfileParam.setId(user.getId());
         var result = userProfileService.updateProfile(updateUserProfileParam);
         if (result.isSuccess()) {
             var res = modelMapper.map(result.getSuccess(), UserProfileResponse.class);
             return new ResponseEntity<>(res, HttpStatus.OK);
         }
-        return new ResponseEntity<>(result.getFailure().getMessage(), HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(new ApiError(result.getFailure().getMessage()),
+                HttpStatus.BAD_REQUEST);
     }
+
+    // list award by user id
+
+    // @PostMapping("/list-award")
+    // public ResponseEntity<?> getAwardsByUserId(@RequestBody UserAwardRequest
+    // request) {
+    // UserAwardParams userAwardParams =
+    // modelMapper.map(request,UserAwardParams.class);
+    //
+    // AppResult<Page<AwardDTO>> result =
+    // userProfileService.listAwardByUserId(userAwardParams);
+    // if (result.isSuccess()) {
+    // var res = result.getSuccess().map(awardDto -> modelMapper.map(awardDto,
+    // UserAwardResponse.class));
+    // return ResponseEntity.ok().body(res);
+    // }
+    // return ResponseEntity.badRequest().body(result.getFailure().getMessage());
+    // }
+
+    // //get 1 award by user id
+    // @PostMapping("/award")
+    // public ResponseEntity<?> getAwardByUserIdAndAwardId(@RequestBody
+    // TakeOneAwardRequest req) {
+    // TakeOneAwardParams params = modelMapper.map(req,TakeOneAwardParams.class);
+    // AppResult<AwardDTO> result = userProfileService.awardByUserId(params);
+    // if (result.isSuccess()) {
+    // AwardDTO awardDto = result.getSuccess();
+    // return ResponseEntity.ok().body(awardDto);
+    // }
+    // return ResponseEntity.badRequest().body(result.getFailure().getMessage());
+    // }
+
 }
