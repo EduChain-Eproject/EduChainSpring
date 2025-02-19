@@ -53,6 +53,10 @@ public class Course extends BaseModel {
     @Column(name = "status")
     private CourseStatus status;
 
+    @OneToMany(mappedBy = "course", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ToString.Exclude
+    private List<Certification> certifiedParticipants;
+
     @JsonIgnore
     @ToString.Exclude
     @ManyToMany

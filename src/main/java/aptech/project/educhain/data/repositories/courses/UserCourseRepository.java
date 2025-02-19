@@ -21,16 +21,17 @@ public interface UserCourseRepository extends JpaRepository<UserCourse, Integer>
                         @Param("titleSearch") String titleSearch,
                         Pageable pageable);
 
-                @Query("SELECT uc.course " +
-                                "FROM UserCourse uc " +
-                                "GROUP BY uc.course " +
-                                "ORDER BY COUNT(uc.user) DESC " +
-                                "LIMIT 4")
-                List<Course> findMostPopularCourse();
         @Query("SELECT uc.course " +
-                "FROM UserCourse uc " +
-                "GROUP BY uc.course " +
-                "ORDER BY COUNT(uc.user) DESC")
+                        "FROM UserCourse uc " +
+                        "GROUP BY uc.course " +
+                        "ORDER BY COUNT(uc.user) DESC " +
+                        "LIMIT 4")
+        List<Course> findMostPopularCourse();
+
+        @Query("SELECT uc.course " +
+                        "FROM UserCourse uc " +
+                        "GROUP BY uc.course " +
+                        "ORDER BY COUNT(uc.user) DESC")
         List<Course> findListPopularCourses(Pageable pageable);
 
         @Query("SELECT COUNT(DISTINCT uc.user.id) " +
@@ -46,5 +47,28 @@ public interface UserCourseRepository extends JpaRepository<UserCourse, Integer>
                         @Param("courseId") Integer courseId);
 
         @Query("SELECT uc FROM UserCourse uc WHERE uc.user.id = :userId AND (:titleSearch IS NULL OR uc.course.title LIKE %:titleSearch%) AND (:completionStatus IS NULL OR uc.completionStatus = :completionStatus)")
-        Page<UserCourse> findAllWithParams(@Param("userId") Integer userId, @Param("titleSearch") String titleSearch, @Param("completionStatus") UserCourse.CompletionStatus completionStatus, Pageable pageable);
+        Page<UserCourse> findAllWithParams(@Param("userId") Integer userId, @Param("titleSearch") String titleSearch,
+                        @Param("completionStatus") UserCourse.CompletionStatus completionStatus, Pageable pageable);
+
+        @Query("SELECT COUNT(uh) " +
+                        "FROM UserHomework uh " +
+                        "JOIN uh.homework h " +
+                        "JOIN h.lesson l " +
+                        "JOIN l.chapter c " +
+                        "JOIN c.course co " +
+                        "WHERE uh.user.id = :userId " +
+                        "AND co.id = :courseId " +
+                        "AND uh.isSubmitted = true")
+        Long countSubmittedHomeworks(@Param("userId") Integer userId, @Param("courseId") Integer courseId);
+
+        @Query("SELECT COUNT(uh) " +
+                        "FROM UserHomework uh " +
+                        "JOIN uh.homework h " +
+                        "JOIN h.lesson l " +
+                        "JOIN l.chapter c " +
+                        "JOIN c.course co " +
+                        "WHERE uh.user.id = :userId " +
+                        "AND co.id = :courseId")
+        Long countHomeworks(@Param("userId") Integer userId, @Param("courseId") Integer courseId);
+
 }

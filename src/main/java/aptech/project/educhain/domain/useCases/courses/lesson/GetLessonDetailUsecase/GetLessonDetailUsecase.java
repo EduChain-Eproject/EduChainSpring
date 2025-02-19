@@ -16,6 +16,7 @@ import aptech.project.educhain.domain.dtos.courses.ChapterDTO;
 import aptech.project.educhain.domain.dtos.courses.CourseDTO;
 import aptech.project.educhain.domain.dtos.courses.HomeworkDTO;
 import aptech.project.educhain.domain.dtos.courses.LessonDTO;
+import aptech.project.educhain.domain.dtos.courses.QuestionDTO;
 
 @Component
 public class GetLessonDetailUsecase implements Usecase<LessonDTO, GetLessonDetailParams> {
@@ -49,7 +50,12 @@ public class GetLessonDetailUsecase implements Usecase<LessonDTO, GetLessonDetai
                     lesson
                             .getHomeworks()
                             .stream()
-                            .map(hw -> modelMapper.map(hw, HomeworkDTO.class))
+                            .map(hw -> {
+                                var dto = modelMapper.map(hw, HomeworkDTO.class);
+                                dto.setQuestionDtos(hw.getQuestions().stream()
+                                        .map((q) -> modelMapper.map(q, QuestionDTO.class)).toList());
+                                return dto;
+                            })
                             .toList());
 
             if (params.getUserId() != null) {

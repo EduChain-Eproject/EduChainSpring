@@ -46,11 +46,12 @@ public class AwardController {
         var user = iJwtService.getUserByHeaderToken(request.getHeader("Authorization"));
 
         AppResult<AwardDTO> result = AwardService.approveOrRejectAward(
-                new ApproveOrRejectAwardParams(award_id, user.getId(), bodyReq.getUpdatingAwardStatus()));
+                new ApproveOrRejectAwardParams(award_id, bodyReq.getComments(), user.getId(),
+                        bodyReq.getUpdatingAwardStatus()));
 
         if (result.isSuccess()) {
-            AwardResponse awardResponse = modelMapper.map(result.getSuccess(),AwardResponse.class);
-            return ResponseEntity.ok().body(awardResponse); // TODO: map to res done
+            AwardResponse awardResponse = modelMapper.map(result.getSuccess(), AwardResponse.class);
+            return ResponseEntity.ok().body(awardResponse);
         }
         return new ResponseEntity<>(new ApiError(result.getFailure().getMessage()), HttpStatus.OK);
     }

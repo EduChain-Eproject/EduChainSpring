@@ -18,4 +18,6 @@ public class UserProfileDTO {
     private String address;
     private Role role;
     private String avatarPath;
+    private String walletAddress;
+
 }

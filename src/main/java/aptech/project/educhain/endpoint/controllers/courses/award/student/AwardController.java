@@ -45,7 +45,7 @@ public class AwardController {
 
         if (result.isSuccess()) {
             AwardResponse awardResponse = modelMapper.map(result.getSuccess(),AwardResponse.class);
-            return ResponseEntity.ok().body(awardResponse); // TODO: map to res done 
+            return ResponseEntity.ok().body(awardResponse); 
         }
         return new ResponseEntity<>(new ApiError(result.getFailure().getMessage()), HttpStatus.OK);
     }

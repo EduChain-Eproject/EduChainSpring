@@ -39,4 +39,5 @@ src/main/resources/application.properties
 src/main/resources/static/video
 src/main/resources/static/uploads
 
+src/main/resources/web3Resources
 docker-compose.yml

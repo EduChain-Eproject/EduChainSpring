@@ -32,9 +32,6 @@ public class HomeController {
     @Autowired
     private ModelMapper modelMapper;
 
-
-    // get most popular course base on student
-    //todo
     @GetMapping("/signature-courses")
     public ResponseEntity<?> getMostPopularCourse() {
         AppResult<List<CourseDTO>> result = homeService.getMostPopularCourse();
@@ -48,8 +45,6 @@ public class HomeController {
         return new ResponseEntity<>(new ApiError(result.getFailure().getMessage()), HttpStatus.BAD_REQUEST);
     }
 
-    // get 4 categories base on course
-    //todo
     @GetMapping("/best-categories")
     public ResponseEntity<?> getCategoriesWithMostCourses() {
         GetMostCategoryParams getMostCategoryParams = new GetMostCategoryParams();
@@ -61,7 +56,6 @@ public class HomeController {
         return new ResponseEntity<>(new ApiError(result.getFailure().getMessage()), HttpStatus.BAD_REQUEST);
     }
 
-    //todo
     @GetMapping("/most-popular-teacher")
     public ResponseEntity<?> getMostPopularTeacher() {
         AppResult<PopularTeacherDTO> result = homeService.getMostPopularTeacher();
@@ -72,7 +66,6 @@ public class HomeController {
         return new ResponseEntity<>(new ApiError(result.getFailure().getMessage()), HttpStatus.BAD_REQUEST);
     }
 
-    //todo
     @GetMapping("/statistics")
     public ResponseEntity<?> statistics() {
         AppResult<Statistics> statistics = homeService.getStatistics();

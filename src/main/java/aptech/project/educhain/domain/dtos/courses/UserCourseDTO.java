@@ -20,4 +20,6 @@ public class UserCourseDTO {
     private BigDecimal progress;
     private List<CategoryDTO> categoryList;
     private String avatarPath;
+
+    private CertificationDTO certificationDto;
 }

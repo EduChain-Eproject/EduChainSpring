@@ -9,13 +9,16 @@ import org.springframework.stereotype.Component;
 import aptech.project.educhain.common.result.AppResult;
 import aptech.project.educhain.common.result.Failure;
 import aptech.project.educhain.common.usecase.Usecase;
+import aptech.project.educhain.data.entities.courses.Course;
 import aptech.project.educhain.data.entities.courses.UserAnswer;
 import aptech.project.educhain.data.entities.courses.UserHomework;
+import aptech.project.educhain.data.entities.courses.UserCourse.CompletionStatus;
 import aptech.project.educhain.data.repositories.accounts.AuthUserRepository;
 import aptech.project.educhain.data.repositories.courses.AnswerRepository;
 import aptech.project.educhain.data.repositories.courses.HomeworkRepository;
 import aptech.project.educhain.data.repositories.courses.QuestionRepository;
 import aptech.project.educhain.data.repositories.courses.UserAnswerRepository;
+import aptech.project.educhain.data.repositories.courses.UserCourseRepository;
 import aptech.project.educhain.data.repositories.courses.UserHomeworkRepository;
 import aptech.project.educhain.domain.dtos.courses.UserAnswerDTO;
 
@@ -38,6 +41,9 @@ public class AnswerQuestionUseCase implements Usecase<UserAnswerDTO, AnswerQuest
 
     @Autowired
     QuestionRepository questionRepository;
+
+    @Autowired
+    UserCourseRepository userCourseRepository;
 
     @Autowired
     ModelMapper modelMapper;
@@ -73,6 +79,15 @@ public class AnswerQuestionUseCase implements Usecase<UserAnswerDTO, AnswerQuest
             dto.setAnswerId(params.getAnswerId());
             dto.setQuestionId(params.getQuestionId());
             dto.setUserHomeworkId(userHomework.getId());
+
+            Course course = userHomework.getHomework().getLesson().getChapter().getCourse();
+            var userCourse = userCourseRepository.findByUserIdAndCourseId(params.getUserId(), course.getId());
+            if (userCourse.isPresent()) {
+                if (userCourse.get().getCompletionStatus() != CompletionStatus.IN_PROGRESS) {
+                    userCourse.get().setCompletionStatus(CompletionStatus.IN_PROGRESS);
+                    userCourseRepository.save(userCourse.get());
+                }
+            }
 
             return AppResult.successResult(dto);
         } catch (Exception e) {

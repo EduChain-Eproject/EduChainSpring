@@ -21,11 +21,14 @@ import org.springframework.web.bind.annotation.RestController;
 import aptech.project.educhain.common.result.AppResult;
 import aptech.project.educhain.data.entities.accounts.User;
 import aptech.project.educhain.data.entities.courses.CourseStatus;
+import aptech.project.educhain.data.serviceImpl.courses.CertificationService;
 import aptech.project.educhain.data.serviceImpl.courses.CourseService;
 import aptech.project.educhain.data.serviceImpl.personalization.UserCourseServiceImpl;
+import aptech.project.educhain.domain.dtos.courses.CertificationDTO;
 import aptech.project.educhain.domain.dtos.courses.CourseDTO;
 import aptech.project.educhain.domain.dtos.courses.UserCourseDTO;
 import aptech.project.educhain.domain.services.accounts.IJwtService;
+import aptech.project.educhain.domain.useCases.courses.Certification.GetUserCertificationUsecase.GetUserCertificationParams;
 import aptech.project.educhain.domain.useCases.courses.course.GetCourseDetailUsecase.GetCourseDetailParams;
 import aptech.project.educhain.domain.useCases.courses.course.SearchCoursesUseCase.CourseSearchParams;
 import aptech.project.educhain.domain.useCases.personalization.user_course.add_user_course.AddUserCourseParams;
@@ -47,6 +50,9 @@ public class CourseController {
 
     @Autowired
     UserCourseServiceImpl userCourseService;
+
+    @Autowired
+    CertificationService certificationService;
 
     @Autowired
     IJwtService iJwtService;
@@ -95,6 +101,12 @@ public class CourseController {
             successValue.setNumberOfEnrolledStudents(successValue.getParticipatedUserDtos().size());
 
             if (result2.isSuccess()) {
+                AppResult<CertificationDTO> certificationResult = certificationService.getUserCertification(
+                        new GetUserCertificationParams(user.getId(), courseId));
+                if (certificationResult.isSuccess()) {
+                    result2.getSuccess().setCertificationDto(certificationResult.getSuccess());
+                }
+
                 successValue.setCurrentUserCourse(result2.getSuccess());
             }
 

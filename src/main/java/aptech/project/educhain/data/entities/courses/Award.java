@@ -1,5 +1,7 @@
 package aptech.project.educhain.data.entities.courses;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.time.LocalDateTime;
 
 import aptech.project.educhain.data.entities.BaseModel;
@@ -32,7 +34,7 @@ public class Award extends BaseModel {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status")
-    private AwardStatus status; // PENDING, APPROVED, REJECTED
+    private AwardStatus status;
 
     @Column(name = "submission_date")
     private LocalDateTime submissionDate;
@@ -41,5 +43,11 @@ public class Award extends BaseModel {
     private LocalDateTime reviewDate;
 
     @Column(name = "comments", columnDefinition = "TEXT")
-    private String comments; // Comments from the teacher
+    private String comments;
+
+    @Column(name = "transaction_hash", length = 66)
+    private String transactionHash;
+
+    @Column(name = "token_amount")
+    private BigInteger tokenAmount;
 }

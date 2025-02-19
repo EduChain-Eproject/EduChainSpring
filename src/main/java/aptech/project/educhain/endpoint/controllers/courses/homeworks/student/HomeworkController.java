@@ -119,7 +119,7 @@ public class HomeworkController {
 
         if (result.isSuccess()) {
             UserAnswerResponse userAnswerResponse = modelMapper.map(result.getSuccess(), UserAnswerResponse.class);
-            return ResponseEntity.ok().body(result.getSuccess()); // TODO: map to res done
+            return ResponseEntity.ok().body(result.getSuccess()); 
         }
 
         return new ResponseEntity<>(new ApiError(result.getFailure().getMessage()), HttpStatus.OK);
@@ -134,7 +134,7 @@ public class HomeworkController {
                 new SubmitHomeworkParams(user.getId(), homework_id));
 
         if (result.isSuccess()) {
-            return ResponseEntity.ok().body(result.getSuccess()); // TODO: map to res done
+            return ResponseEntity.ok().body(result.getSuccess()); 
         }
 
         return ResponseEntity.badRequest().body(result.getFailure().getMessage());

@@ -7,6 +7,7 @@ import lombok.Data;
 @AllArgsConstructor
 public class ApproveOrRejectAwardParams {
     private Integer awardId;
+    private String comments;
     private Integer teacherId;
     private TeacherUpdatingAwardStatus updatingAwardStatus;
 

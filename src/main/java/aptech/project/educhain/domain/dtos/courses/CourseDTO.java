@@ -22,6 +22,7 @@ public class CourseDTO {
     private List<UserCourseDTO> participatedUserDtos;
     private List<UserInterestsDTO> userInterestDtos;
     private List<CourseFeedbackDTO> courseFeedbackDtos;
+    private List<CertificationDTO> certifiedParticipantDtos;
 
     private int numberOfEnrolledStudents;
     private UserCourseDTO currentUserCourse;

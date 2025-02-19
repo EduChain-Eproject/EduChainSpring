@@ -1,9 +1,9 @@
 package aptech.project.educhain.data.serviceImpl.personalization;
 
 import aptech.project.educhain.common.result.AppResult;
-import aptech.project.educhain.data.repositories.courses.UserHomeworkRepository;
 import aptech.project.educhain.domain.dtos.UserProfile.UserProfileDTO;
 import aptech.project.educhain.domain.dtos.courses.AwardDTO;
+import aptech.project.educhain.domain.dtos.courses.CertificationDTO;
 import aptech.project.educhain.domain.dtos.courses.UserHomeworkDTO;
 import aptech.project.educhain.domain.services.personalization.UserProfileService;
 import aptech.project.educhain.domain.useCases.personalization.user_homework.list_userhomework.ListUserHomeworkParams;
@@ -16,6 +16,10 @@ import aptech.project.educhain.domain.useCases.personalization.user_award.take_o
 import aptech.project.educhain.domain.useCases.personalization.user_award.take_one_award.TakeOneAwardUseCase;
 import aptech.project.educhain.domain.useCases.personalization.user_profile.update_profile_usecase.UpdateUserProfileParam;
 import aptech.project.educhain.domain.useCases.personalization.user_profile.update_profile_usecase.UpdateUserProfileUseCase;
+import aptech.project.educhain.domain.useCases.personalization.user_profile.update_wallet_addres.UpdateWalletAddressParams;
+import aptech.project.educhain.domain.useCases.personalization.user_profile.update_wallet_addres.UpdateWalletAddressUsecase;
+import java.util.List;
+import aptech.project.educhain.domain.useCases.personalization.GetUserCertificationsUsecase.GetUserCertificationsUsecase;
 import aptech.project.educhain.domain.useCases.personalization.user_award.get_user_award_userId.UserAwardParams;
 import aptech.project.educhain.domain.useCases.personalization.user_award.get_user_award_userId.UserAwardUseCase;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,10 +44,18 @@ public class UserProfileServiceImpl implements UserProfileService {
 
     @Autowired
     TakeOneUserHomeworkUseCase takeOneUserHomeworkUseCase;
+
+    @Autowired
+    UpdateWalletAddressUsecase updateWalletAddressUsecase;
+
+    @Autowired
+    GetUserCertificationsUsecase getUserCertificationsUsecase;
+
     @Override
     public AppResult<UserProfileDTO> getUserProfile(GetUserProfileParam params) {
         return getUserProfileUseCase.execute(params);
     }
+
     @Override
     public AppResult<UserProfileDTO> updateProfile(UpdateUserProfileParam params) {
         return userProfileUseCase.execute(params);
@@ -67,6 +79,16 @@ public class UserProfileServiceImpl implements UserProfileService {
     @Override
     public AppResult<UserHomeworkDTO> takeOneUserHomework(TakeOneUserHomeworkParams params) {
         return takeOneUserHomeworkUseCase.execute(params);
+    }
+
+    @Override
+    public AppResult<UserProfileDTO> updateWalletAddress(UpdateWalletAddressParams params) {
+        return updateWalletAddressUsecase.execute(params);
+    }
+
+    @Override
+    public AppResult<List<CertificationDTO>> getUserCertifications(Integer userId) {
+        return getUserCertificationsUsecase.execute(userId);
     }
 
 }

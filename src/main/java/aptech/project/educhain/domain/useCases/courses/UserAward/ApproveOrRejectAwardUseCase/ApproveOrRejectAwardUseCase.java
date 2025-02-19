@@ -49,6 +49,7 @@ public class ApproveOrRejectAwardUseCase implements Usecase<AwardDTO, ApproveOrR
                 award.setStatus(AwardStatus.REJECTED);
             }
 
+            award.setComments(params.getComments());
             award.setReviewDate(LocalDateTime.now());
             awardRepository.save(award);
 

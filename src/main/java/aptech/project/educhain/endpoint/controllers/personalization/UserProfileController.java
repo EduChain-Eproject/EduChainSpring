@@ -1,42 +1,21 @@
 package aptech.project.educhain.endpoint.controllers.personalization;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import aptech.project.educhain.common.result.ApiError;
-import aptech.project.educhain.common.result.AppResult;
 import aptech.project.educhain.data.serviceImpl.common.UploadPhotoService;
-import aptech.project.educhain.domain.dtos.courses.AwardDTO;
 import aptech.project.educhain.domain.dtos.courses.UserCourseDTO;
-import aptech.project.educhain.domain.dtos.courses.UserHomeworkDTO;
-import aptech.project.educhain.domain.useCases.personalization.user_award.get_user_award_userId.UserAwardParams;
-import aptech.project.educhain.domain.useCases.personalization.user_award.take_one_award.TakeOneAwardParams;
-import aptech.project.educhain.domain.useCases.personalization.user_homework.list_userhomework.ListUserHomeworkParams;
-import aptech.project.educhain.domain.useCases.personalization.user_homework.take_one_userhomework.TakeOneUserHomeworkParams;
-import aptech.project.educhain.endpoint.requests.personaliztion.user_award.TakeOneAwardRequest;
-import aptech.project.educhain.endpoint.requests.personaliztion.user_award.UserAwardRequest;
-import aptech.project.educhain.endpoint.requests.personaliztion.user_homework.TakeOneUserHomeworkRequest;
-import aptech.project.educhain.endpoint.requests.personaliztion.user_homework.UserHomeworkRequest;
-import aptech.project.educhain.endpoint.responses.common.UserAwardResponse;
-import aptech.project.educhain.endpoint.responses.common.UserHomeworkResponse;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.annotation.*;
 
 import aptech.project.educhain.data.entities.accounts.User;
-import aptech.project.educhain.data.entities.courses.Course;
 import aptech.project.educhain.domain.dtos.UserProfile.UserProfileDTO;
 import aptech.project.educhain.domain.dtos.accounts.UserDTO;
 import aptech.project.educhain.domain.services.accounts.IAuthService;
@@ -44,8 +23,11 @@ import aptech.project.educhain.domain.services.accounts.IJwtService;
 import aptech.project.educhain.domain.services.personalization.UserProfileService;
 import aptech.project.educhain.domain.useCases.personalization.user_profile.get_profile_usecase.GetUserProfileParam;
 import aptech.project.educhain.domain.useCases.personalization.user_profile.update_profile_usecase.UpdateUserProfileParam;
+import aptech.project.educhain.domain.useCases.personalization.user_profile.update_wallet_addres.UpdateWalletAddressParams;
 import aptech.project.educhain.endpoint.requests.personaliztion.user_profile.UpdateUserRequest;
+import aptech.project.educhain.endpoint.requests.personaliztion.user_profile.UpdateWalletAddressRequest;
 import aptech.project.educhain.endpoint.responses.common.UserProfileResponse;
+import aptech.project.educhain.endpoint.responses.common.WalletAddressUpdatedResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 
@@ -74,14 +56,12 @@ public class UserProfileController {
     public ResponseEntity<?> getUser(HttpServletRequest request) {
         String token = request.getHeader("Authorization");
         if (token == null) {
-            // todo
             return new ResponseEntity<>(new ApiError("cant find token in your header"),
                     HttpStatus.BAD_REQUEST);
         }
         String newToken = token.substring(7);
         var email = iJwtService.extractUserName(newToken);
         if (email == null) {
-            // todo
             return new ResponseEntity<>(new ApiError("invalid token from header"),
                     HttpStatus.BAD_REQUEST);
         }
@@ -135,6 +115,42 @@ public class UserProfileController {
             var res = modelMapper.map(result.getSuccess(), UserProfileResponse.class);
             return new ResponseEntity<>(res, HttpStatus.OK);
         }
+        return new ResponseEntity<>(new ApiError(result.getFailure().getMessage()),
+                HttpStatus.BAD_REQUEST);
+    }
+
+    @PutMapping(value = "/updateWalletAddress")
+    public ResponseEntity<?> updateWalletAddress(HttpServletRequest request,
+            @Valid @RequestBody UpdateWalletAddressRequest updateUserRequest,
+            BindingResult rs) {
+        if (rs.hasErrors()) {
+            Map<String, String> errors = new HashMap<>();
+            rs.getFieldErrors().forEach(error -> errors.put(error.getField(), error.getDefaultMessage()));
+
+            ApiError apiError = new ApiError(errors);
+            return new ResponseEntity<>(apiError, HttpStatus.BAD_REQUEST);
+        }
+
+        String token = request.getHeader("Authorization");
+        if (token == null) {
+            return new ResponseEntity<>(new ApiError("Can't find token in your header"), HttpStatus.BAD_REQUEST);
+        }
+        String newToken = token.substring(7);
+        var email = iJwtService.extractUserName(newToken);
+        User user = iAuthService.findUserByEmail(email);
+
+        UpdateWalletAddressParams params = modelMapper.map(updateUserRequest,
+                UpdateWalletAddressParams.class);
+
+        params.setUserId(user.getId());
+
+        var result = userProfileService.updateWalletAddress(params);
+
+        if (result.isSuccess()) {
+            var res = modelMapper.map(result.getSuccess(), WalletAddressUpdatedResponse.class);
+            return new ResponseEntity<>(res, HttpStatus.OK);
+        }
+
         return new ResponseEntity<>(new ApiError(result.getFailure().getMessage()),
                 HttpStatus.BAD_REQUEST);
     }
