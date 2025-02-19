@@ -28,7 +28,7 @@ public class GetAllOrderUseCase implements Usecase<Page<OrderDTO>, GetAllOrderPa
     public AppResult<Page<OrderDTO>> execute(GetAllOrderParams params) {
         try {
             Pageable pageable = PageRequest.of(params.getPage(), params.getSize(), Sort.by(params.getSortBy()));
-            Page<Order> ordersPage = orderRepository.findAll(pageable);
+            Page<Order> ordersPage = orderRepository.findOrdersByTitleSearch(params.getTitleSearch(),pageable);
             Page<OrderDTO> orderDTOsPage = ordersPage.map(order -> {
                 OrderDTO orderDTO = modelMapper.map(order, OrderDTO.class);
                 orderDTO.setUserId(order.getUser().getId());

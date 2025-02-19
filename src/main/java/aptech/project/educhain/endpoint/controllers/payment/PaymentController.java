@@ -48,8 +48,8 @@ public class PaymentController {
     @Autowired
     private IJwtService iJwtService;
 
-    @PostMapping("pay/{courseId}")
-    public ResponseEntity<?> pay(@PathVariable Integer courseId, HttpServletRequest request) {
+    @PostMapping("payF/{courseId}")
+    public ResponseEntity<?> payFlutter(@PathVariable Integer courseId, HttpServletRequest request) {
         try {
             User user = iJwtService.getUserByHeaderToken(request.getHeader("Authorization"));
             Optional<Course> courseOptional = courseRepository.findById(courseId);
@@ -91,9 +91,9 @@ public class PaymentController {
         }
     }
 
-    @GetMapping("/success")
+    @GetMapping("/successF")
     @ResponseBody
-    public String success(@RequestParam("paymentId") String paymentId, @RequestParam("PayerID") String payerId,
+    public String successFlutter(@RequestParam("paymentId") String paymentId, @RequestParam("PayerID") String payerId,
             @RequestParam double sum, @RequestParam Integer courseId, HttpServletRequest request) {
 
         try {
@@ -110,6 +110,69 @@ public class PaymentController {
                 AddUserCourseParams addUserCourseParams = new AddUserCourseParams();
                 addUserCourseParams.setCourse_id(courseId);
                 addUserCourseParams.setStudent_id(user.getId());
+
+                userCourseService.addUserCourseWithParams(addUserCourseParams);
+                orderService.addOrder(params);
+
+                String url = String.format("http://localhost:5173/courses/%d", courseId);
+                return String.format("<a href=\"%s\">get back</a>", url);
+            }
+        } catch (PayPalRESTException e) {
+            e.printStackTrace();
+        }
+        return "redirect:/";
+    }
+
+    @PostMapping("pay/{courseId}")
+    public String pay(@PathVariable Integer courseId, HttpServletRequest request) {
+        User user = iJwtService.getUserByHeaderToken(request.getHeader("Authorization"));
+
+        try {
+            Course course = courseRepository.findById(courseId).get();
+            var price = course.getPrice();
+
+            String successUrl = "http://localhost:8080/api/paypal/success?sum="
+                    + URLEncoder.encode(String.valueOf(price), StandardCharsets.UTF_8.toString()) + "&userId="
+                    + URLEncoder.encode(String.valueOf(user.getId()), StandardCharsets.UTF_8.toString()) + "&courseId="
+                    + URLEncoder.encode(String.valueOf(courseId), StandardCharsets.UTF_8.toString());
+
+            Payment payment = paypalService.createPayment(
+                    price,
+                    "USD",
+                    "paypal",
+                    "sale",
+                    "course payment",
+                    "http://localhost:8080/api/paypal/cancel",
+                    successUrl);
+            for (Links link : payment.getLinks()) {
+                if (link.getRel().equals("approval_url")) {
+                    return link.getHref();
+                }
+            }
+        } catch (PayPalRESTException e) {
+            e.printStackTrace();
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException(e);
+        }
+        return "redirect:/";
+    }
+
+    @GetMapping("/success")
+    @ResponseBody
+    public String success(@RequestParam("paymentId") String paymentId, @RequestParam("PayerID") String payerId,
+                          @RequestParam double sum, @RequestParam Integer userId, @RequestParam Integer courseId) {
+
+        try {
+            Payment payment = paypalService.executePayment(paymentId, payerId);
+            if (payment.getState().equals("approved")) {
+                AddOrderParams params = new AddOrderParams();
+                params.setAmount(BigDecimal.valueOf(sum));
+                params.setUserId(userId);
+                params.setCourseId(courseId);
+
+                AddUserCourseParams addUserCourseParams = new AddUserCourseParams();
+                addUserCourseParams.setCourse_id(courseId);
+                addUserCourseParams.setStudent_id(userId);
 
                 userCourseService.addUserCourseWithParams(addUserCourseParams);
                 orderService.addOrder(params);

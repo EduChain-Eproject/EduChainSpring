@@ -7,6 +7,10 @@ import aptech.project.educhain.domain.dtos.courses.QuestionDTO;
 import aptech.project.educhain.domain.dtos.payment.OrderDTO;
 import aptech.project.educhain.domain.useCases.courses.course.SearchCoursesUseCase.CourseSearchParams;
 import aptech.project.educhain.domain.useCases.payment.order.getAllOrderUseCase.GetAllOrderParams;
+import aptech.project.educhain.domain.useCases.payment.order.getOrderByUserUseCase.GetOrderByUserParams;
+import aptech.project.educhain.domain.useCases.payment.order.getOrdersByCourseUseCase.GetOrderCourseParams;
+import aptech.project.educhain.endpoint.requests.order.ListOrderByCourseRequest;
+import aptech.project.educhain.endpoint.requests.order.ListOrderByUserRequest;
 import aptech.project.educhain.endpoint.requests.payment.order.OrderRequest;
 import aptech.project.educhain.endpoint.responses.courses.question.GetQuestionResponse;
 import aptech.project.educhain.endpoint.responses.payment.order.GetOrderResponse;
@@ -72,28 +76,31 @@ public class OrderController {
     }
 
     @Operation(summary = "Get orders by user")
-    @GetMapping("/user/{id}")
-    public ResponseEntity<?> getOrdersByUser(@PathVariable Integer id) {
-        AppResult<List<OrderDTO>> result = orderService.getOrdersByUserId(id);
+    @PostMapping("/user")
+    public ResponseEntity<?> getOrdersByUser(@RequestBody ListOrderByUserRequest req) {
+        GetOrderByUserParams params = modelMapper.map(req,GetOrderByUserParams.class);
+        AppResult<Page<OrderDTO>> result = orderService.getOrdersByUserId(params);
         if (result.isSuccess()) {
-            List<GetOrderResponse> res = result.getSuccess().stream()
-                    .map(orderDTO -> modelMapper.map(orderDTO, GetOrderResponse.class))
-                    .collect(Collectors.toList());
-            return ResponseEntity.ok().body(res);
+            Page<OrderDTO> orderDTOPage = result.getSuccess();
+
+            return ResponseEntity.ok().body(orderDTOPage);
         }
         return ResponseEntity.badRequest().body(result.getFailure().getMessage());
     }
 
     @Operation(summary = "Get order by course")
-    @GetMapping("/course/{id}")
-    public ResponseEntity<?> getOrderByCourse(@PathVariable Integer id) {
-        AppResult<List<OrderDTO>> result = orderService.getOrdersByCourseId(id);
+    @PostMapping("/course")
+    public ResponseEntity<?> getOrderByCourse(@RequestBody ListOrderByCourseRequest req) {
+        GetOrderCourseParams param = modelMapper.map(req,GetOrderCourseParams.class);
+
+        AppResult<Page<OrderDTO>> result = orderService.getOrdersByCourseId(param);
+
         if (result.isSuccess()) {
-            List<GetOrderResponse> res = result.getSuccess().stream()
-                    .map(orderDTO -> modelMapper.map(orderDTO, GetOrderResponse.class))
-                    .collect(Collectors.toList());
-            return ResponseEntity.ok().body(res);
+            Page<OrderDTO> orderDTOPage = result.getSuccess();
+            return ResponseEntity.ok().body(orderDTOPage);
         }
+
         return ResponseEntity.badRequest().body(result.getFailure().getMessage());
     }
+
 }

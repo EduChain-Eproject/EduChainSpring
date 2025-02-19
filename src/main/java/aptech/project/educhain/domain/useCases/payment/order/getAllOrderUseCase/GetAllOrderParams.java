@@ -11,4 +11,5 @@ public class GetAllOrderParams {
     private int page;
     private int size;
     private String sortBy;
+    private String titleSearch;
 }

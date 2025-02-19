@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 public class CourseSearchRequest {
     private String search;
     private int page = 0;
-    private int size = 10;
+    private int size = 6;
     private String sortBy = "title";
     private List<Integer> categoryIds;
 }

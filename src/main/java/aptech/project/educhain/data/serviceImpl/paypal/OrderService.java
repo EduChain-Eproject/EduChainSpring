@@ -5,14 +5,18 @@ import aptech.project.educhain.common.usecase.NoParam;
 import aptech.project.educhain.data.entities.payment.Order;
 import aptech.project.educhain.domain.dtos.payment.OrderDTO;
 import aptech.project.educhain.domain.services.payment.IOrder;
+import aptech.project.educhain.domain.useCases.admin.course_list.GetCourseListParams;
 import aptech.project.educhain.domain.useCases.payment.order.addOrderUseCase.AddOrderParams;
 //import aptech.project.educhain.domain.useCases.payment.order.addOrderUseCase.AddOrderUseCase;
 import aptech.project.educhain.domain.useCases.payment.order.addOrderUseCase.AddOrderUseCase;
 import aptech.project.educhain.domain.useCases.payment.order.getAllOrderUseCase.GetAllOrderParams;
 import aptech.project.educhain.domain.useCases.payment.order.getAllOrderUseCase.GetAllOrderUseCase;
+import aptech.project.educhain.domain.useCases.payment.order.getOrderByUserUseCase.GetOrderByUserParams;
 import aptech.project.educhain.domain.useCases.payment.order.getOrderByUserUseCase.GetOrderByUserUseCase;
 import aptech.project.educhain.domain.useCases.payment.order.getOrderUseCase.GetOrderUseCase;
 import aptech.project.educhain.domain.useCases.payment.order.getOrdersByCourseUseCase.GetOrderByCourseUseCase;
+import aptech.project.educhain.domain.useCases.payment.order.getOrdersByCourseUseCase.GetOrderCourseParams;
+import aptech.project.educhain.endpoint.requests.order.ListOrderByCourseRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
@@ -46,13 +50,13 @@ public class OrderService implements IOrder {
     }
 
     @Override
-    public AppResult<List<OrderDTO>> getOrdersByUserId(int userId) {
-        return getOrderByUserUseCase.execute(userId);
+    public AppResult<Page<OrderDTO>> getOrdersByUserId(GetOrderByUserParams param) {
+        return getOrderByUserUseCase.execute(param);
     }
 
     @Override
-    public AppResult<List<OrderDTO>> getOrdersByCourseId(int courseId) {
-        return getOrderByCourseUseCase.execute(courseId);
+    public AppResult<Page<OrderDTO>> getOrdersByCourseId(GetOrderCourseParams req) {
+        return getOrderByCourseUseCase.execute(req);
     }
 
     @Override
