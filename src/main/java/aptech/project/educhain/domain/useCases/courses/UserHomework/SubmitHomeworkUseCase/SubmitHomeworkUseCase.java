@@ -1,6 +1,7 @@
 package aptech.project.educhain.domain.useCases.courses.UserHomework.SubmitHomeworkUseCase;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -70,7 +71,6 @@ public class SubmitHomeworkUseCase implements Usecase<SubmitHomeworkResponse, Su
             if (questions.size() == 0 || questions.size() != userAnswers.size()) {
                 return AppResult.failureResult(new Failure("Not all questions are answered"));
             }
-
             // Calculate grade
             int totalQuestions = questions.size();
             int correctAnswers = (int) userAnswers.stream()
@@ -90,10 +90,20 @@ public class SubmitHomeworkUseCase implements Usecase<SubmitHomeworkResponse, Su
             award.setHomework(userHomework.getHomework());
             award.setStatus(AwardStatus.PENDING);
             award.setSubmissionDate(LocalDateTime.now());
+
+            BigInteger tokenAmount;
+            if (grade.compareTo(BigDecimal.ZERO) == 0) {
+                tokenAmount = BigInteger.valueOf(10).multiply(BigInteger.TEN.pow(15));
+            } else {
+                tokenAmount = BigInteger.valueOf(grade.intValue()).multiply(BigInteger.TEN.pow(15));
+            }
+            award.setTokenAmount(tokenAmount);
             award = awardRepository.save(award);
 
-            SubmitHomeworkResponse res = new SubmitHomeworkResponse(
-                    modelMapper.map(userHomework, UserHomeworkDTO.class),
+            SubmitHomeworkResponse res = new SubmitHomeworkResponse();
+            res.setSubmission(
+                    modelMapper.map(userHomework, UserHomeworkDTO.class));
+            res.setAward(
                     modelMapper.map(award, AwardDTO.class));
 
             return AppResult.successResult(res);

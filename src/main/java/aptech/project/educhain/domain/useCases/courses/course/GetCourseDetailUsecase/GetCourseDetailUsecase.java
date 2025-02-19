@@ -16,6 +16,7 @@ import aptech.project.educhain.data.repositories.courses.CourseRepository;
 import aptech.project.educhain.data.repositories.courses.UserHomeworkRepository;
 import aptech.project.educhain.domain.dtos.accounts.UserDTO;
 import aptech.project.educhain.domain.dtos.courses.CategoryDTO;
+import aptech.project.educhain.domain.dtos.courses.CertificationDTO;
 import aptech.project.educhain.domain.dtos.courses.ChapterDTO;
 import aptech.project.educhain.domain.dtos.courses.CourseDTO;
 import aptech.project.educhain.domain.dtos.courses.CourseFeedbackDTO;
@@ -112,6 +113,13 @@ public class GetCourseDetailUsecase implements Usecase<CourseDTO, GetCourseDetai
                             return dto;
                         })
                         .collect(Collectors.toList()));
+
+                courseDTO.setCertifiedParticipantDtos(
+                        course.getCertifiedParticipants().stream().map(certifiedParticipant -> {
+                            var dto = modelMapper.map(certifiedParticipant, CertificationDTO.class);
+                            dto.setUserDto(modelMapper.map(certifiedParticipant.getUser(), UserDTO.class));
+                            return dto;
+                        }).collect(Collectors.toList()));
 
                 return AppResult.successResult(courseDTO);
             } else {

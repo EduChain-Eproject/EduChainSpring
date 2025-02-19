@@ -29,7 +29,6 @@ public class AwardController {
     @Autowired
     ModelMapper modelMapper;
 
-    @Operation(summary = "receive an award")
     @GetMapping("detail/{award_id}")
     public ResponseEntity<?> receive(@PathVariable Integer award_id) {
         AppResult<AwardDTO> result = AwardService.getAward(award_id);
@@ -37,10 +36,9 @@ public class AwardController {
         AwardResponse awardResponse = null;
         if (result.isSuccess()) {
             awardResponse = modelMapper.map(result.getSuccess(), AwardResponse.class);
-            return ResponseEntity.ok().body(awardResponse); // TODO: map to res done
+            return ResponseEntity.ok().body(awardResponse); 
         }
 
         return new ResponseEntity<>(new ApiError(result.getFailure().getMessage()), HttpStatus.OK);
     }
 }
-

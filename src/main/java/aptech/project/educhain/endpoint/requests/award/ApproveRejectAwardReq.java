@@ -5,5 +5,6 @@ import lombok.Data;
 
 @Data
 public class ApproveRejectAwardReq {
+    private String comments;
     private TeacherUpdatingAwardStatus updatingAwardStatus;
 }

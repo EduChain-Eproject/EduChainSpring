@@ -24,6 +24,7 @@ public class UserDTO {
     private String address;
     private Role role;
     private String email;
+    private String walletAddress;
     private Boolean isActive;
 
     private List<AwardDTO> userAwardDtos;

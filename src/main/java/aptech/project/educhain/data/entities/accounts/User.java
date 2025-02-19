@@ -17,6 +17,7 @@ import aptech.project.educhain.data.entities.blogs.BlogComment;
 import aptech.project.educhain.data.entities.chats.Message;
 import aptech.project.educhain.data.entities.chats.UserChat;
 import aptech.project.educhain.data.entities.courses.Award;
+import aptech.project.educhain.data.entities.courses.Certification;
 import aptech.project.educhain.data.entities.courses.Comment;
 import aptech.project.educhain.data.entities.courses.Course;
 import aptech.project.educhain.data.entities.courses.Homework;
@@ -79,8 +80,15 @@ public class User extends BaseModel implements UserDetails {
     @Column(name = "avatarPath")
     private String avatarPath;
 
+    @Column(name = "wallet_address", unique = true, length = 42)
+    private String walletAddress;
+
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ToString.Exclude
+    private List<Certification> certifications;
+
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<UserBlogVote> votes ;
+    private List<UserBlogVote> votes;
 
     @JsonIgnoreProperties("user")
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
@@ -160,9 +168,6 @@ public class User extends BaseModel implements UserDetails {
     @OneToMany(mappedBy = "sender", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @ToString.Exclude
     private List<Notification> sentNotifications;
-
-
-
 
     // Using UserDetail interface for config spring security
     @Override

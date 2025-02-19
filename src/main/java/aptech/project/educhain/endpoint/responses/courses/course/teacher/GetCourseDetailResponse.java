@@ -3,6 +3,7 @@ package aptech.project.educhain.endpoint.responses.courses.course.teacher;
 import java.util.List;
 
 import aptech.project.educhain.domain.dtos.courses.CategoryDTO;
+import aptech.project.educhain.domain.dtos.courses.CertificationDTO;
 import aptech.project.educhain.domain.dtos.courses.ChapterDTO;
 import lombok.Data;
 
@@ -16,4 +17,6 @@ public class GetCourseDetailResponse {
     private List<CategoryDTO> categoryDtos;
     private List<ChapterDTO> chapterDtos;
     private String avatarPath;
+    private List<CertificationDTO> certifiedParticipantDtos;
+
 }

@@ -7,6 +7,8 @@ import aptech.project.educhain.common.result.AppResult;
 import aptech.project.educhain.domain.dtos.courses.UserAnswerDTO;
 import aptech.project.educhain.domain.dtos.courses.UserHomeworkDTO;
 import aptech.project.educhain.domain.services.courses.IUserHomeworkService;
+import aptech.project.educhain.domain.useCases.courses.Certification.CheckProgressAndCertify.CheckProgressParams;
+import aptech.project.educhain.domain.useCases.courses.Certification.CheckProgressAndCertify.CheckProgressUsecase;
 import aptech.project.educhain.domain.useCases.courses.UserHomework.AnswerQuestionUseCase.AnswerQuestionParams;
 import aptech.project.educhain.domain.useCases.courses.UserHomework.AnswerQuestionUseCase.AnswerQuestionUseCase;
 import aptech.project.educhain.domain.useCases.courses.UserHomework.GetUserHomeworkUseCase.GetUserHomeworkParams;
@@ -27,6 +29,9 @@ public class UserHomeworkService implements IUserHomeworkService {
     @Autowired
     AnswerQuestionUseCase answerQuestionUseCase;
 
+    @Autowired
+    CheckProgressUsecase checkProgressUsecase;
+
     @Override
     public AppResult<UserHomeworkDTO> getUserHomework(GetUserHomeworkParams params) {
         return getUserHomeworkUseCase.execute(params);
@@ -39,7 +44,17 @@ public class UserHomeworkService implements IUserHomeworkService {
 
     @Override
     public AppResult<SubmitHomeworkResponse> submitHomework(SubmitHomeworkParams params) {
-        return submitHomeworkUseCase.execute(params);
+        var res = submitHomeworkUseCase.execute(params);
+
+        if (res.isSuccess()) {
+            var checkingResult = checkProgressUsecase
+                    .execute(new CheckProgressParams(params.getUserId(), params.getHomeworkId()));
+            if (checkingResult.isSuccess()) {
+                res.getSuccess().setCertificationDto(checkingResult.getSuccess());
+            }
+        }
+
+        return res;
     }
 
 }

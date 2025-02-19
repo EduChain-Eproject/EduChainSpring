@@ -48,7 +48,6 @@ public class UserCourseController {
         if(userCourse.isSuccess()){
             return new  ResponseEntity<>(userCourse.getSuccess(), HttpStatus.OK);
         }
-            //todo
             return new ResponseEntity<>(new ApiError(userCourse.getFailure().getMessage()), HttpStatus.OK);
     }
 
